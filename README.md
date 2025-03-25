@@ -15,5 +15,5 @@ Nếu không áp dụng những phương pháp làm việc có cấu trúc này,
 
 
 ## Preferences
-- Todoist (https://www.todoist.com/)
-- Pomofocus (https://pomofocus.io/)
+- [Todoist] (https://www.todoist.com/)
+- [Pomofocus] (https://pomofocus.io/)
