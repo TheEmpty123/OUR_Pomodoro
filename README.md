@@ -17,3 +17,4 @@ Nếu không áp dụng những phương pháp làm việc có cấu trúc này,
 ## Preferences
 - [Todoist](https://www.todoist.com/)
 - [Pomofocus](https://pomofocus.io/)
+- [Forest](https://www.forestapp.cc/) ([Kit](https://drive.google.com/drive/folders/1-Kuo51pleXL0pbMDdfCBUbB2A5Oo3Dy5))
