@@ -14,7 +14,7 @@ import java.util.List;
 public class PlanResponseDTO {
     private Long planId;
     private String planTitle;
-    private List<TaskDTO> tasks;
+    private List<TaskDTO> steps;
 
     @Data
     @AllArgsConstructor

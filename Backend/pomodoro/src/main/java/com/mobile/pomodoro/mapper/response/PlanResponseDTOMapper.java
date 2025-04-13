@@ -11,7 +11,7 @@ public abstract class PlanResponseDTOMapper {
 
     @Mapping(target = "planId", source = "plan.id")
     @Mapping(target = "planTitle", source = "plan.title")
-    @Mapping(target = "tasks", source = "plan", qualifiedByName = "mapTasks")
+    @Mapping(target = "steps", source = "plan_task", qualifiedByName = "mapTasks")
     public abstract PlanResponseDTO mapToDTO(Plan plan);
 
     @Named("mapTasks")
