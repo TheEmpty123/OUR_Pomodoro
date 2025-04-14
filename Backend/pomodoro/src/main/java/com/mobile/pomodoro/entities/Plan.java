@@ -6,6 +6,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -17,7 +21,14 @@ public class Plan {
     @Column(name = "id")
     private Long planId;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @Column(name = "title")
+    private String title;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
     private User user;
+
 }

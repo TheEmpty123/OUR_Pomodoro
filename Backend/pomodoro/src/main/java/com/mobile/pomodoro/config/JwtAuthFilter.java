@@ -50,6 +50,7 @@ public class JwtAuthFilter extends HttpFilter {
                 username = authHeader;
             }
             else {
+                log.warn("username" + username);
                 throw new Exception("Null or invalid token");
             }
 

@@ -1,6 +1,5 @@
 package com.mobile.pomodoro.dto.response.PlanResponseDTO;
 
-import com.mobile.pomodoro.enums.ETaskDTO;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -22,9 +21,8 @@ public class PlanResponseDTO {
     @Builder
     @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class TaskDTO {
-        private String taskTitle;
-        private int order;
-        private ETaskDTO eTask;
+        private String task_name;
+        private int task_order;
         private double duration;
     }
 }
