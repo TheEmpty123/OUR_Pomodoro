@@ -2,6 +2,7 @@ package com.mobile.pomodoro.services.impl;
 
 import com.mobile.pomodoro.CustomException.FailedToLoginException;
 import com.mobile.pomodoro.CustomException.FailedToRegisterException;
+import com.mobile.pomodoro.CustomException.UserNotFoundException;
 import com.mobile.pomodoro.dto.request.LoginRequestDTO;
 import com.mobile.pomodoro.dto.request.RegisterRequestDTO;
 import com.mobile.pomodoro.dto.response.MessageResponseDTO;
@@ -31,10 +32,14 @@ public class UserServiceImpl extends AService implements IUserService {
     public void initData() {
         // Implement the method to initialize data
         // This could involve setting up default users, roles, etc.
+        log.setName(this.getClass().getSimpleName());
+        log.info("Initializing data");
     }
 
     @Override
     public MessageResponseDTO login(LoginRequestDTO requestDTO) {
+        log.info("Login requested: " + requestDTO.getUsername());
+
         // Implement the login logic here
 
         try {
@@ -45,6 +50,7 @@ public class UserServiceImpl extends AService implements IUserService {
                     // Generate a token and return it in the response
                     // String token = jwtService.generateToken(user);
                     // return new TokenResponseDTO(token);
+                    userRepository.save(user);
                     return new MessageResponseDTO("Login successful");
                 } else {
                     return new MessageResponseDTO("Invalid password");
@@ -62,6 +68,8 @@ public class UserServiceImpl extends AService implements IUserService {
 
     @Override
     public MessageResponseDTO register(RegisterRequestDTO requestDTO) {
+        log.info("Registering user: " + requestDTO.getUsername());
+
         // Implement the registration logic here
 
         try {
@@ -95,6 +103,21 @@ public class UserServiceImpl extends AService implements IUserService {
             Exception e2 = new FailedToRegisterException("Something went wrong while registering");
             return new MessageResponseDTO(e2.getMessage());
         }
+    }
+
+    @Override
+    public User getUserByUsername(String username) throws UserNotFoundException {
+        // Implement the logic to retrieve a user by username
+        Optional<User> userOptional = userRepository.findUsersByUsername(username);
+
+        if (userOptional.isPresent()) {
+            log.info("User found");
+            return userOptional.get();
+        }
+
+        // Handle the case where the user is not found
+        log.error("User not found");
+        throw  new UserNotFoundException("Could not find user");
     }
 
     // Add any other user-related methods you need

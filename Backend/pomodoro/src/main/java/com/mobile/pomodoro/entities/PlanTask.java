@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "plan")
+@Entity(name = "plan_task")
 public class PlanTask {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
