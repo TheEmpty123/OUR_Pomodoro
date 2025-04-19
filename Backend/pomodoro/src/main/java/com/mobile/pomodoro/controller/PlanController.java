@@ -1,6 +1,8 @@
 package com.mobile.pomodoro.controller;
 
+import com.mobile.pomodoro.dto.response.PlanRequestDTO.PlanRequestDTO;
 import com.mobile.pomodoro.dto.response.PlanResponseDTO.PlanResponseDTO;
+import com.mobile.pomodoro.dto.response.TaskToEditResponseDTO.TaskToEditResponseDTO;
 import com.mobile.pomodoro.entities.User;
 import com.mobile.pomodoro.services.IPlanService;
 import lombok.RequiredArgsConstructor;
@@ -26,4 +28,14 @@ public class PlanController {
     public ResponseEntity<String> test(@RequestAttribute(name = "user") User user) {
         return ResponseEntity.ok("Test successful");
     }
+    @PostMapping("/api/v1/plan/do-not-save")
+    public ResponseEntity<PlanResponseDTO> processPlanWithoutSaving(@RequestBody PlanRequestDTO request) {
+       PlanResponseDTO response = planService.processWithoutSaving(request);
+        return ResponseEntity.ok(response);
+   }
+    @PostMapping("/plan-to-edit/{id}")
+    public ResponseEntity<TaskToEditResponseDTO> convertToEdit(@PathVariable Long id) {
+        return ResponseEntity.ok(planService.convertPlanToEditFormat(id));
+    }
+
 }

@@ -31,4 +31,7 @@ public class Plan {
     @JoinColumn(name = "user_id")
     private User user;
 
+    // Quan hệ 1-n với PlanTask
+    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<PlanTask> steps = new HashSet<>();
 }
