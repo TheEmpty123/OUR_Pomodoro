@@ -5,6 +5,7 @@ import com.mobile.pomodoro.dto.response.PlanRequestDTO.PlanRequestDTO;
 import com.mobile.pomodoro.dto.response.PlanResponseDTO.PlanResponseDTO;
 import com.mobile.pomodoro.dto.response.TaskToEditResponseDTO.TaskToEditResponseDTO;
 import com.mobile.pomodoro.entities.Plan;
+import com.mobile.pomodoro.entities.PlanTask;
 import com.mobile.pomodoro.mapper.response.PlanResponseDTOMapper;
 import com.mobile.pomodoro.repositories.PlanRepository;
 import com.mobile.pomodoro.repositories.PlanTaskRepository;
@@ -12,6 +13,7 @@ import com.mobile.pomodoro.repositories.UserRepository;
 import com.mobile.pomodoro.services.IPlanService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -83,9 +86,58 @@ public abstract class PlanServiceImpl extends AService implements IPlanService {
     }
 
     @Override
-    public TaskToEditResponseDTO convertPlanToEditFormat(Long planId) {
-        return null;
+
+    public TaskToEditResponseDTO convertPlanToEditableFormat(Integer planId) {
+        List<PlanTask> allTasks = planTaskRepository.findTaskByPlanId(planId.longValue());
+
+        if (allTasks == null || allTasks.isEmpty()) {
+            throw new RuntimeException("No tasks found for plan ID " + planId);
+        }
+
+        String title = planRepository.findById(planId.longValue())
+                .map(Plan::getTitle)
+                .orElse("Untitled Plan");
+
+        double sBreakDuration = allTasks.stream()
+                .filter(task -> task.getTask_name().equalsIgnoreCase("short break"))
+                .findFirst()
+                .map(PlanTask::getDuration)
+                .orElse(0.0);
+
+        double lBreakDuration = allTasks.stream()
+                .filter(task -> task.getTask_name().equalsIgnoreCase("long break"))
+                .findFirst()
+                .map(PlanTask::getDuration)
+                .orElse(0.0);
+
+        List<PlanTask> workTasks = allTasks.stream()
+                .filter(task -> !task.getTask_name().equalsIgnoreCase("short break")
+                        && !task.getTask_name().equalsIgnoreCase("long break"))
+                .toList();
+
+        Map<String, Double> taskDurationMap = new LinkedHashMap<>();
+        for (PlanTask task : workTasks) {
+            taskDurationMap.merge(task.getTask_name(), task.getDuration(), Double::sum);
+        }
+
+        List<TaskToEditResponseDTO.TaskStep> steps = new ArrayList<>();
+        int order = 1;
+        for (Map.Entry<String, Double> entry : taskDurationMap.entrySet()) {
+            steps.add(TaskToEditResponseDTO.TaskStep.builder()
+                    .order(order++)
+                    .planTitle(entry.getKey())
+                    .planDuration(entry.getValue().intValue()) // assuming we want to return as int
+                    .build());
+        }
+
+        return TaskToEditResponseDTO.builder()
+                .title(title)
+                .sBreakDuration((int) sBreakDuration)
+                .lBreakDuration((int) lBreakDuration)
+                .steps(steps)
+                .build();
     }
+
 
 
     public PlanResponseDTO processPlanWithoutSaving(PlanRequestDTO planRequest) {

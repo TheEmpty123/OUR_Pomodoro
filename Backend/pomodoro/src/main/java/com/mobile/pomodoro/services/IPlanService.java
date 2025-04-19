@@ -19,4 +19,5 @@ public interface IPlanService extends IInitializerData{
     TaskToEditResponseDTO convertPlanToEditFormat(Long planId);
     PlanResponseDTO processWithoutSaving(PlanRequestDTO request);
 
+    TaskToEditResponseDTO convertPlanToEditableFormat(Integer planId);
 }

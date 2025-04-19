@@ -1,23 +1,31 @@
 package com.mobile.pomodoro.dto.response.TaskToEditResponseDTO;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class TaskToEditResponseDTO {
-    private String title;
-    private int s_break_duration;
-    private int l_break_duration;
-    private List<StepToEdit> steps;
+    String title;
+    int sBreakDuration;
+    int lBreakDuration;
+    List<TaskStep> steps;
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class StepToEdit {
-        private String plan_title;
-        private int plan_duration;
-        private int order;
+    @Builder
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    public static class TaskStep {
+        int order;
+        String planTitle;
+        int planDuration;
     }
 }
+
+
