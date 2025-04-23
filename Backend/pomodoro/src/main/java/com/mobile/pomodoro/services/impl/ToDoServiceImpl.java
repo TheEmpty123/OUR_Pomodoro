@@ -53,7 +53,7 @@ public class ToDoServiceImpl extends AService implements IToDoService {
     }
 
     @Override
-    public MessageResponseDTO createToDo(ToDoRequestDTO requestDTO,String username) {
+    public MessageResponseDTO createToDo(ToDoRequestDTO requestDTO, String username) {
         try {
             User user = IUser.getUserByUsername(username);
             Long userId = user.getUserId();
@@ -71,6 +71,28 @@ public class ToDoServiceImpl extends AService implements IToDoService {
         } catch (Exception e) {
             return MessageResponseDTO.builder()
                     .message("Lỗi khi thêm ToDo: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    @Override
+    public MessageResponseDTO updateToDo(Long todoId, ToDoRequestDTO requestDTO, String username) {
+        try {
+            User user = IUser.getUserByUsername(username);
+            Long userId = user.getUserId();
+            Todo todo = toDoRepository.findByIdAndUserId(todoId, userId)
+                    .orElseThrow(() -> new Exception("Todo không tồn tại hoặc không thuộc về user"));
+            todo.setTitle(requestDTO.getTitle());
+            todo.setIsDone(requestDTO.getIsDone());
+            toDoRepository.save(todo);
+
+            return MessageResponseDTO.builder()
+                    .message("Cập nhật thành công")
+                    .build();
+
+        } catch (Exception e) {
+            return MessageResponseDTO.builder()
+                    .message("Lỗi khi cập nhật ToDo: " + e.getMessage())
                     .build();
         }
     }

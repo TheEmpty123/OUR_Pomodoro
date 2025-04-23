@@ -16,15 +16,25 @@ public class ToDoController {
     @Autowired
     private IToDoService toDoService;
 
-    @GetMapping("get")
+    @GetMapping()
     @ResponseBody
-    public ToDoResponseDTO getRecentPlan(@RequestAttribute(name = "user") User user) throws Exception{
+    public ToDoResponseDTO getRecentPlan(@RequestAttribute(name = "user") User user) throws Exception {
         return toDoService.getAllTodosByUserId(user.getUserId());
     }
 
 
-    @PostMapping("create")
-    public ResponseEntity<MessageResponseDTO> register(@RequestBody ToDoRequestDTO requestDTO,@RequestHeader("username") String username) {
-        return new ResponseEntity<>(toDoService.createToDo(requestDTO,username), HttpStatus.CREATED);
+    @PostMapping()
+    public ResponseEntity<MessageResponseDTO> createPlan(@RequestBody ToDoRequestDTO requestDTO, @RequestHeader("username") String username) {
+        return new ResponseEntity<>(toDoService.createToDo(requestDTO, username), HttpStatus.CREATED);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<MessageResponseDTO> updateToDo(
+            @PathVariable("id") Long todoId,
+            @RequestBody ToDoRequestDTO requestDTO,
+            @RequestHeader("username") String username) {
+
+        return new ResponseEntity<>(toDoService.updateToDo(todoId, requestDTO, username), HttpStatus.OK);
+    }
+
 }
