@@ -24,18 +24,18 @@ public class ToDoController {
 
 
     @PostMapping()
-    public ResponseEntity<MessageResponseDTO> createPlan(@RequestBody ToDoRequestDTO requestDTO, @RequestHeader("username") String username) {
-        return new ResponseEntity<>(toDoService.createToDo(requestDTO, username), HttpStatus.CREATED);
+    public ResponseEntity<MessageResponseDTO> createPlan(@RequestBody ToDoRequestDTO requestDTO, @RequestAttribute(name = "user") User user) {
+        return new ResponseEntity<>(toDoService.createToDo(requestDTO, user), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MessageResponseDTO> updateToDo(@PathVariable("id") Long todoId, @RequestBody ToDoRequestDTO requestDTO, @RequestHeader("username") String username) {
-        return new ResponseEntity<>(toDoService.updateToDo(todoId, requestDTO, username), HttpStatus.OK);
+    public ResponseEntity<MessageResponseDTO> updateToDo(@PathVariable("id") Long todoId, @RequestBody ToDoRequestDTO requestDTO, @RequestAttribute(name = "user") User user) {
+        return new ResponseEntity<>(toDoService.updateToDo(todoId, requestDTO, user), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<MessageResponseDTO> deleteToDo(@PathVariable("id") Long todoId, @RequestBody ToDoRequestDTO requestDTO, @RequestHeader("username") String username) {
-        return new ResponseEntity<>(toDoService.deleteToDo(todoId, requestDTO, username), HttpStatus.OK);
+    public ResponseEntity<MessageResponseDTO> deleteToDo(@PathVariable("id") Long todoId, @RequestBody ToDoRequestDTO requestDTO, @RequestAttribute(name = "user") User user) {
+        return new ResponseEntity<>(toDoService.deleteToDo(todoId, requestDTO, user), HttpStatus.OK);
     }
 
 }
