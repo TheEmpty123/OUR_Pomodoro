@@ -96,4 +96,23 @@ public class ToDoServiceImpl extends AService implements IToDoService {
                     .build();
         }
     }
+    @Override
+    public MessageResponseDTO deleteToDo(Long todoId, ToDoRequestDTO requestDTO, String username) {
+        try {
+            User user = IUser.getUserByUsername(username);
+            Long userId = user.getUserId();
+            Todo todo = toDoRepository.findByIdAndUserId(todoId, userId)
+                    .orElseThrow(() -> new Exception("Todo không tồn tại hoặc không thuộc về user"));
+            toDoRepository.delete(todo);
+
+            return MessageResponseDTO.builder()
+                    .message("Xóa thành công")
+                    .build();
+
+        } catch (Exception e) {
+            return MessageResponseDTO.builder()
+                    .message("Lỗi khi xóa ToDo: " + e.getMessage())
+                    .build();
+        }
+    }
 }

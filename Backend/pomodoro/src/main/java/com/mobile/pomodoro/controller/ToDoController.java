@@ -29,12 +29,13 @@ public class ToDoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MessageResponseDTO> updateToDo(
-            @PathVariable("id") Long todoId,
-            @RequestBody ToDoRequestDTO requestDTO,
-            @RequestHeader("username") String username) {
-
+    public ResponseEntity<MessageResponseDTO> updateToDo(@PathVariable("id") Long todoId, @RequestBody ToDoRequestDTO requestDTO, @RequestHeader("username") String username) {
         return new ResponseEntity<>(toDoService.updateToDo(todoId, requestDTO, username), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<MessageResponseDTO> deleteToDo(@PathVariable("id") Long todoId, @RequestBody ToDoRequestDTO requestDTO, @RequestHeader("username") String username) {
+        return new ResponseEntity<>(toDoService.deleteToDo(todoId, requestDTO, username), HttpStatus.OK);
     }
 
 }
