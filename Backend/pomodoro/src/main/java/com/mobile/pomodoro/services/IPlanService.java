@@ -1,7 +1,9 @@
 package com.mobile.pomodoro.services;
 
 import com.mobile.pomodoro.CustomException.UserNotFoundException;
+import com.mobile.pomodoro.dto.response.PlanRequestDTO.PlanRequestDTO;
 import com.mobile.pomodoro.dto.response.PlanResponseDTO.PlanResponseDTO;
+import com.mobile.pomodoro.dto.response.TaskToEditResponseDTO.TaskToEditResponseDTO;
 import com.mobile.pomodoro.entities.Plan;
 import com.mobile.pomodoro.entities.PlanTask;
 
@@ -13,4 +15,9 @@ public interface IPlanService extends IInitializerData{
     public PlanResponseDTO findPlan(String username) throws UserNotFoundException;
 
     PlanResponseDTO findRecentPlan(String username) throws UserNotFoundException;
+
+    TaskToEditResponseDTO convertPlanToEditFormat(Long planId);
+    PlanResponseDTO processWithoutSaving(PlanRequestDTO request);
+
+    TaskToEditResponseDTO convertPlanToEditableFormat(Integer planId);
 }
