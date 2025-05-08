@@ -29,4 +29,10 @@ public class PlanTask {
     @ManyToOne
     @JoinColumn(name = "plan_id")
     private Plan plan;
+    public PlanTask(Plan plan, String taskName, double duration, int taskOrder) {
+        this.plan = plan;
+        this.task_name = taskName;
+        this.duration = duration;
+        this.task_order = taskOrder;
+    }
 }
