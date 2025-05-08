@@ -36,6 +36,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        log = new LogObj();
         log.setName(getClass().getSimpleName());
         log.info("Initializing...");
 
