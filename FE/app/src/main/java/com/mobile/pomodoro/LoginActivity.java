@@ -17,6 +17,8 @@ import com.mobile.pomodoro.enums.MessageState;
 import com.mobile.pomodoro.request_dto.LoginRequestDTO;
 import com.mobile.pomodoro.response_dto.MessageResponseDTO;
 import com.mobile.pomodoro.service.PomodoroService;
+import com.mobile.pomodoro.utils.LogObj;
+import com.mobile.pomodoro.utils.MyUtils;
 
 import java.util.Objects;
 
@@ -29,11 +31,14 @@ public class LoginActivity extends AppCompatActivity {
     private EditText editTxtPassword;
     private Button btnLogin;
     private TextView textRegister;
-
+    private LogObj log;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        log.setName(getClass().getSimpleName());
+        log.info("Initializing...");
+
         setContentView(R.layout.activity_login);
 
         editTxtUsername = findViewById(R.id.editTextUsername);
@@ -60,11 +65,14 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void login() {
+        log.info("Login action commerce...");
+
         String username = editTxtUsername.getText().toString().trim();
         String password = editTxtPassword.getText().toString().trim();
 
         // ktra nếu username trống
         if (TextUtils.isEmpty(username)) {
+            log.warn("username is empty");
             editTxtUsername.setError("Vui lòng nhập tên đăng nhập");
             editTxtUsername.requestFocus();
             return;
@@ -72,6 +80,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // ktra nếu pass trống
         if (TextUtils.isEmpty(password)) {
+            log.warn("password is empty");
             editTxtPassword.setError("Vui lòng nhập mật khẩu");
             editTxtPassword.requestFocus();
             return;
@@ -106,7 +115,6 @@ public class LoginActivity extends AppCompatActivity {
 //                    }
 //                });
 
-        System.out.println("Huh?");
         // Login handler
         PomodoroService.getClient().login(LoginRequestDTO.builder()
                     .username(username)
@@ -117,16 +125,18 @@ public class LoginActivity extends AppCompatActivity {
                     public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
                         if (response.isSuccessful() &&
                                 response.body().getMessage().equals(MessageState.LOGIN_SUCCESSFUL.toString())){
-
+                            log.info("Login successful, move to homepage");
                             Toast.makeText(LoginActivity.this,
                                             response.body().getMessage(),
                                             Toast.LENGTH_SHORT)
                                     .show();
 
-                            // tartActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            MyUtils.save(LoginActivity.this, "username", username);
+                            // startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         }
                         else {
                             if (!response.body().getMessage().equals(MessageState.LOGIN_SUCCESSFUL.toString())) {
+                                log.warn(response.body().getMessage());
                                 Toast.makeText(LoginActivity.this,
                                                 response.body().getMessage(),
                                                 Toast.LENGTH_SHORT)
@@ -137,7 +147,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(Call<MessageResponseDTO> call, Throwable throwable) {
-                        throw new RuntimeException(throwable);
+                        log.error(throwable.getMessage());
                     }
                 });
 
