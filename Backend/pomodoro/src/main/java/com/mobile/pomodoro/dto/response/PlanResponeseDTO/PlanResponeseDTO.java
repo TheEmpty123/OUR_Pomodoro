@@ -1,4 +1,4 @@
-package com.mobile.pomodoro.dto.response.PlanRequestDTO;
+package com.mobile.pomodoro.dto.response.PlanResponeseDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PlanRequestDTO {
+public class PlanResponeseDTO {
     private String title;
     private int s_break_duration;
     private int l_break_duration;

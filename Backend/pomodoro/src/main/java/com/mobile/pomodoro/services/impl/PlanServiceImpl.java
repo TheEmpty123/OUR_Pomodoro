@@ -1,11 +1,12 @@
 package com.mobile.pomodoro.services.impl;
 
 import com.mobile.pomodoro.CustomException.UserNotFoundException;
-import com.mobile.pomodoro.dto.response.PlanRequestDTO.PlanRequestDTO;
+import com.mobile.pomodoro.dto.request.PlanRequestDTO;
+import com.mobile.pomodoro.dto.response.MessageResponseDTO;
 import com.mobile.pomodoro.dto.response.PlanResponseDTO.PlanResponseDTO;
-import com.mobile.pomodoro.dto.response.TaskToEditResponseDTO.TaskToEditResponseDTO;
 import com.mobile.pomodoro.entities.Plan;
 import com.mobile.pomodoro.entities.PlanTask;
+import com.mobile.pomodoro.entities.User;
 import com.mobile.pomodoro.mapper.response.PlanResponseDTOMapper;
 import com.mobile.pomodoro.repositories.PlanRepository;
 import com.mobile.pomodoro.repositories.PlanTaskRepository;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @EqualsAndHashCode(callSuper = true)
@@ -26,7 +28,7 @@ import java.util.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Service
-public abstract class PlanServiceImpl extends AService implements IPlanService {
+public class PlanServiceImpl extends AService implements IPlanService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -80,91 +82,55 @@ public abstract class PlanServiceImpl extends AService implements IPlanService {
     }
 
     @Override
+    public MessageResponseDTO createPlan(PlanRequestDTO requestDTO, User user) {
+        log.info("Tạo plan mới từ user: " + user.getUsername());
+        try {
+            Plan plan = Plan.builder()
+                    .title(requestDTO.getTitle())
+                    .createdAt(LocalDateTime.now())
+                    .user(user)
+                    .build();
+            planRepository.save(plan);
+
+            int order = 1;
+            List<PlanTask> tasks = new ArrayList<>();
+
+            for (int i = 0; i < requestDTO.getSteps().size(); i++) {
+                PlanRequestDTO.StepRequest step = requestDTO.getSteps().get(i);
+                int half = step.getPlan_duration() / 2;
+
+                tasks.add(new PlanTask(plan, step.getPlan_title() , half, order++));
+                tasks.add(new PlanTask(plan, "short break", requestDTO.getS_break_duration(), order++));
+                tasks.add(new PlanTask(plan, step.getPlan_title(), step.getPlan_duration() - half, order++));
+
+                if (i < requestDTO.getSteps().size() - 1) {
+                    tasks.add(new PlanTask(plan, "long break", requestDTO.getL_break_duration(), order++));
+                }
+            }
+
+            planTaskRepository.saveAll(tasks);
+            log.info("Tạo plan thành công cho user id: " + user.getUserId());
+
+            return MessageResponseDTO.builder()
+                    .message("Tạo kế hoạch thành công")
+                    .build();
+
+        } catch (Exception e) {
+            log.error("Lỗi khi tạo Plan: " + e.getMessage(), e);
+            return MessageResponseDTO.builder()
+                    .message("Lỗi khi tạo kế hoạch: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public PlanResponseDTO findRecentPlan(String username) throws UserNotFoundException {
         return findPlan(username);
     }
 
-    @Override
-
-    public TaskToEditResponseDTO convertPlanToEditableFormat(Integer planId) {
-        List<PlanTask> allTasks = planTaskRepository.findTaskByPlanId(planId.longValue());
-
-        if (allTasks == null || allTasks.isEmpty()) {
-            throw new RuntimeException("No tasks found for plan ID " + planId);
-        }
-
-        String title = planRepository.findById(planId.longValue())
-                .map(Plan::getTitle)
-                .orElse("Untitled Plan");
-
-        double sBreakDuration = allTasks.stream()
-                .filter(task -> task.getTask_name().equalsIgnoreCase("short break"))
-                .findFirst()
-                .map(PlanTask::getDuration)
-                .orElse(0.0);
-
-        double lBreakDuration = allTasks.stream()
-                .filter(task -> task.getTask_name().equalsIgnoreCase("long break"))
-                .findFirst()
-                .map(PlanTask::getDuration)
-                .orElse(0.0);
-
-        List<PlanTask> workTasks = allTasks.stream()
-                .filter(task -> !task.getTask_name().equalsIgnoreCase("short break")
-                        && !task.getTask_name().equalsIgnoreCase("long break"))
-                .toList();
-
-        Map<String, Double> taskDurationMap = new LinkedHashMap<>();
-        for (PlanTask task : workTasks) {
-            taskDurationMap.merge(task.getTask_name(), task.getDuration(), Double::sum);
-        }
-
-        List<TaskToEditResponseDTO.TaskStep> steps = new ArrayList<>();
-        int order = 1;
-        for (Map.Entry<String, Double> entry : taskDurationMap.entrySet()) {
-            steps.add(TaskToEditResponseDTO.TaskStep.builder()
-                    .order(order++)
-                    .planTitle(entry.getKey())
-                    .planDuration(entry.getValue().intValue()) // assuming we want to return as int
-                    .build());
-        }
-
-        return TaskToEditResponseDTO.builder()
-                .title(title)
-                .sBreakDuration((int) sBreakDuration)
-                .lBreakDuration((int) lBreakDuration)
-                .steps(steps)
-                .build();
-    }
 
 
 
-    public PlanResponseDTO processPlanWithoutSaving(PlanRequestDTO planRequest) {
-        List<PlanResponseDTO.TaskDTO> steps = new ArrayList<>();
-        int order = 1;
-        for (PlanRequestDTO.StepDTO step : planRequest.getSteps()) {
-            steps.add(createStep(order++, step.getPlan_title(), step.getPlan_duration()));
-            steps.add(createStep(order++, "short break", planRequest.getS_break_duration()));
-            if (order <= planRequest.getSteps().size() * 2) {
-                steps.add(createStep(order++, "long break", planRequest.getL_break_duration()));
-            }
-        }
-
-        PlanResponseDTO response = new PlanResponseDTO();
-        response.setPlanTitle(planRequest.getTitle());
-        response.setPlanId(null);  // Không lưu vào cơ sở dữ liệu, nên planId = null...
-        response.setSteps(steps);
-
-        return response;
-    }
-
-    private PlanResponseDTO.TaskDTO createStep(int order, String title, int duration) {
-        PlanResponseDTO.TaskDTO step = new PlanResponseDTO().getSteps().get(0);
-        step.setTask_order(order);
-        step.setTask_name(title);
-        step.setDuration(duration);
-        return step;
-    }
 
 }
