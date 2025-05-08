@@ -18,3 +18,6 @@ Nếu không áp dụng những phương pháp làm việc có cấu trúc này,
 - [Todoist](https://www.todoist.com/)
 - [Pomofocus](https://pomofocus.io/)
 - [Forest](https://www.forestapp.cc/) ([Kit](https://drive.google.com/drive/folders/1-Kuo51pleXL0pbMDdfCBUbB2A5Oo3Dy5))
+
+## Document
+- [Pomodoro_SRS](https://docs.google.com/document/d/1i8sSDCLGe6Cevhu5hEQ8Kaa7RpYDmApI/edit)
