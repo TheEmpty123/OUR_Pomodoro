@@ -8,7 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.mobile.pomodoro.Model.PlanTask;
+import com.mobile.pomodoro.entity.PlanTask;
 
 import java.util.List;
 

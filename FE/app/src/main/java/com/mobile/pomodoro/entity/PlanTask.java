@@ -1,6 +1,9 @@
-package com.mobile.pomodoro.Model;
+package com.mobile.pomodoro.entity;
 
-public class PlanTask {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class PlanTask  implements Parcelable {
     private long id;
     private long planId;
     private String planName;
@@ -22,6 +25,14 @@ public class PlanTask {
         this.planName = planName;
         this.shortBreak = shortBreak;
         this.longBreak = longBreak;
+    }
+
+    public PlanTask(String planName, double duration) {
+        this.planName = planName;
+        this.duration = duration;
+    }
+
+    public PlanTask() {
     }
 
     public String getPlanName() { return planName; }
@@ -61,5 +72,35 @@ public class PlanTask {
     public void setLongBreak(int longBreak) {
         this.longBreak = longBreak;
     }
+    /// //////////////////////////////////////
+    protected PlanTask(Parcel in) {
+        planName = in.readString();
+        duration = in.readDouble();
+        taskOrder = in.readInt();
+    }
+
+    public static final Creator<PlanTask> CREATOR = new Creator<PlanTask>() {
+        @Override
+        public PlanTask createFromParcel(Parcel in) {
+            return new PlanTask(in);
+        }
+
+        @Override
+        public PlanTask[] newArray(int size) {
+            return new PlanTask[size];
+        }
+    };
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(planName);
+        dest.writeDouble(duration);
+        dest.writeInt(taskOrder);
+    }
+
 }
 

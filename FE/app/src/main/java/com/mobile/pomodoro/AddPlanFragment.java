@@ -53,6 +53,9 @@ public class AddPlanFragment extends DialogFragment {
             int shortBreak = parseIntSafe(inputShortBreak.getText().toString());
             int longBreak = parseIntSafe(inputLongBreak.getText().toString());
 
+            shortBreak = shortBreak > 0 ? shortBreak : 5;
+            longBreak = longBreak > 0 ? longBreak : 15;
+
             if (!title.isEmpty() && time > 0) {
                 PlanTask plan = new PlanTask();
                 plan.setPlanName(title);

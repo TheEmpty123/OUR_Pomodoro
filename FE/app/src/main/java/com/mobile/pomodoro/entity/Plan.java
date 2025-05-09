@@ -1,4 +1,4 @@
-package com.mobile.pomodoro.Model;
+package com.mobile.pomodoro.entity;
 
 import java.util.List;
 
@@ -9,11 +9,17 @@ public class Plan {
 
     private List<PlanTask> plantasks;
 
+    private long sBreakDuration;
+    private long  lBreakDuration;
+
     public Plan(long id, long userId, String title, List<PlanTask> plantasks) {
         this.id = id;
         this.userId = userId;
         this.title = title;
         this.plantasks=plantasks;
+    }
+
+    public Plan() {
     }
 
     public long getId() {
@@ -38,5 +44,29 @@ public class Plan {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public List<PlanTask> getPlantasks() {
+        return plantasks;
+    }
+
+    public void setPlantasks(List<PlanTask> plantasks) {
+        this.plantasks = plantasks;
+    }
+
+    public long getsBreakDuration() {
+        return sBreakDuration;
+    }
+
+    public void setsBreakDuration(long sBreakDuration) {
+        this.sBreakDuration = sBreakDuration;
+    }
+
+    public long getlBreakDuration() {
+        return lBreakDuration;
+    }
+
+    public void setlBreakDuration(long lBreakDuration) {
+        this.lBreakDuration = lBreakDuration;
     }
 }
