@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.List;
@@ -78,6 +79,7 @@ public class ToDoServiceImpl extends AService implements IToDoService {
         }
     }
 
+    @Transactional
     @Override
     public MessageResponseDTO updateToDo(Long todoId, ToDoRequestDTO requestDTO, User user) {
         log.info("Yêu cầu cập nhật từ: " + user.getUsername() + " với todo id: " + todoId);
@@ -86,6 +88,7 @@ public class ToDoServiceImpl extends AService implements IToDoService {
                     .orElseThrow(() -> new Exception("Todo không tồn tại hoặc không thuộc về user"));
             todo.setTitle(requestDTO.getTitle());
             todo.setIsDone(requestDTO.getIsDone());
+            log.info("Todo sau cập nhật: title = " + todo.getTitle() + ", isDone = " + todo.getIsDone());
             toDoRepository.save(todo);
             log.info("Cập nhật thành công cho user id: " + user.getUserId());
             return MessageResponseDTO.builder()
