@@ -75,7 +75,7 @@ public class PlanServiceImpl extends AService implements IPlanService {
     }
 
     @Override
-    public MessageResponseDTO createPlan(PlanRequestDTO requestDTO, User user) {
+    public PlanResponseDTO createPlan(PlanRequestDTO requestDTO, User user) {
         log.info("Tạo plan mới từ user: " + user.getUsername());
         try {
             Plan plan = Plan.builder()
@@ -103,16 +103,12 @@ public class PlanServiceImpl extends AService implements IPlanService {
 
             planTaskRepository.saveAll(tasks);
             log.info("Tạo plan thành công cho user id: " + user.getUserId());
-
-            return MessageResponseDTO.builder()
-                    .message("Tạo kế hoạch thành công")
-                    .build();
+            PlanResponseDTO responseDTO = findRecentPlan(user.getUsername());
+            return responseDTO;
 
         } catch (Exception e) {
             log.error("Lỗi khi tạo Plan: " + e.getMessage(), e);
-            return MessageResponseDTO.builder()
-                    .message("Lỗi khi tạo kế hoạch: " + e.getMessage())
-                    .build();
+            return null;
         }
     }
 
