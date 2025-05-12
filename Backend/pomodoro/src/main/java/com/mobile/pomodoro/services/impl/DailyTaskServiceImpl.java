@@ -19,6 +19,10 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
     @Autowired
     private DailyTaskRepository toDoRepository;
 
+    DailyTaskServiceImpl() {
+        initData();
+    }
+
     @Override
     public void initData() {
         log.setName(this.getClass().getSimpleName());

@@ -29,6 +29,9 @@ public class ToDoServiceImpl extends AService implements IToDoService {
     @NonNull
     HttpServletRequest request;
 
+    ToDoServiceImpl(){
+        initData();
+    }
 
     @Override
     public void initData() {

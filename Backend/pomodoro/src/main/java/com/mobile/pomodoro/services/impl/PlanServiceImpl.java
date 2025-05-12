@@ -31,6 +31,10 @@ public class PlanServiceImpl extends AService implements IPlanService {
     @Autowired
     private PlanTaskRepository planTaskRepository;
 
+    PlanServiceImpl(){
+        initData();
+    }
+
     @Override
     public void initData() {
         log.setName(this.getClass().getSimpleName());
@@ -70,7 +74,7 @@ public class PlanServiceImpl extends AService implements IPlanService {
         catch (Exception e) {
             log.error("Error finding plan: " + e.getMessage());
         }
-        return null;
+        return new PlanResponseDTO();
 
     }
 
