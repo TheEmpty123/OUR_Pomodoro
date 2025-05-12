@@ -1,9 +1,11 @@
 package com.mobile.pomodoro.controller;
 
 import com.mobile.pomodoro.dto.request.PlanRequestDTO;
+import com.mobile.pomodoro.dto.request.PlanToEditRequestDTO;
 import com.mobile.pomodoro.dto.response.MessageResponseDTO;
 import com.mobile.pomodoro.dto.response.PlanTaskResponeseDTO.PlanTaskResponeseDTO;
 import com.mobile.pomodoro.dto.response.PlanResponseDTO.PlanResponseDTO;
+import com.mobile.pomodoro.dto.response.PlanToEditResponseDTO.PlanToEditResponseDTO;
 import com.mobile.pomodoro.entities.User;
 import com.mobile.pomodoro.services.IPlanService;
 import lombok.RequiredArgsConstructor;
@@ -42,11 +44,11 @@ public class PlanController {
         return new ResponseEntity<>(planService.processWithoutSaving(request,user), HttpStatus.CREATED);
     }
 
-//    @GetMapping("/plan-to-edit/{id}")
-//    public ResponseEntity<TaskToEditResponseDTO> convertToEdit(@PathVariable Long id,
-//                                                               @RequestAttribute(name = "user") User user) {
-//        TaskToEditResponseDTO response = planService.convertPlanToEditFormat(id);
-//        return ResponseEntity.ok(response);
-//    }
+    @PostMapping("/plan-to-edit")
+    public ResponseEntity<PlanToEditResponseDTO> convertToEdit(@RequestBody PlanToEditRequestDTO request,
+                                                               @RequestAttribute(name = "user") User user) {
+        return new  ResponseEntity<>( planService.convertPlanToEdit(request,user), HttpStatus.CREATED);
+
+    }
 
 }
