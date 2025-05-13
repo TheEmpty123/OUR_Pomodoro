@@ -33,7 +33,7 @@ public class PlanController {
         return ResponseEntity.ok("Test successful");
     }
     @PostMapping("/plan/save")
-    public ResponseEntity<MessageResponseDTO> createPlan(@RequestBody PlanRequestDTO requestDTO, @RequestAttribute(name = "user") User user) {
+    public ResponseEntity<PlanResponseDTO> createPlan(@RequestBody PlanRequestDTO requestDTO, @RequestAttribute(name = "user") User user) {
         return new ResponseEntity<>(planService.createPlan(requestDTO, user), HttpStatus.CREATED);
     }
 

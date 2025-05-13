@@ -27,6 +27,9 @@ public class UserServiceImpl extends AService implements IUserService {
 
     //    @Autowired
     //    private JwtService jwtService;
+    UserServiceImpl(){
+        initData();
+    }
 
     @Override
     public void initData() {
