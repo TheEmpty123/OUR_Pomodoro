@@ -33,6 +33,7 @@ public class JwtAuthFilter extends HttpFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException{
         // Log the request URL and method
+        log.info("======================");
         log.info("Request URL: " + request.getRequestURL());
         log.info("Request Method: " + request.getMethod());
         log.info("Running through JwtAuthFilter");
