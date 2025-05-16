@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#8A4FFF</color>
-    <color name="primary_dark">#6A3AD8</color>
+    <!-- Các màu từ file colors.xml gốc -->
+    <color name="primary">#9C4EFF</color>
+    <color name="primary_dark">#7A3AD8</color>
     <color name="accent">#FF4081</color>
-    <color name="background_light">#FFF8F2</color>
+    <color name="background_light">#FFFFFF</color>
     <color name="white">#FFFFFF</color>
     <color name="text_primary">#212121</color>
     <color name="text_secondary">#757575</color>
-    <color name="indicator_active">#8A4FFF</color>
+    <color name="indicator_active">#9C4EFF</color>
     <color name="indicator_inactive">#DDDDDD</color>
+
+    <!-- Các màu mới theo thiết kế -->
+    <color name="settings_background">#9C4EFF</color>
+    <color name="settings_button_bg">#AD7BFF</color>
 </resources>
