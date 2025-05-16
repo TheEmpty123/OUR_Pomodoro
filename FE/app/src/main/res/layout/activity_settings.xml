@@ -36,7 +36,6 @@
             app:tint="@color/primary" />
     </LinearLayout>
 
-    <!-- Settings Card -->
     <androidx.cardview.widget.CardView
         android:id="@+id/settingsCard"
         android:layout_width="0dp"
@@ -58,7 +57,7 @@
             android:orientation="vertical"
             android:padding="24dp">
 
-            <!-- Title and Close Button -->
+            <!-- Close Button -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -85,14 +84,13 @@
                     app:tint="@color/white" />
             </RelativeLayout>
 
-            <!-- Divider line -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginBottom="16dp"
                 android:background="#CCFFFFFF" />
 
-            <!-- TIME (MINUTES) Section -->
+            <!-- TIME Section -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -102,7 +100,7 @@
                 android:textColor="@color/white"
                 android:textSize="14sp" />
 
-            <!-- Pomodoro Time Setting -->
+            <!-- Time Setting -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -147,28 +145,19 @@
                             android:orientation="vertical">
 
                             <ImageButton
-                                android:id="@+id/btnIncreasePomodoroTime"
+                                android:id="@+id/btnChangePomodoroTime"
                                 android:layout_width="30dp"
                                 android:layout_height="0dp"
                                 android:layout_weight="1"
                                 android:background="?attr/selectableItemBackgroundBorderless"
-                                android:src="@drawable/ic_arrow_up"
-                                app:tint="@color/white" />
-
-                            <ImageButton
-                                android:id="@+id/btnDecreasePomodoroTime"
-                                android:layout_width="30dp"
-                                android:layout_height="0dp"
-                                android:layout_weight="1"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:src="@drawable/ic_arrow_down"
+                                android:src="@drawable/ic_arrow_expand"
                                 app:tint="@color/white" />
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
             </LinearLayout>
 
-            <!-- Short Break Time Setting -->
+            <!-- Short Break -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -213,28 +202,19 @@
                             android:orientation="vertical">
 
                             <ImageButton
-                                android:id="@+id/btnIncreaseShortBreakTime"
+                                android:id="@+id/btnChangeShortBreakTime"
                                 android:layout_width="30dp"
                                 android:layout_height="0dp"
                                 android:layout_weight="1"
                                 android:background="?attr/selectableItemBackgroundBorderless"
-                                android:src="@drawable/ic_arrow_up"
-                                app:tint="@color/white" />
-
-                            <ImageButton
-                                android:id="@+id/btnDecreaseShortBreakTime"
-                                android:layout_width="30dp"
-                                android:layout_height="0dp"
-                                android:layout_weight="1"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:src="@drawable/ic_arrow_down"
+                                android:src="@drawable/ic_arrow_expand"
                                 app:tint="@color/white" />
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
             </LinearLayout>
 
-            <!-- Long Break Time Setting -->
+            <!-- Long Break -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -279,28 +259,18 @@
                             android:orientation="vertical">
 
                             <ImageButton
-                                android:id="@+id/btnIncreaseLongBreakTime"
+                                android:id="@+id/btnChangeLongBreakTime"
                                 android:layout_width="30dp"
                                 android:layout_height="0dp"
                                 android:layout_weight="1"
                                 android:background="?attr/selectableItemBackgroundBorderless"
-                                android:src="@drawable/ic_arrow_up"
-                                app:tint="@color/white" />
-
-                            <ImageButton
-                                android:id="@+id/btnDecreaseLongBreakTime"
-                                android:layout_width="30dp"
-                                android:layout_height="0dp"
-                                android:layout_weight="1"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:src="@drawable/ic_arrow_down"
+                                android:src="@drawable/ic_arrow_expand"
                                 app:tint="@color/white" />
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
             </LinearLayout>
 
-            <!-- Divider line -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -309,7 +279,7 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Save Settings Button -->
+    <!-- Save Settings-->
     <Button
         android:id="@+id/btnSaveSettings"
         android:layout_width="0dp"
