@@ -54,7 +54,7 @@
         android:padding="10dp"
         android:elevation="4dp"
         android:layout_marginBottom="5dp"
-        android:background="@color/white">
+        >
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSave"
@@ -90,13 +90,13 @@
     </LinearLayout>
 
 <!--  menu-->
-<!--    <com.google.android.material.bottomnavigation.BottomNavigationView-->
-<!--        android:id="@+id/bottomNavigation"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_alignParentBottom="true"-->
-<!--        android:background="@color/white"-->
-<!--        app:menu="@menu/nav_button" />-->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white"
+        app:menu="@menu/nav_button" />
     <View
         android:id="@+id/bottomNavPlaceholder"
         android:layout_width="match_parent"

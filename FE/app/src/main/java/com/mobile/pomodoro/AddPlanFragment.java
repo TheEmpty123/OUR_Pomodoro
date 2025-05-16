@@ -20,9 +20,10 @@ import com.mobile.pomodoro.entity.PlanTask;
 public class AddPlanFragment extends DialogFragment {
     private TextInputEditText inputTitle, inputTime, inputShortBreak, inputLongBreak;
     private OnPlanAddedListener callback;
+    private boolean isFirstTask;
 
     public interface OnPlanAddedListener {
-        void onPlanAdded(PlanTask newPlan);
+        void onPlanAdded(PlanTask newPlan, int shortBreak, int longBreak,  boolean isFirstTask);
     }
 
     @Override
@@ -34,7 +35,15 @@ public class AddPlanFragment extends DialogFragment {
             throw new RuntimeException(context.toString() + " must implement OnPlanAddedListener");
         }
     }
-
+    public static AddPlanFragment newInstance(boolean isFirstTask, int shortBreak, int longBreak) {
+        AddPlanFragment fragment = new AddPlanFragment();
+        Bundle args = new Bundle();
+        args.putBoolean("isFirstTask", isFirstTask);
+        args.putInt("shortBreak", shortBreak);
+        args.putInt("longBreak", longBreak);
+        fragment.setArguments(args);
+        return fragment;
+    }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -47,31 +56,52 @@ public class AddPlanFragment extends DialogFragment {
         inputLongBreak = view.findViewById(R.id.inputLongBreak);
         MaterialButton btnSubmit = view.findViewById(R.id.btnSubmit);
 
+        // ẩnn/hiện các trường break time
+        if (!isFirstTask) {
+            inputShortBreak.setVisibility(View.GONE);
+            inputLongBreak.setVisibility(View.GONE);
+        }
+
         btnSubmit.setOnClickListener(v -> {
             String title = inputTitle.getText().toString().trim();
             int time = parseIntSafe(inputTime.getText().toString());
-            int shortBreak = parseIntSafe(inputShortBreak.getText().toString());
-            int longBreak = parseIntSafe(inputLongBreak.getText().toString());
+            int shortBreak = isFirstTask ? parseIntSafe(inputShortBreak.getText().toString()) : 0;
+            int longBreak = isFirstTask ? parseIntSafe(inputLongBreak.getText().toString()) : 0;
 
-            shortBreak = shortBreak > 0 ? shortBreak : 5;
-            longBreak = longBreak > 0 ? longBreak : 15;
 
+            // kiểm tra cacs input
             if (!title.isEmpty() && time > 0) {
+                if (isFirstTask && (shortBreak <= 0 || longBreak <= 0)) {
+                    Toast.makeText(getContext(), "Vui lòng nhập thời gian nghỉ", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+
                 PlanTask plan = new PlanTask();
                 plan.setPlanName(title);
-//                plan.setPlantasks(Collections.singletonList(new PlanTask(title, time)));
                 plan.setDuration(time);
-                plan.setShortBreak(shortBreak);
-                plan.setLongBreak(longBreak);
+//                plan.setShortBreak(shortBreak);
+//                plan.setLongBreak(longBreak);
 
-                callback.onPlanAdded(plan);
+                if (callback != null) {
+                    callback.onPlanAdded(plan, shortBreak, longBreak, isFirstTask);
+                }
                 dismiss();
             } else {
-                Toast.makeText(getContext(), "Vui lòng nhập đầy đủ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
             }
         });
+
         return view;
     }
+
+@Override
+public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    if (getArguments() != null) {
+        isFirstTask = getArguments().getBoolean("isFirstTask", true);
+    }
+}
 
     private int parseIntSafe(String s) {
         try {
