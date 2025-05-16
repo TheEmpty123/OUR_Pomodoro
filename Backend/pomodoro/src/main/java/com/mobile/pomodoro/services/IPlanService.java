@@ -17,4 +17,5 @@ public interface IPlanService extends IInitializerData{
     PlanResponseDTO findRecentPlan(String username) throws UserNotFoundException;
     PlanTaskResponeseDTO processWithoutSaving(PlanRequestDTO requestDTO, User user);
     PlanToEditResponseDTO convertPlanToEdit(PlanToEditRequestDTO requestDTO,User user);
+
 }

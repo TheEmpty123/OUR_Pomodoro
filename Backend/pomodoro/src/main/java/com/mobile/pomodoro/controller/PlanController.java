@@ -7,6 +7,7 @@ import com.mobile.pomodoro.dto.response.PlanTaskResponeseDTO.PlanTaskResponeseDT
 import com.mobile.pomodoro.dto.response.PlanResponseDTO.PlanResponseDTO;
 import com.mobile.pomodoro.dto.response.PlanToEditResponseDTO.PlanToEditResponseDTO;
 import com.mobile.pomodoro.entities.User;
+import com.mobile.pomodoro.services.IDailyTaskService;
 import com.mobile.pomodoro.services.IPlanService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class PlanController {
     @Autowired
     private IPlanService planService;
-
+private final IDailyTaskService IDailyTaskService;
     // Add your plan-related endpoints here
     @GetMapping("recent-plan")
     @ResponseBody
@@ -50,5 +51,10 @@ public class PlanController {
         return new  ResponseEntity<>( planService.convertPlanToEdit(request,user), HttpStatus.CREATED);
 
     }
+    @GetMapping("/daily-task/{id}")
+    public ResponseEntity<PlanToEditResponseDTO> getDailyTaskPlanDetails(@PathVariable Long id,
+                                                                         @RequestAttribute(name = "user") User user) throws Exception {
+        return new  ResponseEntity<>(IDailyTaskService.getDailyTaskPlanDetails(id, user), HttpStatus.OK);
 
+    }
 }
