@@ -18,6 +18,7 @@ public class DailyTaskResponeseDTO {
     @Builder
     @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class SingleDailyTaskDTO {
+        long plan_id;
         String title;
         int is_done;
     }
