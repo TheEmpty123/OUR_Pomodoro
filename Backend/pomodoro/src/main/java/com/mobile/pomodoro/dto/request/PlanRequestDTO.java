@@ -14,6 +14,7 @@ public class PlanRequestDTO {
     private int s_break_duration;
     private int l_break_duration;
     private List<StepRequest> steps;
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
