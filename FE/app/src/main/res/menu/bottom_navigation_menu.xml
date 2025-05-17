@@ -3,21 +3,21 @@
     <item
         android:id="@+id/page_home"
         android:icon="@drawable/ic_home"
-        android:title="Trang chủ" />
+        android:title="Home" />
     <item
         android:id="@+id/page_todo"
         android:icon="@drawable/ic_todo"
-        android:title="Việc cần làm" />
+        android:title="Todo" />
     <item
         android:id="@+id/page_task"
         android:icon="@drawable/ic_list_task"
-        android:title="Nhiệm vụ" />
+        android:title="Tasks" />
     <item
         android:id="@+id/page_calendar"
         android:icon="@drawable/ic_calendar"
-        android:title="Lịch" />
+        android:title="Calendar" />
     <item
         android:id="@+id/page_setting"
         android:icon="@drawable/ic_setting"
-        android:title="Cài đặt" />
+        android:title="Settings" />
 </menu>

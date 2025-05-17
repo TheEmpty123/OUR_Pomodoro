@@ -5,12 +5,10 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-public class HomePage extends AppCompatActivity {
+public class HomePage extends NavigateActivity {
     private TextView timerText;
     private TextView currentTaskText;
     private FloatingActionButton btnPlayPause;
@@ -24,7 +22,6 @@ public class HomePage extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_homepage);
 
         timerText = findViewById(R.id.timerText);
         currentTaskText = findViewById(R.id.currentTaskText);
@@ -35,26 +32,15 @@ public class HomePage extends AppCompatActivity {
         btnShortBreak = findViewById(R.id.btnShortBreak);
         btnLongBreak = findViewById(R.id.btnLongBreak);
         bottomNavView = findViewById(R.id.bottomNavigation);
-
-        setupBottomNavigation();
     }
 
-    private void setupBottomNavigation() {
-        bottomNavView.setOnItemSelectedListener(item -> {
-            // Xử lý chuyển đổi giữa các tab
-            switch (item.getItemId()) {
-//                case R.id.page_home:
-//                    return true;
-//                case R.id.page_todo:
-//                    return true;
-//                case R.id.page_task:
-//                    return true;
-//                case R.id.page_calendar:
-//                    return true;
-//                case R.id.page_setting:
-//                    return true;
-            }
-            return false;
-        });
+    @Override
+    protected int getLayoutResourceId() {
+        return R.layout.activity_homepage;
+    }
+
+    @Override
+    protected int getCurrentMenuItemId() {
+        return R.id.page_home;
     }
 }

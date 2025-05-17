@@ -9,9 +9,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends NavigateActivity {
     private TextView txtPomodoroTime, txtShortBreakTime, txtLongBreakTime;
     private ImageButton btnClose, btnRefresh;
     private Button btnSaveSettings;
@@ -33,7 +31,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+
         txtPomodoroTime = findViewById(R.id.txtPomodoroTime);
         txtShortBreakTime = findViewById(R.id.txtShortBreakTime);
         txtLongBreakTime = findViewById(R.id.txtLongBreakTime);
@@ -46,6 +44,16 @@ public class SettingsActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
         setupListeners();
         loadSettings();
+    }
+
+    @Override
+    protected int getLayoutResourceId() {
+        return R.layout.activity_settings;
+    }
+
+    @Override
+    protected int getCurrentMenuItemId() {
+        return R.id.page_setting;
     }
 
     private void setupListeners() {

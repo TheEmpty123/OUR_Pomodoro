@@ -24,7 +24,7 @@
             android:layout_height="36dp"
             android:layout_marginEnd="8dp"
             android:background="@drawable/rounded_button_primary"
-            android:text="Tập trung"
+            android:text="Focus"
             android:textColor="@color/white"
             android:textSize="12sp" />
 
@@ -34,7 +34,7 @@
             android:layout_height="36dp"
             android:layout_marginEnd="8dp"
             android:background="@drawable/rounded_button_secondary"
-            android:text="Nghỉ ngắn"
+            android:text="Short break"
             android:textColor="@color/text_secondary"
             android:textSize="12sp" />
 
@@ -43,7 +43,7 @@
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:background="@drawable/rounded_button_secondary"
-            android:text="Nghỉ dài"
+            android:text="Long break"
             android:textColor="@color/text_secondary"
             android:textSize="12sp" />
     </LinearLayout>
