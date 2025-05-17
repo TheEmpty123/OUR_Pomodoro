@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class PlanController {
     @Autowired
     private IPlanService planService;
-private final IDailyTaskService IDailyTaskService;
+    private final IDailyTaskService IDailyTaskService;
     // Add your plan-related endpoints here
     @GetMapping("recent-plan")
     @ResponseBody

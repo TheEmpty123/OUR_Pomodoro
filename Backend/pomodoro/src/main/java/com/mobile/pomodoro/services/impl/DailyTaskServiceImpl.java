@@ -42,20 +42,20 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
     public DailyTaskResponeseDTO getAllDailyTaskByUser (Long userId) {
         log.info("Đang lấy danh sách công việc hàng ngày cho userId: {}", userId);
         try {
-        List<DailyTask> dailytasks = toDoRepository.findByUserId(userId);
-        if (dailytasks.isEmpty()) {
-            log.warn("Không tìm thấy công việc nào cho userId: {}", userId);
-        }
-        List<SingleDailyTaskDTO> dailytaskDTOs = dailytasks.stream()
-                .map(dailytask -> SingleDailyTaskDTO.builder()
-                        .title(dailytask.getTitle())
-                        .is_done(dailytask.getIsDone())
-                        .build())
-                .collect(Collectors.toList());
+            List<DailyTask> dailytasks = toDoRepository.findByUserId(userId);
+            if (dailytasks.isEmpty()) {
+                log.warn("Không tìm thấy công việc nào cho userId: {}", userId);
+            }
+            List<SingleDailyTaskDTO> dailytaskDTOs = dailytasks.stream()
+                    .map(dailytask -> SingleDailyTaskDTO.builder()
+                            .title(dailytask.getTitle())
+                            .is_done(dailytask.getIsDone())
+                            .build())
+                    .collect(Collectors.toList());
 
-        return DailyTaskResponeseDTO.builder()
-                .list(dailytaskDTOs)
-                .build();
+            return DailyTaskResponeseDTO.builder()
+                    .list(dailytaskDTOs)
+                    .build();
         } catch (Exception e) {
             log.error("Lỗi khi lấy DailyTask: " + e.getMessage(), e);
             throw new RuntimeException("Lỗi khi lấy công việc hàng ngày", e);
