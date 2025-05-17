@@ -38,6 +38,7 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
         }
         List<SingleDailyTaskDTO> dailytaskDTOs = dailytasks.stream()
                 .map(dailytask -> SingleDailyTaskDTO.builder()
+                        .plan_id(dailytask.getPlanId())
                         .title(dailytask.getTitle())
                         .is_done(dailytask.getIsDone())
                         .build())
