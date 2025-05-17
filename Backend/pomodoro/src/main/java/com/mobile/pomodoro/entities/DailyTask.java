@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -25,5 +27,5 @@ public class DailyTask {
     @Column(name = "is_done")
     private int isDone;
     @Column(name = "created_date")
-    private String created_At;
+    private LocalDateTime created_At;
 }
