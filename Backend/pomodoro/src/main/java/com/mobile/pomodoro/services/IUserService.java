@@ -15,5 +15,5 @@ public interface IUserService extends IInitializerData{
     MessageResponseDTO login(LoginRequestDTO requestDTO);
     MessageResponseDTO register(RegisterRequestDTO requestDTO);
 
-    public User getUserByUsername(@Param("username") String username) throws UserNotFoundException;
+    User getUserByUsername(@Param("username") String username) throws UserNotFoundException;
 }
