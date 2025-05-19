@@ -1,7 +1,9 @@
 package com.mobile.pomodoro.repositories;
 
 import com.mobile.pomodoro.entities.DailyTask;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -17,9 +19,11 @@ public interface DailyTaskRepository extends JpaRepository<DailyTask, Long>{
 
     void deleteByPlanId(Long planId);
 
-    @Query(value = "INSERT INTO daily_task (user_id, plan_id, title, is_done) VALUES (:userId, :planId, :title, :isDone)", nativeQuery = true)
-    Optional<DailyTask> saveD(long userId, long planId, String title, int isDone);
-
+    @Modifying
+    @Transactional
+    @Query(value =
+            "INSERT INTO daily_task (user_id, plan_id, title, is_done) VALUES (:userId, :planId, :title, :isDone)", nativeQuery = true)
+    void saveD(long userId, long planId, String title, int isDone);
 
 }
 

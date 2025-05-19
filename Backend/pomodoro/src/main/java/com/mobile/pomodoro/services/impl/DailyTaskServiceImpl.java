@@ -198,7 +198,7 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
         log.info("Daily task đã được tạo và lưu lại id: " + dailyTask.getPlanId());
         try {
             log.info("planid: " + dailyTask.getPlanId());
-            toDoRepository.save(dailyTask);
+            toDoRepository.saveD(dailyTask.getUserId(), dailyTask.getPlanId(), dailyTask.getTitle(), dailyTask.getIsDone());
             log.info("Tạo daily task thành công cho user id: " + user.getUserId());
 
             return
