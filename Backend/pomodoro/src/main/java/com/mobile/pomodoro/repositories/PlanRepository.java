@@ -15,4 +15,7 @@ public interface PlanRepository extends JpaRepository<Plan, Long> {
     @Query("SELECT p FROM plan p WHERE p.user.username = :username ORDER BY p.createdAt DESC LIMIT 1")
     Optional<Plan> findRecentPlanByUsername(@Param("username") String username);
 
+    @Query("SELECT p.planId FROM plan p order by p.createdAt ASC LIMIT 1")
+    long findbyid();
+
 }

@@ -23,5 +23,6 @@ public class PlanRequestDTO {
         private String plan_title;
         private int plan_duration;
         private int order;
+
     }
 }

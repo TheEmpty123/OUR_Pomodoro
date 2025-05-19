@@ -51,10 +51,5 @@ public class PlanController {
         return new  ResponseEntity<>( planService.convertPlanToEdit(request,user), HttpStatus.CREATED);
 
     }
-    @GetMapping("/daily-task/{id}")
-    public ResponseEntity<PlanToEditResponseDTO> getDailyTaskPlanDetails(@PathVariable Long id,
-                                                                         @RequestAttribute(name = "user") User user) throws Exception {
-        return new  ResponseEntity<>(IDailyTaskService.getDailyTaskPlanDetails(id, user), HttpStatus.OK);
 
-    }
 }

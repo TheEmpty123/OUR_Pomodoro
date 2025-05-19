@@ -35,6 +35,8 @@ public class PlanServiceImpl extends AService implements IPlanService {
     @Autowired
     private PlanTaskRepository planTaskRepository;
 
+    public static long save;
+
     PlanServiceImpl(){
         initData();
     }
@@ -90,7 +92,10 @@ public class PlanServiceImpl extends AService implements IPlanService {
                     .createdAt(LocalDateTime.now())
                     .user(user)
                     .build();
-            planRepository.save(plan);
+            var p = planRepository.save(plan);
+            save = p.getPlanId();
+
+            log.info("planID = " + save + ", " + p.getPlanId() + ", " + plan.getPlanId());
 
             int order = 1;
             List<PlanTask> tasks = new ArrayList<>();

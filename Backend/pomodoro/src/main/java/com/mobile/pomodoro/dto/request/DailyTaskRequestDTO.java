@@ -13,4 +13,6 @@ public class DailyTaskRequestDTO {
     private Long planId;
     private String title;
     private int isDone;
+
 }
+
