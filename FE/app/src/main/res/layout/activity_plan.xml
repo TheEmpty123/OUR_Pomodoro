@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     android:background="#FFF1F1"
     android:layout_alignParentTop="true"
-    android:id="@+id/plan">
+    android:id="@+id/plan"
+    android:fitsSystemWindows="true">
 
     <TextView
         android:id="@+id/titlePlan"
@@ -14,7 +15,6 @@
         android:text="New Plan"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:layout_marginTop="12dp"
         android:textColor="@color/black"
         android:gravity="center"
         android:padding="16dp" />
