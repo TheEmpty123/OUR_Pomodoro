@@ -6,7 +6,7 @@
     android:background="#FFF1F1"
     android:layout_alignParentTop="true"
     android:id="@+id/plan"
-    android:fitsSystemWindows="true">
+  >
 
     <TextView
         android:id="@+id/titlePlan"
@@ -17,7 +17,7 @@
         android:textStyle="bold"
         android:textColor="@color/black"
         android:gravity="center"
-        android:padding="16dp" />
+        android:padding="20dp" />
 
     <!-- Danh sách plan -->
     <androidx.recyclerview.widget.RecyclerView
@@ -47,7 +47,7 @@
         android:id="@+id/controlPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/bottomNavPlaceholder"
+        android:layout_above="@+id/bottomNavigation"
         android:orientation="horizontal"
         android:gravity="center"
         android:weightSum="4"
@@ -96,12 +96,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/white"
-        app:menu="@menu/nav_button" />
-    <View
-        android:id="@+id/bottomNavPlaceholder"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_alignParentBottom="true"
-        android:visibility="invisible" />
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:menu="@menu/bottom_navigation_menu" />
+
 
 </RelativeLayout>

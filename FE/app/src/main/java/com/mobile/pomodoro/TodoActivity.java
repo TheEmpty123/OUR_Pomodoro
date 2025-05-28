@@ -7,22 +7,24 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mobile.pomodoro.entity.TodoItem;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TodoActivity extends AppCompatActivity implements TodoAdapter.TodoItemListener {
+public class TodoActivity extends NavigateActivity implements TodoAdapter.TodoItemListener {
     private RecyclerView recyclerView;
     private TodoAdapter adapter;
     private List<TodoItem> todoList = new ArrayList<>();
     private FloatingActionButton btnAdd;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_todo);
+//        setContentView(R.layout.activity_todo);
         // Khởi tạo
         recyclerView = findViewById(R.id.recyclerTodo);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -31,6 +33,7 @@ public class TodoActivity extends AppCompatActivity implements TodoAdapter.TodoI
 //        Button thêm
         btnAdd = findViewById(R.id.btnAddTodo);
         btnAdd.setOnClickListener(v -> showTodoPopup(null));
+
 
         loadTodos();
     }
@@ -88,5 +91,14 @@ public class TodoActivity extends AppCompatActivity implements TodoAdapter.TodoI
     //    Dùng để cập nhập trạng thái của checkbox
     private void updateTodo(TodoItem item) {
 
+    }
+    @Override
+    protected int getLayoutResourceId() {
+        return R.layout.activity_todo;
+    }
+
+    @Override
+    protected int getCurrentMenuItemId() {
+        return R.id.page_todo;
     }
 }

@@ -1,7 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+   >
 
     <TextView
         android:id="@+id/tvTitle"
@@ -9,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_margin="16dp"
+        android:layout_margin="20dp"
         android:fontFamily="serif"
         android:text="Daily Task"
         android:textSize="32dp"
@@ -29,22 +30,16 @@
         android:layout_height="wrap_content"
         android:src="@android:drawable/ic_input_add"
         android:layout_alignParentEnd="true"
-        android:layout_above="@id/bottomNavPlaceholder"
+        android:layout_above="@id/bottomNavigation"
         android:layout_margin="16dp" />
-    <View
-        android:id="@+id/bottomNavPlaceholder"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_alignParentBottom="true"
-        android:visibility="invisible" />
 
     <!-- Bottom Navigation Bar -->
-    <!--    <com.google.android.material.bottomnavigation.BottomNavigationView-->
-    <!--        android:id="@+id/bottomNavigation"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_alignParentBottom="true"-->
-    <!--        android:background="@color/white"-->
-    <!--        app:menu="@menu/nav_button" />-->
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@color/white"
+            app:menu="@menu/bottom_navigation_menu" />
 
 </RelativeLayout>
