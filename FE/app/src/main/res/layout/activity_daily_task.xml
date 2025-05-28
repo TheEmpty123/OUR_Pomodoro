@@ -1,0 +1,50 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="16dp"
+        android:fontFamily="serif"
+        android:text="Daily Task"
+        android:textSize="32dp"
+        android:textStyle="bold" />
+    <!-- Danh sách Daily Task -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerDailyTasks"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/btnAddDailyTask"
+        android:layout_below="@+id/tvTitle"/>
+
+    <!-- Nút thêm ở góc phải dưới -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnAddDailyTask"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_input_add"
+        android:layout_alignParentEnd="true"
+        android:layout_above="@id/bottomNavPlaceholder"
+        android:layout_margin="16dp" />
+    <View
+        android:id="@+id/bottomNavPlaceholder"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:visibility="invisible" />
+
+    <!-- Bottom Navigation Bar -->
+    <!--    <com.google.android.material.bottomnavigation.BottomNavigationView-->
+    <!--        android:id="@+id/bottomNavigation"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_alignParentBottom="true"-->
+    <!--        android:background="@color/white"-->
+    <!--        app:menu="@menu/nav_button" />-->
+
+</RelativeLayout>
