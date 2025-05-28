@@ -11,7 +11,7 @@ public interface IPlanService extends IInitializerData{
 
     // Define the methods for plan-related operations
     public PlanResponseDTO findPlan(String username) throws UserNotFoundException;
-    MessageResponseDTO createPlan(PlanRequestDTO requestDTO, User user);
+    PlanResponseDTO createPlan(PlanRequestDTO requestDTO, User user);
     PlanResponseDTO findRecentPlan(String username) throws UserNotFoundException;
     PlanTaskResponeseDTO processWithoutSaving(PlanRequestDTO requestDTO, User user);
 }

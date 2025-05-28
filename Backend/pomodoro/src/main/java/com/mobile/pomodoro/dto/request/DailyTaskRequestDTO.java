@@ -1,16 +1,29 @@
 package com.mobile.pomodoro.dto.request;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+import java.util.List;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class DailyTaskRequestDTO {
-    private Long userId;
-    private Long planId;
-    private String title;
-    private int isDone;
+    String daily_task_description;
+    String title;
+    int s_break_duration;
+    int l_break_duration;
+    List<StepRequest> steps;
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class StepRequest {
+        String plan_title;
+        int plan_duration;
+        int order;
+    }
 }
