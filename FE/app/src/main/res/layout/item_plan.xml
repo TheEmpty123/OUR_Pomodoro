@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/itemPlan"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:padding="16dp"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView android:id="@+id/txtTitle"
+            android:text="Title"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            />
+
+        <LinearLayout
+            android:id="@+id/rowTime"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_below="@+id/txtTitle">
+            <TextView
+                android:id="@+id/lblTime"
+                android:text="Time: "
+                android:layout_width="150sp"
+                android:layout_height="45sp"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:gravity="right|center_vertical"/>
+            <TextView
+                android:id="@+id/txtTime"
+                android:text="25 min"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:textSize="24sp"
+                style="@style/plan_textTime"
+                android:layout_toRightOf="@+id/lblTime"
+                android:gravity="center|center_vertical"/>
+        </LinearLayout>
+
+        <!-- Short Break -->
+        <LinearLayout
+            android:id="@+id/rowShortTime"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_below="@+id/rowTime">
+            <TextView
+                android:id="@+id/lblShort"
+                android:text="Short Break: "
+                android:layout_width="150sp"
+                android:layout_height="45sp"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:gravity="right|center_vertical" />
+            <TextView
+                android:id="@+id/txtShortBreak"
+                android:text="5 min"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:textSize="24sp"
+                style="@style/plan_textTime"
+                android:layout_toRightOf="@+id/lblShort"
+                android:gravity="center|center_vertical"/>
+        </LinearLayout>
+        <!-- Long Break -->
+        <LinearLayout
+            android:id="@+id/rowLongTime"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_below="@+id/rowShortTime">
+            <TextView
+                android:id="@+id/lblLong"
+                android:text="Long Break: "
+                android:layout_width="150sp"
+                android:layout_height="45sp"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:gravity="right|center_vertical" />
+            <TextView
+                android:id="@+id/txtLongBreak"
+                android:text="15 min"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:textSize="24sp"
+                style="@style/plan_textTime"
+                android:layout_toRightOf="@+id/lblLong"
+                android:gravity="center|center_vertical" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

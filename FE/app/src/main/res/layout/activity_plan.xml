@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFF1F1"
+    android:layout_alignParentTop="true"
+    android:id="@+id/plan"
+    android:fitsSystemWindows="true">
+
+    <TextView
+        android:id="@+id/titlePlan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="New Plan"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:padding="16dp" />
+
+    <!-- Danh sách plan -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerPlan"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/titlePlan"
+        android:layout_above="@+id/controlPanel"
+        android:layout_margin="8dp"
+        android:padding="4dp"
+        android:contentDescription="List of Pomodoro tasks" />
+
+    <!-- button add plan -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_above="@+id/controlPanel"
+        android:layout_margin="20dp"
+        android:contentDescription="Thêm công việc"
+        android:backgroundTint="@color/white"
+        app:srcCompat="@android:drawable/ic_input_add" />
+
+    <!-- 4 Button chức năng  -->
+    <LinearLayout
+        android:id="@+id/controlPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/bottomNavPlaceholder"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:weightSum="4"
+        android:padding="10dp"
+        android:elevation="4dp"
+        android:layout_marginBottom="5dp"
+        >
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSave"
+            style="@style/btn_add_plan"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Save" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnStart"
+            style="@style/btn_add_plan"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Start" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnImport"
+            style="@style/btn_add_plan"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Import" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnExport"
+            style="@style/btn_add_plan"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Export" />
+    </LinearLayout>
+
+<!--  menu-->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white"
+        app:menu="@menu/nav_button" />
+    <View
+        android:id="@+id/bottomNavPlaceholder"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:visibility="invisible" />
+
+</RelativeLayout>
