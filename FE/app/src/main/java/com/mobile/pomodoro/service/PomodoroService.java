@@ -20,6 +20,24 @@ public class PomodoroService {
         return retrofit;
     }
 
+    //khởi tạo Retrofit với head
+    public static CoffeeApi getRetrofitInstance(String username) {
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(chain -> {
+                    Request original = chain.request();
+                    Request request = original.newBuilder()
+                            .header("username", "Bearer " + username)
+                            .method(original.method(), original.body())
+                            .build();
+                    return chain.proceed(request);
+                })
+                .build();
+        retrofit = getRetrofitInstance().newBuilder()
+                .client(client)
+                .build();
+        return retrofit.create(CoffeeApi.class);
+    }
+
     public static PomodoroAPI getClient(){
         return getRetrofitInstance().create(PomodoroAPI.class);
     }
