@@ -2,8 +2,6 @@ package com.mobile.pomodoro;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
-import com.mobile.pomodoro.entity.PlanTask;
 import com.mobile.pomodoro.request_dto.PlanRequestDTO;
 import com.mobile.pomodoro.response_dto.MessageResponseDTO;
 import com.mobile.pomodoro.service.PomodoroService;
@@ -31,7 +28,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
         private RecyclerView recyclerView;
         private MaterialButton  btnSave, btnStart, btnExport, btnImport;
         private PlanAdapter adapter;
-        private List<PlanTask> planList;
+        private List<PlanRequestDTO.PlanTaskDTO> planList;
          private LogObj log;
     private int globalShortBreak = 0;
     private int globalLongBreak = 0;
@@ -54,11 +51,11 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             recyclerView = findViewById(R.id.recyclerPlan);
 
             planList = new ArrayList<>();
-            adapter = new PlanAdapter(planList);
+            adapter = new PlanAdapter(planList); //  adapter kết ối dl với RecyclerView
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
             recyclerView.setAdapter(adapter);
 
-            // các button
+            // button "Add"
             btnAdd.setOnClickListener(v -> {
                 log.info("Add button clicked");
                 showAddPlanDialog();
@@ -69,6 +66,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                 log.info("Save button clicked");
                 savePlan();
             });
+            // button "Start"
             btnStart.setOnClickListener(v -> {
                 log.info("Start button clicked");
                 startPlanWithoutSaving();
@@ -90,8 +88,9 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
 //        });
         }
 
+        //Callback khi thêm plan
         @Override
-        public void onPlanAdded(PlanTask newPlan, int shortBreak, int longBreak, boolean isFirstTask) {
+        public void onPlanAdded(PlanRequestDTO.PlanTaskDTO newPlan, int shortBreak, int longBreak, boolean isFirstTask) {
             if (isFirstTask) {
                 globalShortBreak = shortBreak;
                 globalLongBreak = longBreak;
@@ -132,23 +131,17 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                 Toast.makeText(this, "Please set valid break times", Toast.LENGTH_SHORT).show();
                 return;
             }
-
-//        đổi từ plantask qua plantaskDTO
-            List<PlanRequestDTO.PlanTaskDTO> taskList = new ArrayList<>();
+//            Thiết lập order
             for (int i = 0; i < planList.size(); i++) {
-                PlanTask task = planList.get(i);
-                PlanRequestDTO.PlanTaskDTO dto = new PlanRequestDTO.PlanTaskDTO();
-                dto.setPlan_title(task.getPlanName());
-                dto.setPlan_duration(task.getDuration()*60);
-                dto.setOrder(i + 1);
-                taskList.add(dto);
+                planList.get(i).setOrder(i + 1);
             }
-//        b2: tạo request
+
+//        b2: tạo requestDTO
             PlanRequestDTO request = new PlanRequestDTO();
             request.setTitle(title);
             request.setS_break_duration(globalShortBreak *60);
             request.setL_break_duration(globalLongBreak *60);
-            request.setSteps(taskList);
+            request.setSteps(planList);
 
             log.info("Sending savePlan API request");
 
@@ -184,15 +177,19 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
 
 
         private void startPlanWithoutSaving() {
+        // Kiểm tra ds
             if (planList.isEmpty()) {
                 log.warn("Start clicked with empty task list");
                 Toast.makeText(this, "Vui lòng thêm công việc", Toast.LENGTH_SHORT).show();
                 return;
             }
-
+            // Lấy title
             TextView titleView = findViewById(R.id.titlePlan);
             String planTitle = titleView.getText().toString();
 
+            for (int i = 0; i < planList.size(); i++) {
+                planList.get(i).setOrder(i + 1);
+            }
 
 //            PlanTask latestPlan = planList.get(planList.size() - 1);
 //     tạo requestDTO
@@ -200,17 +197,8 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             request.setTitle(planTitle);
             request.setS_break_duration(globalShortBreak *60 );
             request.setL_break_duration(globalLongBreak *60 );
-// danh sách các bước
-            List<PlanRequestDTO.PlanTaskDTO> steps = new ArrayList<>();
-            for (int i = 0; i < planList.size(); i++) {
-                PlanTask task = planList.get(i);
-                PlanRequestDTO.PlanTaskDTO dto = new PlanRequestDTO.PlanTaskDTO();
-                dto.setPlan_title(task.getPlanName());
-                dto.setPlan_duration(task.getDuration() * 60);
-                dto.setOrder(i + 1);
-                steps.add(dto);
-            }
-            request.setSteps(steps);
+            request.setSteps(planList);
+
 // api
             PomodoroService.getClient().startPlan(request).enqueue(new Callback<MessageResponseDTO>() {
                 @Override
@@ -230,12 +218,11 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                             intent.putExtra("short_break", globalShortBreak);
                             intent.putExtra("long_break", globalLongBreak);
 
-                            // Truyền danh sách tasks
-
+                            // Truyền danh sách tasks dưới dạng JSON
                             Gson gson = new Gson();
                             String tasksJson = gson.toJson(planList);
                             intent.putExtra("tasks_json", tasksJson);
-//                        intent.putParcelableArrayListExtra("latestPlan_tasks", new ArrayList<>(planList));
+
                             startActivity(intent);
                             finish(); // Đóng
 
@@ -260,6 +247,8 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
 
         private void showImportPopup() {
         }
+
+// dùng cho Navbar
     @Override
     protected int getLayoutResourceId() {
         return R.layout.activity_plan;
@@ -267,7 +256,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
 
     @Override
     protected int getCurrentMenuItemId() {
-        return R.id.page_task;
+        return R.id.page_plan;
     }
 
     }

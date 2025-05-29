@@ -1,7 +1,5 @@
 package com.mobile.pomodoro.request_dto;
 
-import com.mobile.pomodoro.entity.PlanTask;
-
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -26,6 +24,7 @@ public class PlanRequestDTO {
         private String plan_title;
         private double plan_duration;
         private int order;
-
+        private transient int shortBreak;
+        private transient int longBreak;
     }
 }

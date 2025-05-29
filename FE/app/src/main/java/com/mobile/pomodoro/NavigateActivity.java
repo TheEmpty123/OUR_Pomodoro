@@ -46,7 +46,7 @@ public abstract class NavigateActivity extends AppCompatActivity {
                 startActivity(new Intent(this, TodoActivity.class));
                 finish();
                 return true;
-            } else if (itemId == R.id.page_task) {
+            } else if (itemId == R.id.page_plan) {
                 startActivity(new Intent(this, PlanActivity.class));
                 finish();
                 return true;

@@ -8,15 +8,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.mobile.pomodoro.entity.PlanTask;
+import com.mobile.pomodoro.request_dto.PlanRequestDTO;
 
 import java.util.List;
 
+//Hiển thị danh sách
 public class PlanAdapter extends RecyclerView.Adapter<PlanAdapter.PlanViewHolder> {
 
-    private List<PlanTask> planTasks;
+    private List<PlanRequestDTO.PlanTaskDTO> planTasks;
 
-    public PlanAdapter(List<PlanTask> planTasks) {
+    public PlanAdapter(List<PlanRequestDTO.PlanTaskDTO> planTasks) {
         this.planTasks = planTasks;
     }
 
@@ -30,9 +31,9 @@ public class PlanAdapter extends RecyclerView.Adapter<PlanAdapter.PlanViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull PlanViewHolder holder, int position) {
-        PlanTask task = planTasks.get(position);
-        holder.txtTitle.setText(task.getPlanName());
-        holder.txtTime.setText((int) task.getDuration() + " min");
+        PlanRequestDTO.PlanTaskDTO task = planTasks.get(position);
+        holder.txtTitle.setText(task.getPlan_title());
+        holder.txtTime.setText((int) task.getPlan_duration()  + " min");
         holder.txtShortBreak.setText(task.getShortBreak() + " min");
         holder.txtLongBreak.setText(task.getLongBreak() + " min");
     }
