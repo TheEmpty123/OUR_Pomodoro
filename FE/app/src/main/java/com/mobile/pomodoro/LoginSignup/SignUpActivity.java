@@ -1,4 +1,4 @@
-package com.mobile.pomodoro;
+package com.mobile.pomodoro.LoginSignup;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.mobile.pomodoro.R;
 import com.mobile.pomodoro.enums.MessageState;
 import com.mobile.pomodoro.request_dto.RegisterRequestDTO;
 import com.mobile.pomodoro.response_dto.MessageResponseDTO;
