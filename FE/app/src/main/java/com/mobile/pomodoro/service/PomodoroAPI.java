@@ -21,7 +21,9 @@ public interface PomodoroAPI {
     Call<MessageResponseDTO> testLogin(@Body LoginRequestDTO loginRequestDTO);
 
     @POST("/api/v1/plan/save")
-    Call<PlanResponseDTO> savePlan(@Body PlanRequestDTO planRequest);
+    Call<PlanResponseDTO> savePlan(
+            @Header("username") String username,
+            @Body PlanRequestDTO planRequest);
 
     @POST("/api/v1/plan/do-not-save")
     Call<PlanResponseDTO> startPlan(@Body PlanRequestDTO planRequest);
