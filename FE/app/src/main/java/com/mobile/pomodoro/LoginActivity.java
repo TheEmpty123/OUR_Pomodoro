@@ -20,8 +20,6 @@ import com.mobile.pomodoro.service.PomodoroService;
 import com.mobile.pomodoro.utils.LogObj;
 import com.mobile.pomodoro.utils.MyUtils;
 
-import java.util.Objects;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -118,14 +116,14 @@ public class LoginActivity extends AppCompatActivity {
 
         // Login handler
         PomodoroService.getClient().login(LoginRequestDTO.builder()
-                    .username(username)
-                    .password(password)
-                    .build())
+                        .username(username)
+                        .password(password)
+                        .build())
                 .enqueue(new Callback<MessageResponseDTO>() {
                     @Override
                     public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
                         if (response.isSuccessful() &&
-                                response.body().getMessage().equals(MessageState.LOGIN_SUCCESSFUL.toString())){
+                                response.body().getMessage().equals(MessageState.LOGIN_SUCCESSFUL.toString())) {
                             log.info("Login successful, move to homepage");
                             Toast.makeText(LoginActivity.this,
                                             response.body().getMessage(),
@@ -133,9 +131,8 @@ public class LoginActivity extends AppCompatActivity {
                                     .show();
 
                             MyUtils.save(LoginActivity.this, "username", username);
-                            // startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                        }
-                        else {
+                            startActivity(new Intent(LoginActivity.this, WelcomeActivity.class));
+                        } else {
                             if (!response.body().getMessage().equals(MessageState.LOGIN_SUCCESSFUL.toString())) {
                                 log.warn(response.body().getMessage());
                                 Toast.makeText(LoginActivity.this,

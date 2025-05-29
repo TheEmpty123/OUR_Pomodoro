@@ -148,7 +148,7 @@ public class PlanActivity extends AppCompatActivity implements AddPlanFragment.O
                         Toast.makeText(PlanActivity.this, message, Toast.LENGTH_SHORT).show();
 //                        recreate();// làm mới
 //                     chuyển trang #home
-                         Intent intent = new Intent(PlanActivity.this, HomeActivity.class);
+                         Intent intent = new Intent(PlanActivity.this, HomePage.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); // Xóa stack activity
                          startActivity(intent);
                          finish();
@@ -206,7 +206,7 @@ public class PlanActivity extends AppCompatActivity implements AddPlanFragment.O
 
                         Toast.makeText(PlanActivity.this, message, Toast.LENGTH_SHORT).show();
 
-                            Intent intent = new Intent(PlanActivity.this, HomeActivity.class);// Chuyển sang view home
+                            Intent intent = new Intent(PlanActivity.this, HomePage.class);// Chuyển sang view home
                             // Truyền toàn bộ thông tin plan
                             intent.putExtra("plan_title", planTitle);
                             intent.putExtra("short_break", globalShortBreak);

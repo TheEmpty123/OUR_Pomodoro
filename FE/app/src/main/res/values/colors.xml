@@ -14,4 +14,7 @@
     <!-- Các màu mới theo thiết kế -->
     <color name="settings_background">#9C4EFF</color>
     <color name="settings_button_bg">#AD7BFF</color>
+
+    <color name="black">#FF000000</color>
+    <color name="red">#FFFF0000</color>
 </resources>

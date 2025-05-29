@@ -38,7 +38,7 @@ public class DailyTaskActivity extends AppCompatActivity implements DailyTaskPop
             @Override
             public void onItemClick(DailyTask task) {
                 // Chuyển sang Plan Screen với id task
-                Intent intent = new Intent(DailyTaskActivity.this, MainActivity.class);
+                Intent intent = new Intent(DailyTaskActivity.this, HomePage.class);
                 intent.putExtra("task_id", task.getId());
                 startActivity(intent);
             }
