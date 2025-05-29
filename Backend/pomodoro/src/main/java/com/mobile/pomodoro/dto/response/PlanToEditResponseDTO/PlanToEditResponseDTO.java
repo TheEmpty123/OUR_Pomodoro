@@ -13,7 +13,7 @@ public class PlanToEditResponseDTO {
     private Integer s_break_duration;
     private Integer l_break_duration;
     private List<Step> steps;
-
+    @Builder
     @Data
     public static class Step {
         private String plan_title;
