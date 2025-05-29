@@ -4,7 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -118,42 +121,31 @@ public class SignUpActivity extends AppCompatActivity {
         }
 
         // API Call - Register
-        PomodoroService.getClient().register(RegisterRequestDTO.builder()
-                        .username(username)
-                        .email(email)
-                        .password(password)
-                        .build())
-                .enqueue(new Callback<MessageResponseDTO>() {
-                    @Override
-                    public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            String message = response.body().getMessage();
+        PomodoroService.getClient().register(RegisterRequestDTO.builder().username(username).email(email).password(password).build()).enqueue(new Callback<MessageResponseDTO>() {
+            @Override
+            public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    String message = response.body().getMessage();
+                    if (message.equals(MessageState.USER_REGISTERED_SUCCESSFULLY.toString())) {
+                        log.info("Registration successful");
+                        Toast.makeText(SignUpActivity.this, message, Toast.LENGTH_SHORT).show();
 
-                            if (message.equals(MessageState.USER_REGISTERED_SUCCESSFULLY.toString())) {
-                                log.info("Registration successful");
-                                Toast.makeText(SignUpActivity.this,
-                                        "Đăng ký thành công!",
-                                        Toast.LENGTH_SHORT).show();
-
-                                // Chuyển về LoginActivity
-                                Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
-                                startActivity(intent);
-                                finish();
-                            }
-                        } else {
-                            Toast.makeText(SignUpActivity.this,
-                                    "Đăng ký thất bại!",
-                                    Toast.LENGTH_SHORT).show();
-                        }
+                        // Chuyển về LoginActivity
+                        Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        log.warn("Registration failed: " + message);
+                        Toast.makeText(SignUpActivity.this, message, Toast.LENGTH_SHORT).show();
                     }
+                }
+            }
 
-                    @Override
-                    public void onFailure(Call<MessageResponseDTO> call, Throwable throwable) {
-                        log.error("Registration failed: " + throwable.getMessage());
-                        Toast.makeText(SignUpActivity.this,
-                                "Lỗi kết nối mạng!",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
+            @Override
+            public void onFailure(Call<MessageResponseDTO> call, Throwable throwable) {
+                log.error("Registration failed: " + throwable.getMessage());
+                Toast.makeText(SignUpActivity.this, "Lỗi kết nối mạng!", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
