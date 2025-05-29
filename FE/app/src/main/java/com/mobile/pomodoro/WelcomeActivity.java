@@ -36,7 +36,7 @@ public class WelcomeActivity extends AppCompatActivity {
 //        Chuyeen sang trang home
         Button btnLetsGo = findViewById(R.id.btnLetsGo);
         btnLetsGo.setOnClickListener(v -> {
-            Intent intent = new Intent(WelcomeActivity.this, HomeActivity.class);
+            Intent intent = new Intent(WelcomeActivity.this, HomePage.class);
             startActivity(intent);
             finish();
         });
