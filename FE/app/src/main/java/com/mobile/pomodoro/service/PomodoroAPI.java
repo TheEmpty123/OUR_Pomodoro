@@ -2,6 +2,7 @@ package com.mobile.pomodoro.service;
 
 import com.mobile.pomodoro.request_dto.LoginRequestDTO;
 import com.mobile.pomodoro.request_dto.PlanRequestDTO;
+import com.mobile.pomodoro.request_dto.RegisterRequestDTO;
 import com.mobile.pomodoro.response_dto.MessageResponseDTO;
 import com.mobile.pomodoro.response_dto.PlanResponseDTO;
 
@@ -12,6 +13,9 @@ public interface PomodoroAPI {
 
     @POST("api/v1/user/login")
     Call<MessageResponseDTO> login(@Body LoginRequestDTO loginRequestDTO);
+
+    @POST("api/v1/user/register")
+    Call<MessageResponseDTO> register(@Body RegisterRequestDTO registerRequestDTO);
 
     @POST("api/v1/user/test")
     Call<MessageResponseDTO> testLogin(@Body LoginRequestDTO loginRequestDTO);

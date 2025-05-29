@@ -96,7 +96,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/white"
-        app:menu="@menu/nav_button" />
+        app:menu="@menu/bottom_navigation_menu" />
     <View
         android:id="@+id/bottomNavPlaceholder"
         android:layout_width="match_parent"
