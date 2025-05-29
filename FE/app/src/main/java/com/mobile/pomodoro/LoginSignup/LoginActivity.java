@@ -113,7 +113,11 @@ public class LoginActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(Call<MessageResponseDTO> call, Throwable throwable) {
-                        throw new RuntimeException(throwable);
+                        log.error("Network request failed", throwable);
+                        Toast.makeText(LoginActivity.this,
+                                        "Failed to connect to the server. Please try again later.",
+                                        Toast.LENGTH_SHORT)
+                                .show();
                     }
                 });
 
