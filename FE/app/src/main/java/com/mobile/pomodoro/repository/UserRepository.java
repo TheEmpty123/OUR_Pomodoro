@@ -13,13 +13,9 @@ public class UserRepository {
     private static UserRepository instance;
     private Context context;
 
-    public UserRepository(String username) {
-        this.username = username;
-    }
-
     public UserRepository(Context context) {
         this.context = context;
-        this.username = MyUtils.get(context, "username");
+        this.username = MyUtils.get(this.context, "username");
     }
 
     //    singleton

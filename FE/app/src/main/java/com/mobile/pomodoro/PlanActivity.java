@@ -141,7 +141,7 @@ public class PlanActivity extends AppCompatActivity implements AddPlanFragment.O
         request.setL_break_duration(globalLongBreak * 60);
         request.setSteps(taskList);
 //        b3:gọi api
-        PomodoroService.getClient().savePlan(username, request).enqueue(new Callback<PlanResponseDTO>() {
+        PomodoroService.getRetrofitInstance(username).savePlan(request).enqueue(new Callback<PlanResponseDTO>() {
             @Override
             public void onResponse(Call<PlanResponseDTO> call, Response<PlanResponseDTO> response) {
                 if (response.isSuccessful()) {
