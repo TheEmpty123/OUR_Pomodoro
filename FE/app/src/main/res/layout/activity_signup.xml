@@ -73,7 +73,8 @@
         android:layout_height="wrap_content"
         android:padding="12dp"
         android:text="Đăng Ký"
-        android:textColor="#FFFFFF" />
+        android:textColor="#FFFFFF"
+        android:backgroundTint="@color/blue"/>
 
     <TextView
         android:id="@+id/txtViewLogin"

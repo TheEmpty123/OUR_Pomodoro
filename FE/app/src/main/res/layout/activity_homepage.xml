@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light"
+    android:background="@color/pink"
     tools:context=".HomePage">
 
     <LinearLayout
         android:id="@+id/modeSelector"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="@color/pink"
         android:elevation="2dp"
         android:gravity="center"
         android:orientation="horizontal"
@@ -26,7 +26,8 @@
             android:background="@drawable/rounded_button_primary"
             android:text="Focus"
             android:textColor="@color/white"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            app:backgroundTint="@color/blue"/>
 
         <Button
             android:id="@+id/btnShortBreak"
@@ -36,7 +37,8 @@
             android:background="@drawable/rounded_button_secondary"
             android:text="Short break"
             android:textColor="@color/text_secondary"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            app:backgroundTint="@color/blue"/>
 
         <Button
             android:id="@+id/btnLongBreak"
@@ -45,7 +47,8 @@
             android:background="@drawable/rounded_button_secondary"
             android:text="Long break"
             android:textColor="@color/text_secondary"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            app:backgroundTint="@color/blue"/>
     </LinearLayout>
 
     <LinearLayout
@@ -62,7 +65,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:text="English IELTS"
-            android:textColor="@color/primary"
+            android:textColor="@color/blue"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -142,7 +145,7 @@
                 android:id="@+id/btnPlayPause"
                 android:layout_width="64dp"
                 android:layout_height="64dp"
-                android:backgroundTint="@color/primary"
+                android:backgroundTint="@color/blue"
                 android:src="@drawable/ic_play"
                 app:fabCustomSize="64dp"
                 app:maxImageSize="36dp"
