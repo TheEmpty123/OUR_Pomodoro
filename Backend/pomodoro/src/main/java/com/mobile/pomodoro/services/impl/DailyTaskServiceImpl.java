@@ -111,7 +111,7 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
             dailyTaskRepository.save(dailyTask);
             log.info(" Đã lưu DailyTask với id =", dailyTask.getId());
 
-            return new MessageResponseDTO("Tạo daily task thành công");
+            return new MessageResponseDTO("Tạo daily task thành công!");
         } catch (Exception e) {
             log.error("Lỗi khi tạo DailyTask: " + e.getMessage(), e);
             return new MessageResponseDTO("Tạo daily task thất bại: " + e.getMessage());

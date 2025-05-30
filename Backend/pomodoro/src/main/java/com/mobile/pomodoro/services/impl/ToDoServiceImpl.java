@@ -68,13 +68,13 @@ public class ToDoServiceImpl extends AService implements IToDoService {
             toDoRepository.save(todo);
             log.info("Tạo todo thành công cho user id: " + user.getUserId());
             return MessageResponseDTO.builder()
-                    .message("Thêm thành công hjhj")
+                    .message("Thêm thành công!")
                     .build();
 
         } catch (Exception e) {
             log.error("Lỗi khi thêm ToDo: " + e.getMessage(), e);
             return MessageResponseDTO.builder()
-                    .message("Lỗi khi thêm ToDo: " + e.getMessage())
+                    .message("Thêm thất bại: " + e.getMessage())
                     .build();
         }
     }
@@ -92,13 +92,13 @@ public class ToDoServiceImpl extends AService implements IToDoService {
             toDoRepository.save(todo);
             log.info("Cập nhật thành công cho user id: " + user.getUserId());
             return MessageResponseDTO.builder()
-                    .message("Cập nhật thành công")
+                    .message("Cập nhật thành công!")
                     .build();
 
         } catch (Exception e) {
             log.error("Lỗi khi cập nhật ToDo: " + e.getMessage(), e);
             return MessageResponseDTO.builder()
-                    .message("Lỗi khi cập nhật ToDo: " + e.getMessage())
+                    .message("Cập nhật thất bại: " + e.getMessage())
                     .build();
         }
     }
@@ -111,13 +111,13 @@ public class ToDoServiceImpl extends AService implements IToDoService {
             toDoRepository.delete(todo);
             log.info("Xóa thành công todo id: " + todoId);
             return MessageResponseDTO.builder()
-                    .message("Xóa thành công")
+                    .message("Xóa thành công!")
                     .build();
 
         } catch (Exception e) {
             log.error("Lỗi khi xóa ToDo: " + e.getMessage(), e);
             return MessageResponseDTO.builder()
-                    .message("Lỗi khi xóa ToDo: " + e.getMessage())
+                    .message("Xóa thất bại: " + e.getMessage())
                     .build();
         }
     }
