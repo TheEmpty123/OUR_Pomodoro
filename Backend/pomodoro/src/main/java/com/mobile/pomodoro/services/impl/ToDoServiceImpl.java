@@ -68,13 +68,13 @@ public class ToDoServiceImpl extends AService implements IToDoService {
             toDoRepository.save(todo);
             log.info("Tạo todo thành công cho user id: " + user.getUserId());
             return MessageResponseDTO.builder()
-                    .message("Thêm thành công!")
+                    .message("Succeed")
                     .build();
 
         } catch (Exception e) {
             log.error("Lỗi khi thêm ToDo: " + e.getMessage(), e);
             return MessageResponseDTO.builder()
-                    .message("Thêm thất bại: " + e.getMessage())
+                    .message("Failed")
                     .build();
         }
     }
@@ -92,13 +92,13 @@ public class ToDoServiceImpl extends AService implements IToDoService {
             toDoRepository.save(todo);
             log.info("Cập nhật thành công cho user id: " + user.getUserId());
             return MessageResponseDTO.builder()
-                    .message("Cập nhật thành công!")
+                    .message("Succeed")
                     .build();
 
         } catch (Exception e) {
             log.error("Lỗi khi cập nhật ToDo: " + e.getMessage(), e);
             return MessageResponseDTO.builder()
-                    .message("Cập nhật thất bại: " + e.getMessage())
+                    .message("Failed")
                     .build();
         }
     }
@@ -111,13 +111,13 @@ public class ToDoServiceImpl extends AService implements IToDoService {
             toDoRepository.delete(todo);
             log.info("Xóa thành công todo id: " + todoId);
             return MessageResponseDTO.builder()
-                    .message("Xóa thành công!")
+                    .message("Succeed")
                     .build();
 
         } catch (Exception e) {
             log.error("Lỗi khi xóa ToDo: " + e.getMessage(), e);
             return MessageResponseDTO.builder()
-                    .message("Xóa thất bại: " + e.getMessage())
+                    .message("Failed")
                     .build();
         }
     }
