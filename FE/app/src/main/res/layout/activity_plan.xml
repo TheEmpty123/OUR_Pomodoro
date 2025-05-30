@@ -8,17 +8,21 @@
     android:id="@+id/plan"
   >
 
-    <TextView
+    <EditText
         android:id="@+id/titlePlan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="New Plan"
+        android:hint="Nhập tiêu đề kế hoạch"
         android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/black"
         android:gravity="center"
-        android:padding="20dp"
-        android:layout_marginTop="20dp"/>
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:inputType="textCapSentences"
+        android:padding="16dp"
+        android:layout_margin="20dp"
+        android:background="@color/white"
+        style="@style/task_edittext"/>
+
 
     <!-- Danh sách plan -->
     <androidx.recyclerview.widget.RecyclerView

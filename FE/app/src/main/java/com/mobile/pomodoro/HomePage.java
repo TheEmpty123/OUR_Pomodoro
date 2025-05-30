@@ -12,6 +12,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mobile.pomodoro.request_dto.PlanRequestDTO;
+import com.mobile.pomodoro.request_dto.PlanTaskDTO;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -41,11 +42,11 @@ public class HomePage extends NavigateActivity {
         btnLongBreak = findViewById(R.id.btnLongBreak);
         bottomNavView = findViewById(R.id.bottomNavigation);
 
-        // Nhận dữ liệu từ Intent PlanActivity của button "Start"
+        // Nhận dữ liệu từ Intent PlanActivity của button "save"
         Intent intent = getIntent();
         String planTitle = intent.getStringExtra("plan_title");
-        int shortBreak = intent.getIntExtra("short_break", 300);
-        int longBreak = intent.getIntExtra("long_break", 900);
+        int shortBreak = intent.getIntExtra("short_break", 0);
+        int longBreak = intent.getIntExtra("long_break", 0);
         String tasksJson = intent.getStringExtra("tasks_json");
 
         // Hiển thị log
@@ -56,8 +57,23 @@ public class HomePage extends NavigateActivity {
 
         // Chuyển từ JSON -> List<PlanTask>
         Gson gson = new Gson();
-        Type listType = new TypeToken<List<PlanRequestDTO.PlanTaskDTO>>() {}.getType();
-        List<PlanRequestDTO.PlanTaskDTO> taskList = gson.fromJson(tasksJson, listType);
+        Type listType = new TypeToken<List<PlanTaskDTO>>() {}.getType();
+        List<PlanTaskDTO> taskList = gson.fromJson(tasksJson, listType);
+
+        showRecentPlan(planTitle, shortBreak, longBreak, taskList);
+    }
+
+    private void showRecentPlan(String planTitle, int shortBreak, int longBreak, List<PlanTaskDTO> taskList) {
+        if (taskList != null && !taskList.isEmpty()) {
+            // Hiển thị PlanTask đầu tiên
+            PlanTaskDTO firstTask = taskList.get(0);
+            currentTaskText.setText(firstTask.getPlan_title());
+            double minutes = firstTask.getPlan_duration();
+            timerText.setText(String.format("%02d:00", minutes));
+        } else {
+            currentTaskText.setText("No task available");
+            timerText.setText("00:00");
+        }
     }
 
     @Override

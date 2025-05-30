@@ -2,6 +2,7 @@ package com.mobile.pomodoro;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,6 +14,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.mobile.pomodoro.request_dto.PlanRequestDTO;
+import com.mobile.pomodoro.request_dto.PlanTaskDTO;
 import com.mobile.pomodoro.response_dto.MessageResponseDTO;
 import com.mobile.pomodoro.service.PomodoroService;
 import com.mobile.pomodoro.utils.LogObj;
@@ -28,7 +30,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
         private RecyclerView recyclerView;
         private MaterialButton  btnSave, btnStart, btnExport, btnImport;
         private PlanAdapter adapter;
-        private List<PlanRequestDTO.PlanTaskDTO> planList;
+        private List<PlanTaskDTO> planList;
          private LogObj log;
     private int globalShortBreak = 0;
     private int globalLongBreak = 0;
@@ -90,7 +92,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
 
         //Callback khi thêm plan
         @Override
-        public void onPlanAdded(PlanRequestDTO.PlanTaskDTO newPlan, int shortBreak, int longBreak, boolean isFirstTask) {
+        public void onPlanAdded(PlanTaskDTO newPlan, int shortBreak, int longBreak, boolean isFirstTask) {
             if (isFirstTask) {
                 globalShortBreak = shortBreak;
                 globalLongBreak = longBreak;
@@ -119,7 +121,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                 return;
             }
 //            Lấy title
-            TextView titlePlan = findViewById(R.id.titlePlan);
+            EditText titlePlan = findViewById(R.id.titlePlan);
             String title = titlePlan.getText().toString().trim();
             if (title.isEmpty()) {
                 log.warn("Title is empty. Defaulting to 'My Plan'");
@@ -145,30 +147,38 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
 
             log.info("Sending savePlan API request");
 
-//        b3:gọi api
-            PomodoroService.getClient().savePlan(request).enqueue(new Callback<MessageResponseDTO>() {
+//        b3:gọi api và nhận lại recent_plan
+            PomodoroService.getClient().savePlan(request).enqueue(new Callback<PlanRequestDTO>() {
                 @Override
-                public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
-                    if (response.isSuccessful()) {
-                        MessageResponseDTO responseDTO = response.body();
-                        String message = responseDTO != null && responseDTO.getMessage() != null
-                                ? responseDTO.getMessage()
-                                : "Plan saved successfully";
-                        Toast.makeText(PlanActivity.this, message, Toast.LENGTH_SHORT).show();
-//                        recreate();// làm mới
+                public void onResponse(Call<PlanRequestDTO> call, Response<PlanRequestDTO> response) {
+                        Toast.makeText(PlanActivity.this, "Success", Toast.LENGTH_SHORT).show();
+                        PlanRequestDTO plan = response.body();
+                        if (plan == null) {
+                            log.warn("No recentPlan returned from server");
+                            Toast.makeText(PlanActivity.this, "Không nhận được kế hoạch vừa lưu", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 //                     chuyển trang #home
-                         Intent intent = new Intent(PlanActivity.this, HomePage.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); // Xóa stack activity
-                         startActivity(intent);
-                         finish();
-                    }else {
-                        log.warn("savePlan API failed with HTTP: " + response.code());
-                        Toast.makeText(PlanActivity.this, "Error", Toast.LENGTH_SHORT).show();
-                    }
+                    Intent intent = new Intent(PlanActivity.this, HomePage.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+                        // Truyền toàn bộ thông tin plan
+                    intent.putExtra("plan_title", plan.getTitle());
+                    intent.putExtra("short_break", plan.getS_break_duration() /60);
+                    intent.putExtra("long_break", plan.getL_break_duration() /60);
+
+                    // Truyền danh sách tasks dưới dạng JSON
+                    Gson gson = new Gson();
+                    String tasksJson = gson.toJson(plan.getSteps());
+                    intent.putExtra("tasks_json", tasksJson);
+
+                    startActivity(intent);
+                    finish(); // Đóng
+//
                 }
 
                 @Override
-                public void onFailure(Call<MessageResponseDTO> call, Throwable t) {
+                public void onFailure(Call<PlanRequestDTO> call, Throwable t) {
                     log.error("savePlan failed: " + t.getMessage());
                     Toast.makeText(PlanActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
@@ -180,61 +190,64 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
         // Kiểm tra ds
             if (planList.isEmpty()) {
                 log.warn("Start clicked with empty task list");
-                Toast.makeText(this, "Vui lòng thêm công việc", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please add at least one task", Toast.LENGTH_SHORT).show();
                 return;
             }
             // Lấy title
-            TextView titleView = findViewById(R.id.titlePlan);
+            EditText titleView = findViewById(R.id.titlePlan);
             String planTitle = titleView.getText().toString();
+            if (planTitle.isEmpty()) {
+                log.warn("Title is empty. Defaulting to 'My Plan'");
+                planTitle = "My Plan";
+            }
 
+            if (globalShortBreak <= 0 || globalLongBreak <= 0) {
+                log.warn("Break time invalid: short=" + globalShortBreak + ", long=" + globalLongBreak);
+                Toast.makeText(this, "Please set valid break times", Toast.LENGTH_SHORT).show();
+                return;
+            }
+//            Thiết lập order
             for (int i = 0; i < planList.size(); i++) {
                 planList.get(i).setOrder(i + 1);
             }
 
-//            PlanTask latestPlan = planList.get(planList.size() - 1);
 //     tạo requestDTO
             PlanRequestDTO request = new PlanRequestDTO();
             request.setTitle(planTitle);
             request.setS_break_duration(globalShortBreak *60 );
             request.setL_break_duration(globalLongBreak *60 );
             request.setSteps(planList);
-
+            log.info("Sending startPlanWithoutSaving API request");
 // api
-            PomodoroService.getClient().startPlan(request).enqueue(new Callback<MessageResponseDTO>() {
+            PomodoroService.getClient().startPlan(request).enqueue(new Callback<PlanRequestDTO>() {
                 @Override
-                public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
-                    if (response.isSuccessful()) {
-                        // Xử lý khi thành công
-                        MessageResponseDTO responseDTO = response.body();
-                        String message = responseDTO != null && responseDTO.getMessage() != null
-                                ? responseDTO.getMessage()
-                                : "Start Plan";
+                public void onResponse(Call<PlanRequestDTO> call, Response<PlanRequestDTO> response) {
+                        if (!response.isSuccessful() || response.body() == null) {
+                            Toast.makeText(PlanActivity.this, "Failed to load plan", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    Toast.makeText(PlanActivity.this,"Success", Toast.LENGTH_SHORT).show();
 
-                        Toast.makeText(PlanActivity.this, message, Toast.LENGTH_SHORT).show();
-
+                    PlanRequestDTO startplan = response.body();
                             Intent intent = new Intent(PlanActivity.this, HomePage.class);// Chuyển sang view home
+                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             // Truyền toàn bộ thông tin plan
-                            intent.putExtra("plan_title", planTitle);
-                            intent.putExtra("short_break", globalShortBreak);
-                            intent.putExtra("long_break", globalLongBreak);
+                            intent.putExtra("plan_title", startplan.getTitle());
+                            intent.putExtra("short_break", startplan.getS_break_duration() /60);
+                            intent.putExtra("long_break", startplan.getL_break_duration()/60);
 
                             // Truyền danh sách tasks dưới dạng JSON
                             Gson gson = new Gson();
-                            String tasksJson = gson.toJson(planList);
+                            String tasksJson = gson.toJson(startplan.getSteps());
                             intent.putExtra("tasks_json", tasksJson);
 
                             startActivity(intent);
                             finish(); // Đóng
 
-                    }
-                    else {
-                        log.warn("startPlan failed - HTTP code: " + response.code());
-                        Toast.makeText(PlanActivity.this, "Error", Toast.LENGTH_SHORT).show();
-                    }
 
                 }
                 @Override
-                public void onFailure(Call<MessageResponseDTO> call, Throwable t) {
+                public void onFailure(Call< PlanRequestDTO> call, Throwable t) {
                     log.error("startPlan failed: " + t.getMessage());
                     Toast.makeText(PlanActivity.this,
                             "Error: " + t.getMessage(),

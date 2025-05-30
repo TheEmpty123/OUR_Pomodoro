@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.mobile.pomodoro.request_dto.PlanRequestDTO;
+import com.mobile.pomodoro.request_dto.PlanTaskDTO;
 
 
 public class AddPlanFragment extends DialogFragment {
@@ -24,7 +25,7 @@ public class AddPlanFragment extends DialogFragment {
 
 //    Interface dùng để callback khi thêm plan
     public interface OnPlanAddedListener {
-        void onPlanAdded(PlanRequestDTO.PlanTaskDTO newPlan, int shortBreak, int longBreak, boolean isFirstTask);
+        void onPlanAdded(PlanTaskDTO newPlan, int shortBreak, int longBreak, boolean isFirstTask);
     }
     @Override
     public void onAttach(@NonNull Context context) {
@@ -78,7 +79,7 @@ public class AddPlanFragment extends DialogFragment {
                 }
 
 //                Tạo PlanTaskDTO mới
-                PlanRequestDTO.PlanTaskDTO plan = new PlanRequestDTO.PlanTaskDTO();
+                PlanTaskDTO plan = new PlanTaskDTO();
                 plan.setPlan_title(title);
                 plan.setPlan_duration(time);
                 plan.setOrder(0);
