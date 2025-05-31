@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -12,7 +13,7 @@
         android:theme="@style/Theme.OurPomodoro"
         tools:targetApi="31">
         <activity
-            android:name=".WelcomeActivity"
+            android:name=".LoginSignup.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,6 +21,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".LoginSignup.SignUpActivity"
+            android:exported="false" />
+        <activity
+            android:name=".WelcomeActivity"
+            android:exported="false" />
         <activity
             android:name=".HomePage"
             android:exported="false" />
@@ -31,12 +41,6 @@
             android:exported="false" />
         <activity
             android:name=".DailyTaskActivity"
-            android:exported="false" />
-        <activity
-            android:name=".SettingsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".SignUpActivity"
             android:exported="false" />
     </application>
 

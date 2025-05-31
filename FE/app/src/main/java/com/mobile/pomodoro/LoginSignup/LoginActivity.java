@@ -1,4 +1,4 @@
-package com.mobile.pomodoro;
+package com.mobile.pomodoro.LoginSignup;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.mobile.pomodoro.R;
+import com.mobile.pomodoro.WelcomeActivity;
 import com.mobile.pomodoro.enums.MessageState;
 import com.mobile.pomodoro.request_dto.LoginRequestDTO;
 import com.mobile.pomodoro.response_dto.MessageResponseDTO;
@@ -88,44 +90,47 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         // TEST
-//        PomodoroService.getClient().testLogin(LoginRequestDTO.builder()
-//                        .username(username)
-//                        .password(password)
-//                        .build())
-//                .enqueue(new Callback<MessageResponseDTO>() {
-//                    @Override
-//                    public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
-//                        if (response.isSuccessful() &&
-//                                Objects.requireNonNull(response.body()).getMessage() != null){
-//                            Toast.makeText(LoginActivity.this,
-//                                            response.body().getMessage(),
-//                                            Toast.LENGTH_SHORT)
-//                                    .show();
-//                        }
-//                        else {
-//                            Toast.makeText(LoginActivity.this,
-//                                            "No response",
-//                                            Toast.LENGTH_SHORT)
-//                                    .show();
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<MessageResponseDTO> call, Throwable throwable) {
-//                        throw new RuntimeException(throwable);
-//                    }
-//                });
-
-        // Login handler
-        PomodoroService.getClient().login(LoginRequestDTO.builder()
-                    .username(username)
-                    .password(password)
-                    .build())
+        PomodoroService.getClient().testLogin(LoginRequestDTO.builder()
+                        .username(username)
+                        .password(password)
+                        .build())
                 .enqueue(new Callback<MessageResponseDTO>() {
                     @Override
                     public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
                         if (response.isSuccessful() &&
-                                response.body().getMessage().equals(MessageState.LOGIN_SUCCESSFUL.toString())){
+                                Objects.requireNonNull(response.body()).getMessage() != null) {
+                            Toast.makeText(LoginActivity.this,
+                                            response.body().getMessage(),
+                                            Toast.LENGTH_SHORT)
+                                    .show();
+                        } else {
+                            Toast.makeText(LoginActivity.this,
+                                            "No response",
+                                            Toast.LENGTH_SHORT)
+                                    .show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<MessageResponseDTO> call, Throwable throwable) {
+                        log.error("Network request failed", throwable);
+                        Toast.makeText(LoginActivity.this,
+                                        "Failed to connect to the server. Please try again later.",
+                                        Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                });
+
+        // Login handler
+        PomodoroService.getClient().login(LoginRequestDTO.builder()
+                        .username(username)
+                        .password(password)
+                        .build())
+                .enqueue(new Callback<MessageResponseDTO>() {
+                    @Override
+                    public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
+                        if (response.isSuccessful() &&
+                                response.body().getMessage().equals(MessageState.LOGIN_SUCCESSFUL.toString())) {
                             log.info("Login successful, move to homepage");
                             Toast.makeText(LoginActivity.this,
                                             response.body().getMessage(),
@@ -133,9 +138,8 @@ public class LoginActivity extends AppCompatActivity {
                                     .show();
 
                             MyUtils.save(LoginActivity.this, "username", username);
-                            // startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                        }
-                        else {
+                            startActivity(new Intent(LoginActivity.this, WelcomeActivity.class));
+                        } else {
                             if (!response.body().getMessage().equals(MessageState.LOGIN_SUCCESSFUL.toString())) {
                                 log.warn(response.body().getMessage());
                                 Toast.makeText(LoginActivity.this,
