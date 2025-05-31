@@ -42,17 +42,15 @@ public class HomePage extends NavigateActivity {
         btnLongBreak = findViewById(R.id.btnLongBreak);
         bottomNavView = findViewById(R.id.bottomNavigation);
 
-        // Nhận dữ liệu từ Intent PlanActivity của button "save"
+        // Nhận dữ liệu từ Intent PlanActivity của button "save", "start"
         Intent intent = getIntent();
         String planTitle = intent.getStringExtra("plan_title");
-        int shortBreak = intent.getIntExtra("short_break", 0);
-        int longBreak = intent.getIntExtra("long_break", 0);
+        Long planId = intent.getLongExtra("plan_id", -1);
         String tasksJson = intent.getStringExtra("tasks_json");
 
         // Hiển thị log
         Log.d("HomePage", "Plan title: " + planTitle);
-        Log.d("HomePage", "Short break: " + shortBreak);
-        Log.d("HomePage", "Long break: " + longBreak);
+        Log.d("HomePage", "Plan Id: " + planId);
         Log.d("HomePage", "Tasks JSON: " + tasksJson);
 
         // Chuyển từ JSON -> List<PlanTask>
@@ -60,10 +58,10 @@ public class HomePage extends NavigateActivity {
         Type listType = new TypeToken<List<PlanTaskDTO>>() {}.getType();
         List<PlanTaskDTO> taskList = gson.fromJson(tasksJson, listType);
 
-        showRecentPlan(planTitle, shortBreak, longBreak, taskList);
+        showRecentPlan(planTitle, taskList);
     }
 
-    private void showRecentPlan(String planTitle, int shortBreak, int longBreak, List<PlanTaskDTO> taskList) {
+    private void showRecentPlan(String planTitle, List<PlanTaskDTO> taskList) {
         if (taskList != null && !taskList.isEmpty()) {
             // Hiển thị PlanTask đầu tiên
             PlanTaskDTO firstTask = taskList.get(0);
