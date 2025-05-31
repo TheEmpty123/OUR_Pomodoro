@@ -2,9 +2,11 @@ package com.mobile.pomodoro.services.impl;
 
 import com.mobile.pomodoro.dto.request.DailyTaskRequestDTO;
 import com.mobile.pomodoro.dto.request.PlanRequestDTO;
+import com.mobile.pomodoro.dto.request.PlanToEditRequestDTO;
 import com.mobile.pomodoro.dto.response.DailyTaskResponeseDTO.DailyTaskResponeseDTO;
 import com.mobile.pomodoro.dto.response.MessageResponseDTO;
 import com.mobile.pomodoro.dto.response.PlanResponseDTO.PlanResponseDTO;
+import com.mobile.pomodoro.dto.response.PlanToEditResponseDTO.PlanToEditResponseDTO;
 import com.mobile.pomodoro.entities.DailyTask;
 import com.mobile.pomodoro.dto.response.DailyTaskResponeseDTO.DailyTaskResponeseDTO.SingleDailyTaskDTO;
 import com.mobile.pomodoro.entities.Plan;
@@ -20,8 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -84,7 +85,6 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
             planRepository.save(plan);
             List<PlanTask> planTasks = new ArrayList<>();
             int order = 1;
-
             for (int i = 0; i < request.getSteps().size(); i++) {
                 DailyTaskRequestDTO.StepRequest step = request.getSteps().get(i);
 
@@ -98,7 +98,6 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
                     planTasks.add(new PlanTask(plan, "long break", request.getL_break_duration(), order++));
                 }
             }
-
             planTaskRepository.saveAll(planTasks);
             DailyTask dailyTask = DailyTask.builder()
                     .title(request.getTitle())
@@ -118,5 +117,133 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
         }
     }
 
+    @Override
+    public PlanToEditResponseDTO getDailyTaskPlanDetails(Long dailyTaskId, User user) {
+        log.info("Bắt đầu lấy chi tiết DailyTask ID: {}", dailyTaskId);
+        try {
+            DailyTask dailyTask = dailyTaskRepository.findById(dailyTaskId).orElse(null);
+            if (dailyTask == null) {
+                throw new IllegalArgumentException("Không tìm thấy daily task");
+            }
+            if (!dailyTask.getUserId().equals(user.getUserId())) {
+                throw new IllegalArgumentException("Người dùng không sở hữu daily task này");
+            }
+            Long planId = dailyTask.getPlanId();
+            if (planId == null) {
+                throw new IllegalArgumentException("Daily task không liên kết với kế hoạch nào");
+            }
+            Plan plan = planRepository.findById(planId).orElse(null);
+            if (plan == null) {
+                throw new IllegalArgumentException("Không tìm thấy kế hoạch");
+            }
+            List<PlanTask> tasks = planTaskRepository.findTaskByPlanId(planId);
+            List<PlanToEditResponseDTO.Step> stepList = new ArrayList<>();
+            int order = 1;
+            for (int i = 0; i < tasks.size(); ) {
+                PlanTask currentTask = tasks.get(i);
+                String title = currentTask.getTask_name();
+
+                if (title.equalsIgnoreCase("short break") || title.equalsIgnoreCase("long break")) {
+                    i++;
+                    continue;
+                }
+                int duration = (int) currentTask.getDuration();
+                if (i + 2 < tasks.size()) {
+                    PlanTask nextTask = tasks.get(i + 2);
+                    if (nextTask.getTask_name().equals(title)) {
+                        duration += nextTask.getDuration();
+                    }
+                }
+                stepList.add(PlanToEditResponseDTO.Step.builder()
+                        .order(order++)
+                        .plan_title(title)
+                        .plan_duration(duration)
+                        .build());
+                i += 3;
+            }
+            int sBreakDuration = 0;
+            for (PlanTask task : tasks) {
+                if (task.getTask_name().equalsIgnoreCase("short break")) {
+                    sBreakDuration = (int) task.getDuration();
+                    break;
+                }
+            }
+            int lBreakDuration = 0;
+            for (PlanTask task : tasks) {
+                if (task.getTask_name().equalsIgnoreCase("long break")) {
+                    lBreakDuration = (int) task.getDuration();
+                    break;
+                }
+            }
+            log.info("Hoàn tất lấy chi tiết kế hoạch cho DailyTask ID: {}", dailyTaskId);
+            return PlanToEditResponseDTO.builder()
+                    .title(plan.getTitle())
+                    .s_break_duration(sBreakDuration)
+                    .l_break_duration(lBreakDuration)
+                    .steps(stepList)
+                    .build();
+        } catch (Exception e) {
+            log.error("Lỗi khi lấy chi tiết DailyTask: " + e.getMessage(), e);
+            throw new RuntimeException("Không thể lấy chi tiết DailyTask. " + e.getMessage());
+        }
+    }
+    @Override
+    public PlanToEditResponseDTO planToEdit(PlanToEditRequestDTO request, User user) {
+        log.info(String.format("Bắt đầu xử lý plan-to-edit cho planId: %d và userId: %d", request.getPlan_id(), user.getUserId()));
+        try {
+            List<PlanTask> tasks = planTaskRepository.findTaskByPlanId(request.getPlan_id());
+            if (tasks.isEmpty()) {
+                log.warn(String.format("Không tìm thấy kế hoạch hoặc không được phép truy cập cho planId: %d", request.getPlan_id()));
+                throw new IllegalArgumentException("Kế hoạch không tồn tại hoặc không thuộc về người dùng");
+            }
+
+            int sBreakDuration = 0;
+            int lBreakDuration = 0;
+            for (PlanTask task : tasks) {
+                if ("short break".equalsIgnoreCase(task.getTask_name())) {
+                    sBreakDuration = (int) task.getDuration();
+                    break;
+                }
+            }
+            for (PlanTask task : tasks) {
+                if ("long break".equalsIgnoreCase(task.getTask_name())) {
+                    lBreakDuration = (int) task.getDuration();
+                    break;
+                }
+            }
+            Map<String, Integer> taskDurations = new HashMap<>();
+            for (PlanTask task : tasks) {
+                String title = task.getTask_name();
+                if (!"short break".equalsIgnoreCase(title) && !"long break".equalsIgnoreCase(title)) {
+                    if (taskDurations.containsKey(title)) {
+                        taskDurations.put(title, taskDurations.get(title) + (int) task.getDuration());
+                    } else {
+                        taskDurations.put(title, (int) task.getDuration());
+                    }
+                }
+            }
+            List<PlanToEditResponseDTO.Step> stepList = new ArrayList<>();
+            int order = 1;
+            for (Map.Entry<String, Integer> entry : taskDurations.entrySet()) {
+                PlanToEditResponseDTO.Step step = PlanToEditResponseDTO.Step.builder()
+                        .plan_title(entry.getKey())
+                        .plan_duration(entry.getValue())
+                        .order(order++)
+                        .build();
+                stepList.add(step);
+            }
+            PlanToEditResponseDTO response = PlanToEditResponseDTO.builder()
+                    .title(request.getTitle())
+                    .s_break_duration(sBreakDuration)
+                    .l_break_duration(lBreakDuration)
+                    .steps(stepList)
+                    .build();
+            log.info(String.format("Hoàn tất xử lý plan-to-edit cho planId: %d", request.getPlan_id()));
+            return response;
+        } catch (Exception e) {
+            log.error(String.format("Lỗi khi xử lý plan-to-edit: %s", e.getMessage()), e);
+            throw new RuntimeException("Không thể xử lý kế hoạch để chỉnh sửa: " + e.getMessage());
+        }
+    }
 
 }
