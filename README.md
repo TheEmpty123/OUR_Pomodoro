@@ -13,6 +13,9 @@ Thế giới đang chuyển động với tốc độ chưa từng có, đòi h�
 - **Nguyên tắc Deep Work** thiết lập các thực hành để đạt được mức độ tập trung cao độ vào các nhiệm vụ đòi hỏi tư duy sâu sắc.  
 Nếu không áp dụng những phương pháp làm việc có cấu trúc này, người dùng thường rơi vào thói quen làm việc hỗn loạn, gây lãng phí thời gian và giảm hiệu suất. Bằng cách tích hợp các kỹ thuật đã được chứng minh này vào **OUR_Pomodoro**, ứng dụng này hướng đến việc thay đổi cách mọi người lập kế hoạch hoạt động—cung cấp cho họ một công cụ hữu ích dựa trên khoa học, giúp nâng cao hiệu quả, duy trì sự tập trung và thúc đẩy thành công lâu dài.
 
+## Technologies
+- Springboot
+- Java Android
 
 ## Preferences
 - [Todoist](https://www.todoist.com/)
