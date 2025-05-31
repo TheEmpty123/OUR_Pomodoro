@@ -67,7 +67,7 @@ public class HomePage extends NavigateActivity {
             PlanTaskDTO firstTask = taskList.get(0);
             currentTaskText.setText(firstTask.getPlan_title());
             double minutes = firstTask.getPlan_duration();
-            timerText.setText(String.format("%02d:00", minutes));
+            timerText.setText(String.format("%02d:00", (int) Math.round(minutes)));
         } else {
             currentTaskText.setText("No task available");
             timerText.setText("00:00");

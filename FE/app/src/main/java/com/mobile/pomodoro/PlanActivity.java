@@ -2,8 +2,8 @@ package com.mobile.pomodoro;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -145,7 +145,10 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             request.setS_break_duration(globalShortBreak *60);
             request.setL_break_duration(globalLongBreak *60);
             request.setSteps(planList);
-
+// Log body JSON trước khi gửi
+            Gson gson = new Gson();
+            String requestBodyString = gson.toJson(request);
+            Log.d("API Request", "POST body: " + requestBodyString);
             log.info("Sending savePlan API request");
 
 //        b3:gọi api gửi cho be và nhận lại recent_plan
@@ -158,6 +161,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                         return;
                     }
                     PlanResponseDTO plan = response.body();
+                    Log.d("API Response", "Response body: " + new Gson().toJson(plan));
                     Toast.makeText(PlanActivity.this, "Success", Toast.LENGTH_SHORT).show();
 
 //                     chuyển trang #home
@@ -202,11 +206,6 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                 planTitle = "My Plan";
             }
 
-            if (globalShortBreak <= 0 || globalLongBreak <= 0) {
-                log.warn("Break time invalid: short=" + globalShortBreak + ", long=" + globalLongBreak);
-                Toast.makeText(this, "Please set valid break times", Toast.LENGTH_SHORT).show();
-                return;
-            }
 //            Thiết lập order
             for (int i = 0; i < planList.size(); i++) {
                 planList.get(i).setOrder(i + 1);
@@ -223,10 +222,12 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             PomodoroService.getClient().startPlan(request).enqueue(new Callback<PlanResponseDTO>() {
                 @Override
                 public void onResponse(Call<PlanResponseDTO> call, Response<PlanResponseDTO> response) {
-                        if (!response.isSuccessful() || response.body() == null) {
+                    log.info("onResponse called");
+                    if (!response.isSuccessful() || response.body() == null) {
                             Toast.makeText(PlanActivity.this, "Failed to load plan", Toast.LENGTH_SHORT).show();
                             return;
                         }
+                    log.info("Response is successful");
                     Toast.makeText(PlanActivity.this,"Success", Toast.LENGTH_SHORT).show();
 
                     PlanResponseDTO startplan = response.body();
@@ -236,7 +237,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                             // Truyền toàn bộ thông tin plan
                             intent.putExtra("plan_title", startplan.getTitle());
 
-                            // Truyền danh sách tasks dưới dạng JSON
+//                            // Truyền danh sách tasks dưới dạng JSON
                             Gson gson = new Gson();
                             String tasksJson = gson.toJson(startplan.getSteps());
                             intent.putExtra("tasks_json", tasksJson);
