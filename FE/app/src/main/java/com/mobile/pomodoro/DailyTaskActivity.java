@@ -18,7 +18,7 @@ import com.mobile.pomodoro.entity.DailyTask;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DailyTaskActivity extends AppCompatActivity implements DailyTaskPopupFragment.OnDailyTaskListener {
+public class DailyTaskActivity extends NavigateActivity implements DailyTaskPopupFragment.OnDailyTaskListener {
 
     private RecyclerView recyclerView;
     private DailyTaskAdapter adapter;
@@ -28,7 +28,7 @@ public class DailyTaskActivity extends AppCompatActivity implements DailyTaskPop
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_daily_task);
+//        setContentView(R.layout.activity_daily_task);
 
         recyclerView = findViewById(R.id.recyclerDailyTasks);
         btnAdd = findViewById(R.id.btnAddDailyTask);
@@ -38,7 +38,7 @@ public class DailyTaskActivity extends AppCompatActivity implements DailyTaskPop
             @Override
             public void onItemClick(DailyTask task) {
                 // Chuyển sang Plan Screen với id task
-                Intent intent = new Intent(DailyTaskActivity.this, HomePage.class);
+                Intent intent = new Intent(DailyTaskActivity.this, PlanActivity.class);
                 intent.putExtra("task_id", task.getId());
                 startActivity(intent);
             }
@@ -92,5 +92,14 @@ public class DailyTaskActivity extends AppCompatActivity implements DailyTaskPop
                 break;
             }
         }
+    }
+    @Override
+    protected int getLayoutResourceId() {
+        return R.layout.activity_daily_task;
+    }
+
+    @Override
+    protected int getCurrentMenuItemId() {
+        return R.id.page_calendar;
     }
 }

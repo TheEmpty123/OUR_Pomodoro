@@ -2,22 +2,23 @@ package com.mobile.pomodoro;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.TextView;
+import android.util.Log;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
-import com.mobile.pomodoro.entity.PlanTask;
-import com.mobile.pomodoro.repository.UserRepository;
 import com.mobile.pomodoro.request_dto.PlanRequestDTO;
+import com.mobile.pomodoro.request_dto.PlanTaskDTO;
+import com.mobile.pomodoro.response_dto.MessageResponseDTO;
 import com.mobile.pomodoro.response_dto.PlanResponseDTO;
 import com.mobile.pomodoro.service.PomodoroService;
+import com.mobile.pomodoro.utils.LogObj;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,75 +27,86 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class PlanActivity extends AppCompatActivity implements AddPlanFragment.OnPlanAddedListener {
-    private RecyclerView recyclerView;
-    private MaterialButton btnSave, btnStart, btnExport, btnImport;
-    private PlanAdapter adapter;
-    private List<PlanTask> planList;
+public class PlanActivity extends NavigateActivity implements AddPlanFragment.OnPlanAddedListener {
+        private RecyclerView recyclerView;
+        private MaterialButton  btnSave, btnStart, btnExport, btnImport;
+        private PlanAdapter adapter;
+        private List<PlanTaskDTO> planList;
+         private LogObj log;
     private int globalShortBreak = 0;
     private int globalLongBreak = 0;
     private boolean hasBreakTimeSet = false;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_plan);
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            log = new LogObj();
+            log.setName(getClass().getSimpleName());
+            log.info("onCreate - Initializing PlanActivity");
+            EdgeToEdge.enable(this);
+//            setContentView(R.layout.activity_plan);
 
-        FloatingActionButton btnAdd = findViewById(R.id.btnAdd);
-        btnSave = findViewById(R.id.btnSave);
-        btnStart = findViewById(R.id.btnStart);
-        btnImport = findViewById(R.id.btnImport);
-        btnExport = findViewById(R.id.btnExport);
-        recyclerView = findViewById(R.id.recyclerPlan);
+            FloatingActionButton btnAdd = findViewById(R.id.btnAdd);
+            btnSave = findViewById(R.id.btnSave);
+            btnStart = findViewById(R.id.btnStart);
+            btnImport = findViewById(R.id.btnImport);
+            btnExport = findViewById(R.id.btnExport);
+            recyclerView = findViewById(R.id.recyclerPlan);
 
-        planList = new ArrayList<>();
-        adapter = new PlanAdapter(planList);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(adapter);
+            planList = new ArrayList<>();
+            adapter = new PlanAdapter(planList); //  adapter kết ối dl với RecyclerView
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+            recyclerView.setAdapter(adapter);
 
-        // các button
-        btnAdd.setOnClickListener(v -> {
-            showAddPlanDialog();
-        });
+            // button "Add"
+            btnAdd.setOnClickListener(v -> {
+                log.info("Add button clicked");
+                showAddPlanDialog();
+            });
 
-        //Button "Save"
-        btnSave.setOnClickListener(v -> {
-            savePlan();
-        });
-        btnStart.setOnClickListener(v -> {
-            startPlanWithoutSaving();
-        });
-        btnImport.setOnClickListener(v -> {
-            showImportPopup();
-        });
-        btnExport.setOnClickListener(v -> {
-            showExportPopup();
-        });
+            //Button "Save"
+            btnSave.setOnClickListener(v -> {
+                log.info("Save button clicked");
+                savePlan();
+            });
+            // button "Start"
+            btnStart.setOnClickListener(v -> {
+                log.info("Start button clicked");
+                startPlanWithoutSaving();
+            });
+            btnImport.setOnClickListener(v -> {
+                log.info("Import button clicked");
+                showImportPopup();
+            });
+            btnExport.setOnClickListener(v ->{
+                log.info("Export button clicked");
+                showExportPopup();
+            });
+
 
 //        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.plan), (v, insets) -> {
 //            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 //            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
 //            return insets;
 //        });
-    }
-
-    @Override
-    public void onPlanAdded(PlanTask newPlan, int shortBreak, int longBreak, boolean isFirstTask) {
-        if (isFirstTask) {
-            globalShortBreak = shortBreak;
-            globalLongBreak = longBreak;
-            hasBreakTimeSet = true;
         }
 
-        // Áp dụng break time cho các task sau
-        newPlan.setShortBreak(globalShortBreak);
-        newPlan.setLongBreak(globalLongBreak);
+        //Callback khi thêm plan
+        @Override
+        public void onPlanAdded(PlanTaskDTO newPlan, int shortBreak, int longBreak, boolean isFirstTask) {
+            if (isFirstTask) {
+                globalShortBreak = shortBreak;
+                globalLongBreak = longBreak;
+                hasBreakTimeSet = true;
+            }
 
-        planList.add(newPlan);
-        adapter.notifyItemInserted(planList.size() - 1);
-    }
+            // Áp dụng break time cho các task sau
+            newPlan.setShortBreak(globalShortBreak);
+            newPlan.setLongBreak(globalLongBreak);
 
+            planList.add(newPlan);
+            adapter.notifyItemInserted(planList.size() - 1);
+        }
     private void showAddPlanDialog() {
         boolean isFirstTask = !hasBreakTimeSet;
         AddPlanFragment fragment = AddPlanFragment.newInstance(isFirstTask, globalShortBreak, globalLongBreak);
@@ -102,147 +114,163 @@ public class PlanActivity extends AppCompatActivity implements AddPlanFragment.O
     }
 
 
-    private void savePlan() {
+        private void savePlan() {
 //        B1: ktr danh sách task
-        if (planList.isEmpty()) {
-            Toast.makeText(this, "Please add at least one task", Toast.LENGTH_SHORT).show();
-            return;
-        }
+            if (planList.isEmpty()) {
+                log.warn("Attempt to save empty plan list");
+                Toast.makeText(this, "Please add at least one task", Toast.LENGTH_SHORT).show();
+                return;
+            }
 //            Lấy title
-        TextView titlePlan = findViewById(R.id.titlePlan);
-        String title = titlePlan.getText().toString().trim();
-        if (title.isEmpty()) {
-            title = "My Plan";
-        }
+            EditText titlePlan = findViewById(R.id.titlePlan);
+            String title = titlePlan.getText().toString().trim();
+            if (title.isEmpty()) {
+                log.warn("Title is empty. Defaulting to 'My Plan'");
+                title = "My Plan";
+            }
 
-        if (globalShortBreak <= 0 || globalLongBreak <= 0) {
-            Toast.makeText(this, "Please set valid break times", Toast.LENGTH_SHORT).show();
-            return;
-        }
+            if (globalShortBreak <= 0 || globalLongBreak <= 0) {
+                log.warn("Break time invalid: short=" + globalShortBreak + ", long=" + globalLongBreak);
+                Toast.makeText(this, "Please set valid break times", Toast.LENGTH_SHORT).show();
+                return;
+            }
+//            Thiết lập order
+            for (int i = 0; i < planList.size(); i++) {
+                planList.get(i).setOrder(i + 1);
+            }
 
-        // lưu plan theo user, nên phải thêm header là username vào
-        UserRepository userRepo = UserRepository.getInstance(this);
-        String username = userRepo.getUsername();
+//        b2: tạo requestDTO
+            PlanRequestDTO request = new PlanRequestDTO();
+            request.setTitle(title);
+            request.setS_break_duration(globalShortBreak *60);
+            request.setL_break_duration(globalLongBreak *60);
+            request.setSteps(planList);
+// Log body JSON trước khi gửi
+            Gson gson = new Gson();
+            String requestBodyString = gson.toJson(request);
+            Log.d("API Request", "POST body: " + requestBodyString);
+            log.info("Sending savePlan API request");
 
-//        đổi từ plantask qua plantaskDTO
-        List<PlanRequestDTO.PlanTaskDTO> taskList = new ArrayList<>();
-        for (int i = 0; i < planList.size(); i++) {
-            PlanTask task = planList.get(i);
-            PlanRequestDTO.PlanTaskDTO dto = new PlanRequestDTO.PlanTaskDTO();
-            dto.setPlan_title(task.getPlanName());
-            dto.setPlan_duration(task.getDuration() * 60);
-            dto.setOrder(i + 1);
-            taskList.add(dto);
-        }
-//        b2: tạo request
-        PlanRequestDTO request = new PlanRequestDTO();
-        request.setTitle(title);
-        request.setS_break_duration(globalShortBreak * 60);
-        request.setL_break_duration(globalLongBreak * 60);
-        request.setSteps(taskList);
-//        b3:gọi api
-        PomodoroService.getRetrofitInstance(username).savePlan(request).enqueue(new Callback<PlanResponseDTO>() {
-            @Override
-            public void onResponse(Call<PlanResponseDTO> call, Response<PlanResponseDTO> response) {
-                if (response.isSuccessful()) {
-                    PlanResponseDTO responseDTO = response.body();
-                    String message = responseDTO != null && responseDTO.getMessage() != null
-                            ? responseDTO.getMessage()
-                            : "Plan saved successfully";
-                    Toast.makeText(PlanActivity.this, message, Toast.LENGTH_SHORT).show();
-//                        recreate();// làm mới
+//        b3:gọi api gửi cho be và nhận lại recent_plan
+            PomodoroService.getClient().savePlan(request).enqueue(new Callback<PlanResponseDTO>() {
+                @Override
+                public void onResponse(Call<PlanResponseDTO> call, Response<PlanResponseDTO> response) {
+                    if (!response.isSuccessful() || response.body() == null) {
+                        log.warn("Failed to receive recent plan");
+                        Toast.makeText(PlanActivity.this, "Không nhận được kế hoạch vừa lưu", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    PlanResponseDTO plan = response.body();
+                    Log.d("API Response", "Response body: " + new Gson().toJson(plan));
+                    Toast.makeText(PlanActivity.this, "Success", Toast.LENGTH_SHORT).show();
+
 //                     chuyển trang #home
                     Intent intent = new Intent(PlanActivity.this, HomePage.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); // Xóa stack activity
-                    startActivity(intent);
-                    finish();
-                } else {
-                    Toast.makeText(PlanActivity.this, "Error", Toast.LENGTH_SHORT).show();
-                }
-            }
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-            @Override
-            public void onFailure(Call<PlanResponseDTO> call, Throwable t) {
-//                log.error(t.getMessage());
-                Toast.makeText(PlanActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+                        // Truyền toàn bộ thông tin plan
+                    intent.putExtra("plan_id", plan.getId());
+                    intent.putExtra("plan_title", plan.getTitle());
 
-
-    private void startPlanWithoutSaving() {
-        if (planList.isEmpty()) {
-            Toast.makeText(this, "Vui lòng thêm công việc", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        TextView titleView = findViewById(R.id.titlePlan);
-        String planTitle = titleView.getText().toString();
-
-
-//            PlanTask latestPlan = planList.get(planList.size() - 1);
-//     tạo requestDTO
-        PlanRequestDTO request = new PlanRequestDTO();
-        request.setTitle(planTitle);
-        request.setS_break_duration(globalShortBreak * 60);
-        request.setL_break_duration(globalLongBreak * 60);
-// danh sách các bước
-        List<PlanRequestDTO.PlanTaskDTO> steps = new ArrayList<>();
-        for (int i = 0; i < planList.size(); i++) {
-            PlanTask task = planList.get(i);
-            PlanRequestDTO.PlanTaskDTO dto = new PlanRequestDTO.PlanTaskDTO();
-            dto.setPlan_title(task.getPlanName());
-            dto.setPlan_duration(task.getDuration() * 60);
-            dto.setOrder(i + 1);
-            steps.add(dto);
-        }
-        request.setSteps(steps);
-// api
-        PomodoroService.getClient().startPlan(request).enqueue(new Callback<PlanResponseDTO>() {
-            @Override
-            public void onResponse(Call<PlanResponseDTO> call, Response<PlanResponseDTO> response) {
-                if (response.isSuccessful()) {
-                    // Xử lý khi thành công
-                    PlanResponseDTO responseDTO = response.body();
-                    String message = responseDTO != null && responseDTO.getMessage() != null
-                            ? responseDTO.getMessage()
-                            : "Start Plan";
-
-                    Toast.makeText(PlanActivity.this, message, Toast.LENGTH_SHORT).show();
-
-                    Intent intent = new Intent(PlanActivity.this, HomePage.class);// Chuyển sang view home
-                    // Truyền toàn bộ thông tin plan
-                    intent.putExtra("plan_title", planTitle);
-                    intent.putExtra("short_break", globalShortBreak);
-                    intent.putExtra("long_break", globalLongBreak);
-
-                    // Truyền danh sách tasks
-
+                    // Truyền danh sách tasks dưới dạng JSON
                     Gson gson = new Gson();
-                    String tasksJson = gson.toJson(planList);
+                    String tasksJson = gson.toJson(plan.getSteps());
                     intent.putExtra("tasks_json", tasksJson);
-//                        intent.putParcelableArrayListExtra("latestPlan_tasks", new ArrayList<>(planList));
+
                     startActivity(intent);
                     finish(); // Đóng
-
-                } else {
-                    Toast.makeText(PlanActivity.this, "Error", Toast.LENGTH_SHORT).show();
+//
                 }
 
+                @Override
+                public void onFailure(Call<PlanResponseDTO> call, Throwable t) {
+                    log.error("savePlan failed: " + t.getMessage());
+                    Toast.makeText(PlanActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+
+        private void startPlanWithoutSaving() {
+        // Kiểm tra ds
+            if (planList.isEmpty()) {
+                log.warn("Start clicked with empty task list");
+                Toast.makeText(this, "Please add at least one task", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // Lấy title
+            EditText titleView = findViewById(R.id.titlePlan);
+            String planTitle = titleView.getText().toString();
+            if (planTitle.isEmpty()) {
+                log.warn("Title is empty. Defaulting to 'My Plan'");
+                planTitle = "My Plan";
             }
 
-            @Override
-            public void onFailure(Call<PlanResponseDTO> call, Throwable t) {
-                Toast.makeText(PlanActivity.this,
-                        "Error: " + t.getMessage(),
-                        Toast.LENGTH_SHORT).show();
+//            Thiết lập order
+            for (int i = 0; i < planList.size(); i++) {
+                planList.get(i).setOrder(i + 1);
             }
-        });
+
+//     tạo requestDTO
+            PlanRequestDTO request = new PlanRequestDTO();
+            request.setTitle(planTitle);
+            request.setS_break_duration(globalShortBreak *60 );
+            request.setL_break_duration(globalLongBreak *60 );
+            request.setSteps(planList);
+            log.info("Sending startPlanWithoutSaving API request");
+// api : nhận dl từ BE và hiển thị sang home
+            PomodoroService.getClient().startPlan(request).enqueue(new Callback<PlanResponseDTO>() {
+                @Override
+                public void onResponse(Call<PlanResponseDTO> call, Response<PlanResponseDTO> response) {
+                    log.info("onResponse called");
+                    if (!response.isSuccessful() || response.body() == null) {
+                            Toast.makeText(PlanActivity.this, "Failed to load plan", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    log.info("Response is successful");
+                    Toast.makeText(PlanActivity.this,"Success", Toast.LENGTH_SHORT).show();
+
+                    PlanResponseDTO startplan = response.body();
+
+                            Intent intent = new Intent(PlanActivity.this, HomePage.class);// Chuyển sang view home
+                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            // Truyền toàn bộ thông tin plan
+                            intent.putExtra("plan_title", startplan.getTitle());
+
+//                            // Truyền danh sách tasks dưới dạng JSON
+                            Gson gson = new Gson();
+                            String tasksJson = gson.toJson(startplan.getSteps());
+                            intent.putExtra("tasks_json", tasksJson);
+
+                            startActivity(intent);
+                            finish(); // Đóng
+
+
+                }
+                @Override
+                public void onFailure(Call< PlanResponseDTO> call, Throwable t) {
+                    log.error("startPlan failed: " + t.getMessage());
+                    Toast.makeText(PlanActivity.this,
+                            "Error: " + t.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+        private void showExportPopup() {
+        }
+
+        private void showImportPopup() {
+        }
+
+// dùng cho Navbar
+    @Override
+    protected int getLayoutResourceId() {
+        return R.layout.activity_plan;
     }
 
-    private void showExportPopup() {
+    @Override
+    protected int getCurrentMenuItemId() {
+        return R.id.page_plan;
     }
 
-    private void showImportPopup() {
     }
-}

@@ -14,7 +14,8 @@ import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
-import com.mobile.pomodoro.entity.PlanTask;
+import com.mobile.pomodoro.request_dto.PlanRequestDTO;
+import com.mobile.pomodoro.request_dto.PlanTaskDTO;
 
 
 public class AddPlanFragment extends DialogFragment {
@@ -22,10 +23,10 @@ public class AddPlanFragment extends DialogFragment {
     private OnPlanAddedListener callback;
     private boolean isFirstTask;
 
+//    Interface dùng để callback khi thêm plan
     public interface OnPlanAddedListener {
-        void onPlanAdded(PlanTask newPlan, int shortBreak, int longBreak,  boolean isFirstTask);
+        void onPlanAdded(PlanTaskDTO newPlan, int shortBreak, int longBreak, boolean isFirstTask);
     }
-
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -61,8 +62,9 @@ public class AddPlanFragment extends DialogFragment {
             inputShortBreak.setVisibility(View.GONE);
             inputLongBreak.setVisibility(View.GONE);
         }
-
+// buttun submit
         btnSubmit.setOnClickListener(v -> {
+            // Lấy dl từ input
             String title = inputTitle.getText().toString().trim();
             int time = parseIntSafe(inputTime.getText().toString());
             int shortBreak = isFirstTask ? parseIntSafe(inputShortBreak.getText().toString()) : 0;
@@ -76,17 +78,18 @@ public class AddPlanFragment extends DialogFragment {
                     return;
                 }
 
-
-                PlanTask plan = new PlanTask();
-                plan.setPlanName(title);
-                plan.setDuration(time);
-//                plan.setShortBreak(shortBreak);
-//                plan.setLongBreak(longBreak);
-
+//                Tạo PlanTaskDTO mới
+                PlanTaskDTO plan = new PlanTaskDTO();
+                plan.setPlan_title(title);
+                plan.setPlan_duration(time);
+                plan.setOrder(0);
+                plan.setShortBreak(shortBreak);
+                plan.setLongBreak(longBreak);
+//            Gọi callback thêm plan vào ds
                 if (callback != null) {
                     callback.onPlanAdded(plan, shortBreak, longBreak, isFirstTask);
                 }
-                dismiss();
+                dismiss();    //  Đóng dialog
             } else {
                 Toast.makeText(getContext(), "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
             }

@@ -3,21 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFF1F1"
+    android:background="@color/pink"
     android:layout_alignParentTop="true"
     android:id="@+id/plan"
-    android:fitsSystemWindows="true">
+  >
 
-    <TextView
+    <EditText
         android:id="@+id/titlePlan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="New Plan"
+        android:hint="Nhập tiêu đề kế hoạch"
         android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/black"
         android:gravity="center"
-        android:padding="16dp" />
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:inputType="textCapSentences"
+        android:padding="16dp"
+        android:layout_margin="20dp"
+        android:background="@color/white"
+        style="@style/task_edittext"/>
+
 
     <!-- Danh sách plan -->
     <androidx.recyclerview.widget.RecyclerView
@@ -39,15 +44,16 @@
         android:layout_above="@+id/controlPanel"
         android:layout_margin="20dp"
         android:contentDescription="Thêm công việc"
-        android:backgroundTint="@color/white"
-        app:srcCompat="@android:drawable/ic_input_add" />
+        android:backgroundTint="@color/blue"
+        app:srcCompat="@android:drawable/ic_input_add"
+        app:tint="@android:color/white"/>
 
     <!-- 4 Button chức năng  -->
     <LinearLayout
         android:id="@+id/controlPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/bottomNavPlaceholder"
+        android:layout_above="@+id/bottomNavigation"
         android:orientation="horizontal"
         android:gravity="center"
         android:weightSum="4"
@@ -96,12 +102,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/white"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/bottom_navigation_menu" />
-    <View
-        android:id="@+id/bottomNavPlaceholder"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_alignParentBottom="true"
-        android:visibility="invisible" />
+
 
 </RelativeLayout>
