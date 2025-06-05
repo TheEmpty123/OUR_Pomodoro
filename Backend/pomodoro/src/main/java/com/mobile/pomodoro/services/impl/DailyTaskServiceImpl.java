@@ -18,6 +18,7 @@ import com.mobile.pomodoro.repositories.PlanTaskRepository;
 import com.mobile.pomodoro.services.IDailyTaskService;
 
 import com.mobile.pomodoro.services.IPlanService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -243,6 +244,49 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
         } catch (Exception e) {
             log.error(String.format("Lỗi khi xử lý plan-to-edit: %s", e.getMessage()), e);
             throw new RuntimeException("Không thể xử lý kế hoạch để chỉnh sửa: " + e.getMessage());
+        }
+    }
+    @Override
+    @Transactional
+    public MessageResponseDTO completeDailyTask(Long id, User user) {
+        log.info("Bắt đầu đánh dấu hoàn thành DailyTask ID: " + id + " cho userId: " + (user != null ? user.getUserId(): "null"));
+        try {
+            if (id == null) {
+                log.warn("ID tác vụ hàng ngày không hợp lệ");
+                throw new IllegalArgumentException("ID tác vụ hàng ngày không hợp lệ");
+            }
+            if (user == null) {
+                log.warn("Không tìm thấy thông tin người dùng cho yêu cầu hoàn thành task ID: " + id);
+                throw new IllegalArgumentException("Không tìm thấy thông tin người dùng");
+            }
+
+            Optional<DailyTask> dailyTaskOptional = dailyTaskRepository.findById(id);
+            if (!dailyTaskOptional.isPresent()) {
+                log.warn("Không tìm thấy DailyTask với ID: " + id);
+                throw new IllegalArgumentException("Tác vụ hàng ngày không tìm thấy");
+            }
+
+            DailyTask dailyTask = dailyTaskOptional.get();
+            if (!dailyTask.getUserId().equals(user.getUserId())) {
+                log.warn("AUTH", "Người dùng " + user.getUserId() + " không sở hữu DailyTask " + id);
+                throw new IllegalArgumentException("Truy cập không được phép vào tác vụ hàng ngày");
+            }
+
+            if (dailyTask.getIsDone() == 1) {
+                log.info("DailyTask ID: " + id + " đã được đánh dấu hoàn thành trước đó");
+                return new MessageResponseDTO("Tác vụ hàng ngày đã được hoàn thành trước đó");
+            }
+
+            dailyTask.setIsDone(1);
+            dailyTaskRepository.save(dailyTask);
+            log.info("Đã đánh dấu hoàn thành DailyTask ID: " + id);
+            return new MessageResponseDTO("Tác vụ hàng ngày đã được đánh dấu hoàn thành");
+        } catch (IllegalArgumentException e) {
+            log.warn("AUTH", "Lỗi xác thực khi đánh dấu hoàn thành DailyTask ID: " + id + ": " + e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("SYSTEM", "Lỗi hệ thống khi đánh dấu hoàn thành DailyTask ID: " + id + ": " + e.getMessage() + " - StackTrace: " + Arrays.toString(e.getStackTrace()));
+            throw new RuntimeException("Không thể đánh dấu hoàn thành tác vụ hàng ngày: Lỗi hệ thống");
         }
     }
 
