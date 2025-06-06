@@ -57,5 +57,15 @@ public class DailyTaskController {
             return new ResponseEntity<>(new MessageResponseDTO("Không thể đánh dấu hoàn thành tác vụ: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<MessageResponseDTO> deleteDailyTask(
+            @PathVariable Long id,
+            @RequestAttribute(name = "user") User user) {
+        try {
+            return new ResponseEntity<>(dailyTaskService.deleteDailyTask(id, user), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 }

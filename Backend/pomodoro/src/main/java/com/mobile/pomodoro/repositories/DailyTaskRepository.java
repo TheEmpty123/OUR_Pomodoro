@@ -16,7 +16,6 @@ import java.util.Optional;
 public interface DailyTaskRepository extends JpaRepository<DailyTask, Long>{
     @Query("SELECT t FROM daily_task t WHERE t.userId = :userId")
     List<DailyTask> findByUserId(@Param("userId") Long userId);
-    void deleteByPlanId(Long planId);
     @Modifying
     @Transactional
     @Query(value =

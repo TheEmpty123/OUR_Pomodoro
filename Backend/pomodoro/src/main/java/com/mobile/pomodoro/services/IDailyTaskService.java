@@ -14,4 +14,5 @@ public interface IDailyTaskService extends IInitializerData{
     PlanToEditResponseDTO planToEdit(PlanToEditRequestDTO request, User user);
 
     MessageResponseDTO completeDailyTask(Long id, User user);
+    MessageResponseDTO deleteDailyTask(Long id, User user);
 }

@@ -188,6 +188,7 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
             throw new RuntimeException("Không thể lấy chi tiết DailyTask. " + e.getMessage());
         }
     }
+
     @Override
     public PlanToEditResponseDTO planToEdit(PlanToEditRequestDTO request, User user) {
         log.info(String.format("Bắt đầu xử lý plan-to-edit cho planId: %d và userId: %d", request.getPlan_id(), user.getUserId()));
@@ -246,10 +247,11 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
             throw new RuntimeException("Không thể xử lý kế hoạch để chỉnh sửa: " + e.getMessage());
         }
     }
+
     @Override
     @Transactional
     public MessageResponseDTO completeDailyTask(Long id, User user) {
-        log.info("Bắt đầu đánh dấu hoàn thành DailyTask ID: " + id + " cho userId: " + (user != null ? user.getUserId(): "null"));
+        log.info("Bắt đầu đánh dấu hoàn thành DailyTask ID: " + id + " cho userId: " + (user != null ? user.getUserId() : "null"));
         try {
             if (id == null) {
                 log.warn("ID tác vụ hàng ngày không hợp lệ");
@@ -287,6 +289,46 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
         } catch (Exception e) {
             log.error("SYSTEM", "Lỗi hệ thống khi đánh dấu hoàn thành DailyTask ID: " + id + ": " + e.getMessage() + " - StackTrace: " + Arrays.toString(e.getStackTrace()));
             throw new RuntimeException("Không thể đánh dấu hoàn thành tác vụ hàng ngày: Lỗi hệ thống");
+        }
+    }
+
+    @Override
+    @Transactional
+    public MessageResponseDTO deleteDailyTask(Long id, User user) {
+        log.info("Bắt đầu xóa DailyTask ID: " + id + " cho userId: " + (user != null ? user.getUserId() : "null"));
+        try {
+            if (id == null) {
+                log.warn("ID tác vụ hàng ngày không hợp lệ");
+                throw new IllegalArgumentException("ID tác vụ hàng ngày không hợp lệ");
+            }
+            if (user == null) {
+                log.warn("Không tìm thấy thông tin người dùng cho yêu cầu xóa task ID: " + id);
+                throw new IllegalArgumentException("Không tìm thấy thông tin người dùng");
+            }
+            Optional<DailyTask> dailyTaskOptional = dailyTaskRepository.findById(id);
+            if (!dailyTaskOptional.isPresent()) {
+                log.warn("Không tìm thấy DailyTask với ID: " + id);
+                throw new IllegalArgumentException("Tác vụ hàng ngày không tìm thấy");
+            }
+            DailyTask dailyTask = dailyTaskOptional.get();
+            if (!dailyTask.getUserId().equals(user.getUserId())) {
+                log.warn("AUTH", "Người dùng " + user.getUserId() + " không sở hữu DailyTask " + id);
+                throw new IllegalArgumentException("Truy cập không được phép vào tác vụ hàng ngày");
+            }
+            Long planId = dailyTask.getPlanId();
+            if (planId != null) {
+                planTaskRepository.deleteByPlanId(planId);
+                log.info("Đã xóa các PlanTask liên quan đến planId: " + planId);
+            }
+            dailyTaskRepository.deleteById(id);
+            log.info("Đã xóa DailyTask ID: " + id);
+            return new MessageResponseDTO("Xóa tác vụ hàng ngày thành công");
+        } catch (IllegalArgumentException e) {
+            log.warn("AUTH", "Lỗi xác thực khi xóa DailyTask ID: " + id + ": " + e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("SYSTEM", "Lỗi hệ thống khi xóa DailyTask ID: " + id + ": " + e.getMessage() + " - StackTrace: " + Arrays.toString(e.getStackTrace()));
+            throw new RuntimeException("Không thể xóa tác vụ hàng ngày: Lỗi hệ thống");
         }
     }
 
