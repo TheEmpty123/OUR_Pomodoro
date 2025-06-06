@@ -265,7 +265,7 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
             Optional<DailyTask> dailyTaskOptional = dailyTaskRepository.findById(id);
             if (!dailyTaskOptional.isPresent()) {
                 log.error("Không tìm thấy DailyTask với ID: " + id);
-                throw new IllegalArgumentException("Tác vụ hàng ngày không tìm thấy");
+                throw new IllegalArgumentException("Không thành công");
             }
 
             DailyTask dailyTask = dailyTaskOptional.get();
@@ -285,10 +285,10 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
             return new MessageResponseDTO("Tác vụ hàng ngày đã được đánh dấu hoàn thành");
         } catch (IllegalArgumentException e) {
             log.error("Lỗi xác thực khi đánh dấu hoàn thành DailyTask ID: " + id + ": " + e.getMessage());
-            throw e;
+            return new MessageResponseDTO(e.getMessage());
         } catch (Exception e) {
             log.error("Lỗi hệ thống khi đánh dấu hoàn thành DailyTask ID: " + id + ": " + e.getMessage(), e);
-            throw new RuntimeException("Không thể đánh dấu hoàn thành tác vụ hàng ngày: Lỗi hệ thống");
+            return new MessageResponseDTO("Tác vụ hàng ngày không thành công");
         }
     }
 
@@ -309,7 +309,7 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
             Optional<DailyTask> dailyTaskOptional = dailyTaskRepository.findById(id);
             if (!dailyTaskOptional.isPresent()) {
                 log.error("Không tìm thấy DailyTask với ID: " + id);
-                throw new IllegalArgumentException("Tác vụ hàng ngày không tìm thấy");
+                throw new IllegalArgumentException("Không thành công");
             }
 
             DailyTask dailyTask = dailyTaskOptional.get();
@@ -329,10 +329,10 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
             return new MessageResponseDTO("Xóa tác vụ hàng ngày thành công");
         } catch (IllegalArgumentException e) {
             log.error("Lỗi xác thực khi xóa DailyTask ID: " + id + ": " + e.getMessage());
-            throw e;
+            return new MessageResponseDTO(e.getMessage());
         } catch (Exception e) {
             log.error("Lỗi hệ thống khi xóa DailyTask ID: " + id + ": " + e.getMessage(), e);
-            throw new RuntimeException("Không thể xóa tác vụ hàng ngày: Lỗi hệ thống");
+            return new MessageResponseDTO("Không thể xóa tác vụ hàng ngày: Lỗi hệ thống");
         }
     }
 
