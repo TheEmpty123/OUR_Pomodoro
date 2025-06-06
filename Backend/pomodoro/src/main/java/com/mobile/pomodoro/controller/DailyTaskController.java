@@ -1,5 +1,6 @@
 package com.mobile.pomodoro.controller;
 import com.mobile.pomodoro.dto.request.DailyTaskRequestDTO;
+import com.mobile.pomodoro.dto.request.PlanRequestDTO;
 import com.mobile.pomodoro.dto.request.PlanToEditRequestDTO;
 import com.mobile.pomodoro.dto.response.DailyTaskResponeseDTO.DailyTaskResponeseDTO;
 import com.mobile.pomodoro.dto.response.MessageResponseDTO;
@@ -29,18 +30,25 @@ public class DailyTaskController {
             @RequestAttribute(name = "user") User user) {
         return dailyTaskService.createDailyTask(request, user.getUserId());
     }
-    @GetMapping("/{id}")
-    public ResponseEntity<PlanToEditResponseDTO> getDailyTaskPlanDetails(@PathVariable Long id,
-                                                                         @RequestAttribute(name = "user") User user) {
+    @GetMapping("/api/v1/daily-task/{id}")
+    public ResponseEntity<?> getDailyTaskPlanDetails(
+            @PathVariable Long id,
+            @RequestAttribute(name = "user") User user) {
         try {
-            return new ResponseEntity<>(dailyTaskService.getDailyTaskPlanDetails(id, user), HttpStatus.OK);
+            PlanToEditResponseDTO response = dailyTaskService.getDailyTaskPlanDetails(id, user);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(
+                    MessageResponseDTO.builder()
+                            .message("Failed")
+                            .build(),
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
         }
     }
     @PostMapping("/plan-to-edit")
     public ResponseEntity<PlanToEditResponseDTO> planToEdit(
-            @RequestBody PlanToEditRequestDTO request,
+            @RequestBody PlanRequestDTO request,
             @RequestAttribute(name = "user") User user) {
         try {
             return new ResponseEntity<>(dailyTaskService.planToEdit(request, user), HttpStatus.OK);
@@ -48,5 +56,6 @@ public class DailyTaskController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
 }
