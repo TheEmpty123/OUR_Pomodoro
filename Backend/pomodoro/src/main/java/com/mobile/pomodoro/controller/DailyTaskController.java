@@ -54,7 +54,8 @@ public class DailyTaskController {
         try {
             return new ResponseEntity<>(dailyTaskService.completeDailyTask(id, user), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(new MessageResponseDTO("Không thể đánh dấu hoàn thành tác vụ: " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+
         }
     }
     @DeleteMapping("/{id}")
