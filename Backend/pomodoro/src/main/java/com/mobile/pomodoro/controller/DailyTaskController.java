@@ -1,6 +1,8 @@
 package com.mobile.pomodoro.controller;
 
 import com.mobile.pomodoro.dto.request.DailyTaskRequestDTO;
+import com.mobile.pomodoro.dto.request.PlanRequestDTO;
+import com.mobile.pomodoro.dto.request.PlanToEditRequestDTO;
 import com.mobile.pomodoro.dto.response.DailyTaskResponeseDTO;
 import com.mobile.pomodoro.dto.response.MessageResponseDTO;
 import com.mobile.pomodoro.dto.response.PlanToEditResponseDTO;
@@ -29,6 +31,7 @@ public class DailyTaskController {
             @RequestAttribute(name = "user") User user) {
         return dailyTaskService.createDailyTask(request, user.getUserId());
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getDailyTaskPlanDetails(
             @PathVariable Long id,
@@ -41,7 +44,7 @@ public class DailyTaskController {
                     MessageResponseDTO.builder()
                             .message("Failed")
                             .build(),
-                    HttpStatus.INTERNAL_SERVER_ERROR
+                    HttpStatus.BAD_REQUEST
             );
         }
     }
@@ -51,7 +54,11 @@ public class DailyTaskController {
             try {
                 return new ResponseEntity<>(dailyTaskService.completeDailyTask(id, user), HttpStatus.OK);
             } catch (Exception e) {
-                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity<>(
+                        MessageResponseDTO.builder()
+                                .message("Failed")
+                                .build()
+                        , HttpStatus.BAD_REQUEST);
 
             }
     }
@@ -62,19 +69,27 @@ public class DailyTaskController {
         try {
             return new ResponseEntity<>(dailyTaskService.deleteDailyTask(id, user), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(
+                    MessageResponseDTO.builder()
+                            .message("Failed")
+                            .build()
+                    , HttpStatus.BAD_REQUEST);
         }
     }
 
-//    @PostMapping("/plan-to-edit")
-//    public ResponseEntity<?> planToEdit(
-//            @RequestBody PlanRequestDTO request,
-//            @RequestAttribute(name = "user") User user) {
-//        try {
-//            return new ResponseEntity<>(dailyTaskService.planToEdit(request, user), HttpStatus.OK);
-//        } catch (Exception e) {
-//            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
+    @PostMapping("/plan-to-edit")
+    public ResponseEntity<?> planToEdit(
+            @RequestBody PlanToEditRequestDTO request,
+            @RequestAttribute(name = "user") User user) {
+        try {
+            return new ResponseEntity<>(dailyTaskService.planToEdit(request, user), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    MessageResponseDTO.builder()
+                            .message("Failed")
+                            .build()
+                    , HttpStatus.BAD_REQUEST);
+        }
+    }
 
 }
