@@ -1,8 +1,6 @@
 package com.mobile.pomodoro.controller;
 
 import com.mobile.pomodoro.dto.request.DailyTaskRequestDTO;
-import com.mobile.pomodoro.dto.request.PlanRequestDTO;
-import com.mobile.pomodoro.dto.request.PlanToEditRequestDTO;
 import com.mobile.pomodoro.dto.response.DailyTaskResponeseDTO;
 import com.mobile.pomodoro.dto.response.MessageResponseDTO;
 import com.mobile.pomodoro.dto.response.PlanToEditResponseDTO;
@@ -77,12 +75,10 @@ public class DailyTaskController {
         }
     }
 
-    @PostMapping("/plan-to-edit")
-    public ResponseEntity<?> planToEdit(
-            @RequestBody PlanToEditRequestDTO request,
-            @RequestAttribute(name = "user") User user) {
+    @GetMapping("/plan-to-edit/{id}")
+    public ResponseEntity<?> planToEdit(@RequestAttribute(name = "user") User user, @PathVariable Long id) {
         try {
-            return new ResponseEntity<>(dailyTaskService.planToEdit(request, user), HttpStatus.OK);
+            return new ResponseEntity<>(dailyTaskService.planToEdit(id, user), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(
                     MessageResponseDTO.builder()

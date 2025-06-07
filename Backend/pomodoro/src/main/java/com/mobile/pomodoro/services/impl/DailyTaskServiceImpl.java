@@ -1,7 +1,6 @@
 package com.mobile.pomodoro.services.impl;
 
 import com.mobile.pomodoro.dto.request.*;
-import com.mobile.pomodoro.dto.request.PlanToEditRequestDTO;
 import com.mobile.pomodoro.dto.response.DailyTaskResponeseDTO;
 import com.mobile.pomodoro.dto.response.DailyTaskResponeseDTO.*;
 import com.mobile.pomodoro.dto.response.MessageResponseDTO;
@@ -186,29 +185,39 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
     }
 
     @Override
-    public PlanToEditResponseDTO planToEdit(PlanToEditRequestDTO request, User user) {
-        log.info(String.format("Bắt đầu xử lý plan-to-edit cho planId: %d và userId: %d", request.getPlan_id(), user.getUserId()));
+    public PlanToEditResponseDTO planToEdit(Long id, User user) {
+        log.info(String.format("Bắt đầu xử lý plan-to-edit cho planId: %d và userId: %d", id, user.getUserId()));
         try {
-            List<PlanTask> tasks = planTaskRepository.findTaskByPlanId(request.getPlan_id());
+            // Kiểm tra xem người dùng có quyền truy cập vào kế hoạch này không
+            // Lấy danh sách các PlanTask liên quan đến kế hoạch
+            List<PlanTask> tasks = planTaskRepository.findTaskByPlanId(id);
             if (tasks.isEmpty()) {
-                log.warn(String.format("Không tìm thấy kế hoạch hoặc không được phép truy cập cho planId: %d", request.getPlan_id()));
+                log.warn(String.format("Không tìm thấy kế hoạch hoặc không được phép truy cập cho planId: %d", id));
                 throw new IllegalArgumentException("Kế hoạch không tồn tại hoặc không thuộc về người dùng");
             }
+            // Lấy thông tin kế hoạch
+            Plan plan = planRepository.findById(id).get();
 
             int sBreakDuration = 0;
             int lBreakDuration = 0;
+
+            // Tính toán thời gian nghỉ ngắn và dài từ danh sách các PlanTask
             for (PlanTask task : tasks) {
                 if ("short break".equalsIgnoreCase(task.getTask_name())) {
                     sBreakDuration = (int) task.getDuration();
                     break;
                 }
             }
+
+            // Tính toán thời gian nghỉ dài
             for (PlanTask task : tasks) {
                 if ("long break".equalsIgnoreCase(task.getTask_name())) {
                     lBreakDuration = (int) task.getDuration();
                     break;
                 }
             }
+
+            // Tính toán thời gian của từng bước trong kế hoạch
             Map<String, Integer> taskDurations = new HashMap<>();
             for (PlanTask task : tasks) {
                 String title = task.getTask_name();
@@ -220,6 +229,8 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
                     }
                 }
             }
+
+            // Tạo danh sách các bước để trả về
             List<PlanToEditResponseDTO.Step> stepList = new ArrayList<>();
             int order = 1;
             for (Map.Entry<String, Integer> entry : taskDurations.entrySet()) {
@@ -230,14 +241,18 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
                         .build();
                 stepList.add(step);
             }
+
+            // Tạo đối tượng PlanToEditResponseDTO để trả về
             PlanToEditResponseDTO response = PlanToEditResponseDTO.builder()
-                    .title(request.getTitle())
+                    .title(plan.getTitle())
                     .s_break_duration(sBreakDuration)
                     .l_break_duration(lBreakDuration)
                     .steps(stepList)
                     .build();
-            log.info(String.format("Hoàn tất xử lý plan-to-edit cho planId: %d", request.getPlan_id()));
+
+            log.info(String.format("Hoàn tất xử lý plan-to-edit cho planId: %d", id));
             return response;
+
         } catch (Exception e) {
             log.error(String.format("Lỗi khi xử lý plan-to-edit: %s", e.getMessage()), e);
             throw new RuntimeException("Không thể xử lý kế hoạch để chỉnh sửa: " + e.getMessage());
