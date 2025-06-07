@@ -1,4 +1,4 @@
-package com.mobile.pomodoro.dto.response.PlanResponseDTO;
+package com.mobile.pomodoro.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
