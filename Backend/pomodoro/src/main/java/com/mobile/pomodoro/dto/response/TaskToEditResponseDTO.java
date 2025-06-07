@@ -1,25 +1,31 @@
-package com.mobile.pomodoro.dto.response.DailyTaskResponeseDTO;
+package com.mobile.pomodoro.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class DailyTaskResponeseDTO {
-    List<SingleDailyTaskDTO> list;
+public class TaskToEditResponseDTO {
+    String title;
+    int sBreakDuration;
+    int lBreakDuration;
+    List<TaskStep> steps;
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
     @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class SingleDailyTaskDTO {
-        long plan_id;
-        String title;
-        int is_done;
+    public static class TaskStep {
+        int order;
+        String planTitle;
+        int planDuration;
     }
 }
+
+

@@ -1,14 +1,12 @@
 package com.mobile.pomodoro.services.impl;
 
-import com.mobile.pomodoro.dto.request.DailyTaskRequestDTO;
-import com.mobile.pomodoro.dto.request.PlanRequestDTO;
+import com.mobile.pomodoro.dto.request.*;
 import com.mobile.pomodoro.dto.request.PlanToEditRequestDTO;
-import com.mobile.pomodoro.dto.response.DailyTaskResponeseDTO.DailyTaskResponeseDTO;
+import com.mobile.pomodoro.dto.response.DailyTaskResponeseDTO;
+import com.mobile.pomodoro.dto.response.DailyTaskResponeseDTO.*;
 import com.mobile.pomodoro.dto.response.MessageResponseDTO;
-import com.mobile.pomodoro.dto.response.PlanResponseDTO.PlanResponseDTO;
-import com.mobile.pomodoro.dto.response.PlanToEditResponseDTO.PlanToEditResponseDTO;
+import com.mobile.pomodoro.dto.response.PlanToEditResponseDTO;
 import com.mobile.pomodoro.entities.DailyTask;
-import com.mobile.pomodoro.dto.response.DailyTaskResponeseDTO.DailyTaskResponeseDTO.SingleDailyTaskDTO;
 import com.mobile.pomodoro.entities.Plan;
 import com.mobile.pomodoro.entities.PlanTask;
 import com.mobile.pomodoro.entities.User;
@@ -16,9 +14,6 @@ import com.mobile.pomodoro.repositories.DailyTaskRepository;
 import com.mobile.pomodoro.repositories.PlanRepository;
 import com.mobile.pomodoro.repositories.PlanTaskRepository;
 import com.mobile.pomodoro.services.IDailyTaskService;
-
-import com.mobile.pomodoro.services.IPlanService;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -55,6 +50,7 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
             if (dailytasks.isEmpty()) {
                 log.warn("Không tìm thấy công việc nào cho userId: {}", userId);
             }
+
             List<SingleDailyTaskDTO> dailytaskDTOs = dailytasks.stream()
                     .map(dailytask -> SingleDailyTaskDTO.builder()
                             .plan_id(dailytask.getPlanId())
@@ -249,7 +245,6 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
     }
 
     @Override
-    @Transactional
     public MessageResponseDTO completeDailyTask(Long id, User user) {
         log.info("Bắt đầu đánh dấu hoàn thành DailyTask ID: " + id + " cho userId: " + (user != null ? user.getUserId() : "null"));
         try {
@@ -293,7 +288,6 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
     }
 
     @Override
-    @Transactional
     public MessageResponseDTO deleteDailyTask(Long id, User user) {
         log.info("Bắt đầu xóa DailyTask ID: " + id + " cho userId: " + (user != null ? user.getUserId() : "null"));
         try {
@@ -335,6 +329,4 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
             return new MessageResponseDTO("Không thể xóa tác vụ hàng ngày: Lỗi hệ thống");
         }
     }
-
-
 }

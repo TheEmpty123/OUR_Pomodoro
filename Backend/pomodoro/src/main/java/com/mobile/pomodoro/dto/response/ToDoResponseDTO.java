@@ -1,5 +1,4 @@
-package com.mobile.pomodoro.dto.response.PlanTaskResponeseDTO;
-
+package com.mobile.pomodoro.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -10,18 +9,16 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PlanTaskResponeseDTO {
-    private String title;
-    private List<PlanTaskDTO> steps;
+public class ToDoResponseDTO {
+    List<SingleToDoDTO> list;
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
     @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class PlanTaskDTO {
-        private String task_name;
-        private double duration;
-        private int task_order;
+    public static class SingleToDoDTO {
+        String title;
+        int is_done;
     }
 }
