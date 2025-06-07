@@ -29,6 +29,7 @@ public class DailyTaskController {
             @RequestAttribute(name = "user") User user) {
         return dailyTaskService.createDailyTask(request, user.getUserId());
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getDailyTaskPlanDetails(
             @PathVariable Long id,
@@ -41,20 +42,50 @@ public class DailyTaskController {
                     MessageResponseDTO.builder()
                             .message("Failed")
                             .build(),
-                    HttpStatus.INTERNAL_SERVER_ERROR
+                    HttpStatus.BAD_REQUEST
             );
         }
     }
+        @PutMapping("/complete/{id}")
+        public ResponseEntity<MessageResponseDTO> completeDailyTask(@PathVariable Long id,
+                                                                    @RequestAttribute(name = "user") User user) {
+            try {
+                return new ResponseEntity<>(dailyTaskService.completeDailyTask(id, user), HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>(
+                        MessageResponseDTO.builder()
+                                .message("Failed")
+                                .build()
+                        , HttpStatus.BAD_REQUEST);
 
-//    @PostMapping("/plan-to-edit")
-//    public ResponseEntity<?> planToEdit(
-//            @RequestBody PlanRequestDTO request,
-//            @RequestAttribute(name = "user") User user) {
-//        try {
-//            return new ResponseEntity<>(dailyTaskService.planToEdit(request, user), HttpStatus.OK);
-//        } catch (Exception e) {
-//            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
+            }
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<MessageResponseDTO> deleteDailyTask(
+            @PathVariable Long id,
+            @RequestAttribute(name = "user") User user) {
+        try {
+            return new ResponseEntity<>(dailyTaskService.deleteDailyTask(id, user), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    MessageResponseDTO.builder()
+                            .message("Failed")
+                            .build()
+                    , HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/plan-to-edit/{id}")
+    public ResponseEntity<?> planToEdit(@RequestAttribute(name = "user") User user, @PathVariable Long id) {
+        try {
+            return new ResponseEntity<>(dailyTaskService.planToEdit(id, user), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    MessageResponseDTO.builder()
+                            .message("Failed")
+                            .build()
+                    , HttpStatus.BAD_REQUEST);
+        }
+    }
 
 }
