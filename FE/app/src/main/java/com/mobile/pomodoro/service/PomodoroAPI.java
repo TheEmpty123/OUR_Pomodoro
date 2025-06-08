@@ -28,6 +28,6 @@ public interface PomodoroAPI {
     @POST("/api/v1/plan/do-not-save")
     Call<PlanResponseDTO> startPlan(@Body PlanRequestDTO planRequest);
 
-    @GET("api/v1/recent-plan")
+    @GET("/api/v1/recent-plan")
     Call<PlanResponseDTO> getRecentPlan();
 }
