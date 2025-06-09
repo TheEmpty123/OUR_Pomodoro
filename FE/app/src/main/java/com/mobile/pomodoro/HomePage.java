@@ -11,13 +11,16 @@ import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.mobile.pomodoro.enums.ApplicationMode;
 import com.mobile.pomodoro.enums.TimerMode;
 import com.mobile.pomodoro.response_dto.PlanResponseDTO;
 import com.mobile.pomodoro.response_dto.PlanTaskResponseDTO;
+import com.mobile.pomodoro.room.DatabaseClient;
 import com.mobile.pomodoro.service.PomodoroAPI;
 import com.mobile.pomodoro.service.PomodoroService;
 import com.mobile.pomodoro.service.TimerService;
 import com.mobile.pomodoro.utils.EditTitleDialogFragment;
+import com.mobile.pomodoro.utils.LogObj;
 import com.mobile.pomodoro.utils.MyUtils;
 import com.mobile.pomodoro.utils.SessionManager;
 import com.mobile.pomodoro.utils.Timer.TimerAnimationHelper;
@@ -49,10 +52,14 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
 
     private String currentPlanTitle = "Work Session";
     private Long currentPlanId = -1L;
+    private LogObj log;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        log = new LogObj();
+        log.setName(getClass().getSimpleName());
+        log.info("Initializing...");
 
         timerService = new TimerService(this);
         sessionManager = new SessionManager(this);
@@ -168,53 +175,67 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
 
     // lấy recent plan từ API
     private void fetchRecentPlan() {
-        String username = MyUtils.get(this, "username");
-        if (username == null) {
-            showDefaultTask(); //không tìm thấy user thì hiển thị task mặc định là "Work"
-            return;
-        }
+        // Check if our application is running online or offline
+        // If online, call apis using retrofit
+        // If offline, use application local storage
+        if (MyUtils.applicationMode == ApplicationMode.ONLINE) {
+            log.info("Application is ONLINE");
 
-        PomodoroAPI api = PomodoroService.getRetrofitInstance(username);
-        Call<PlanResponseDTO> call = api.getRecentPlan();
+            String username = MyUtils.get(this, "username");
+            if (username == null) {
+                showDefaultTask(); //không tìm thấy user thì hiển thị task mặc định là "Work"
+                return;
+            }
 
-        call.enqueue(new Callback<PlanResponseDTO>() {
-            @Override
-            public void onResponse(Call<PlanResponseDTO> call, Response<PlanResponseDTO> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    PlanResponseDTO plan = response.body();
-                    // cập nhật lại plan dc gọi từ API
-                    currentPlanTitle = plan.getTitle();
-                    currentPlanId = plan.getId();
-                    currentTaskText.setText(plan.getTitle());
+            PomodoroAPI api = PomodoroService.getRetrofitInstance(username);
+            Call<PlanResponseDTO> call = api.getRecentPlan();
 
-                    if (plan.getSteps() != null && !plan.getSteps().isEmpty()) {
-                        sessionManager.initializeSession(plan.getSteps());
+            call.enqueue(new Callback<PlanResponseDTO>() {
+                @Override
+                public void onResponse(Call<PlanResponseDTO> call, Response<PlanResponseDTO> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        PlanResponseDTO plan = response.body();
+                        // cập nhật lại plan dc gọi từ API
+                        currentPlanTitle = plan.getTitle();
+                        currentPlanId = plan.getId();
+                        currentTaskText.setText(plan.getTitle());
 
-                        PlanTaskResponseDTO firstTask = plan.getSteps().get(0);
-                        TimerManager.updateTimerModeFromSeconds(HomePage.this, TimerMode.FOCUS, firstTask.getPlan_duration());
+                        if (plan.getSteps() != null && !plan.getSteps().isEmpty()) {
+                            sessionManager.initializeSession(plan.getSteps());
 
-                        if (timerService.getCurrentMode() == TimerMode.FOCUS && !timerService.isTimerRunning()) {
-                            timerService.initializeTimer(TimerMode.FOCUS);
+                            PlanTaskResponseDTO firstTask = plan.getSteps().get(0);
+                            TimerManager.updateTimerModeFromSeconds(HomePage.this, TimerMode.FOCUS, firstTask.getPlan_duration());
+
+                            if (timerService.getCurrentMode() == TimerMode.FOCUS && !timerService.isTimerRunning()) {
+                                timerService.initializeTimer(TimerMode.FOCUS);
+                            }
+
+                            sessionManager.updateSessionIndicators(indicators);
+                        } else {
+                            showDefaultTask(); // không có task
                         }
-
-                        sessionManager.updateSessionIndicators(indicators);
                     } else {
-                        showDefaultTask(); // không có task
+                        showDefaultTask();
                     }
-                } else {
+                }
+
+                @Override
+                public void onFailure(Call<PlanResponseDTO> call, Throwable t) {
                     showDefaultTask();
                 }
-            }
+            });
+        }
+        else {
+            log.info("Application is OFFLINE");
 
-            @Override
-            public void onFailure(Call<PlanResponseDTO> call, Throwable t) {
-                showDefaultTask();
-            }
-        });
+            var app = DatabaseClient.getInstance(HomePage.this).getAppDatabase();
+            var plan = app.plan().getAllPlanWithTasks();
+        }
     }
 
     // đặt default name task là Work nếu không có plan/task từ API
     private void showDefaultTask() {
+        log.warn("There is no task, show default task");
         currentTaskText.setText("Work");
     }
 

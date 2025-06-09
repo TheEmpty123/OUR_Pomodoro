@@ -30,6 +30,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText editTxtPassword;
     private Button btnLogin;
     private TextView textRegister;
+    private TextView textGuest;
     private LogObj log;
 
     @Override
@@ -45,6 +46,7 @@ public class LoginActivity extends AppCompatActivity {
         editTxtPassword = findViewById(R.id.editTextPassword);
         btnLogin = findViewById(R.id.buttonLogin);
         textRegister = findViewById(R.id.textViewRegister);
+        textGuest = findViewById(R.id.textViewGuest);
 
         // nút đăng nhập
         btnLogin.setOnClickListener(new View.OnClickListener() {
@@ -59,6 +61,19 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        // đăng nhập tài khoản khách
+        textGuest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                log.info("Login as guest");
+                Toast.makeText(LoginActivity.this, "Welcome back, master", Toast.LENGTH_SHORT).show();
+
+                MyUtils.applicationMode = ApplicationMode.OFFLINE; // Assign application mode to offline
+                Intent intent = new Intent(LoginActivity.this ,WelcomeActivity.class);
                 startActivity(intent);
             }
         });
