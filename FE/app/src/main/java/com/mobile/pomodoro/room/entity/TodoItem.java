@@ -2,14 +2,19 @@ package com.mobile.pomodoro.room.entity;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import lombok.AccessLevel;
+
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-@Entity(tableName = "users")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Entity(tableName = "todo")
 @FieldDefaults(level = AccessLevel.PUBLIC)
-public class User {
+public class TodoItem {
     @PrimaryKey
     Long id;
-    String username;
-    String email;
+    private String title;
+    private boolean isDone;
 }
