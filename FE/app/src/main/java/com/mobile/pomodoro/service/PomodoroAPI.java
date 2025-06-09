@@ -7,7 +7,9 @@ import com.mobile.pomodoro.response_dto.MessageResponseDTO;
 import com.mobile.pomodoro.response_dto.PlanResponseDTO;
 
 import retrofit2.Call;
-import retrofit2.http.*;
+import retrofit2.http.Body;
+import retrofit2.http.GET;
+import retrofit2.http.POST;
 
 public interface PomodoroAPI {
 
@@ -25,4 +27,7 @@ public interface PomodoroAPI {
 
     @POST("/api/v1/plan/do-not-save")
     Call<PlanResponseDTO> startPlan(@Body PlanRequestDTO planRequest);
+
+    @GET("/api/v1/recent-plan")
+    Call<PlanResponseDTO> getRecentPlan();
 }
