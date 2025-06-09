@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/pink"
+    android:background="?attr/colorSurface"
     tools:context=".HomePage">
 
     <!-- thanh trang thai -->
@@ -102,7 +102,7 @@
                     android:layout_height="20dp"
                     android:layout_marginEnd="12dp"
                     android:src="@drawable/ic_work"
-                    app:tint="@color/blue" />
+                    app:tint="?attr/colorPrimary" />
 
                 <TextView
                     android:id="@+id/currentTaskText"
@@ -111,7 +111,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="Work Session"
-                    android:textColor="@color/blue"
+                    android:textColor="?attr/colorPrimary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -120,7 +120,7 @@
                     android:layout_height="18dp"
                     android:layout_marginStart="12dp"
                     android:src="@drawable/ic_add"
-                    app:tint="@color/blue" />
+                    app:tint="?attr/colorPrimary" />
             </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -322,7 +322,7 @@
                     android:id="@+id/btnPlayPause"
                     android:layout_width="76dp"
                     android:layout_height="76dp"
-                    android:backgroundTint="@color/blue"
+                    android:backgroundTint="?attr/colorPrimary"
                     android:src="@drawable/ic_play"
                     app:elevation="12dp"
                     app:fabCustomSize="76dp"
