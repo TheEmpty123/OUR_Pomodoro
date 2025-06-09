@@ -58,7 +58,7 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
     private Long currentPlanId = -1L;
     private LogObj log;
 
-    private interface TaskCallback{
+    private interface TaskCallback {
         void onTasksLoaded(PlanResponseDTO plan);
     }
 
@@ -215,35 +215,31 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
                     showDefaultTask();
                 }
             });
-        }
-        else {
+        } else {
             log.info("Application is OFFLINE");
+            log.info("Loading recent task");
+            /** 1. Get instance
+             *  2. Fetch all saved plan
+             *  3. Map to PlanResponseDTO
+             *  4. Update UI
+             */
+            var app = DatabaseClient.getInstance(HomePage.this).getAppDatabase();
 
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            executor.execute(() -> {
+                try {
+                    var plan = app.plan().getAllPlanWithTasks();
+                    var mapper = PlanMapper.getInstance();
+                    var dto = mapper.mapToDTO(plan);
 
-                log.info("Loading recent task");
-                /** 1. Get instance
-                 *  2. Fetch all saved plan
-                 *  3. Map to PlanResponseDTO
-                 *  4. Update UI
-                 */
-                var app = DatabaseClient.getInstance(HomePage.this).getAppDatabase();
-
-                ExecutorService executor= Executors.newSingleThreadExecutor();
-                executor.execute(() -> {
-                    try {
-                        var plan = app.plan().getAllPlanWithTasks();
-                        var mapper = PlanMapper.getInstance();
-                        var dto = mapper.mapToDTO(plan);
-
-                        runOnUiThread(() -> {
-                            ((TaskCallback) this::updatePlan).onTasksLoaded(dto);
-                        });
-                    }
-                    catch (Exception e){
-                        runOnUiThread(this::showDefaultTask);
-                    }
-                });
-
+                    runOnUiThread(() -> {
+                        ((TaskCallback) this::updatePlan).onTasksLoaded(dto);
+                    });
+                } catch (Exception e) {
+                    runOnUiThread(this::showDefaultTask);
+                }
+            });
+            executor.shutdown();
         }
     }
 
@@ -253,7 +249,7 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
         currentTaskText.setText("Work");
     }
 
-    private void updatePlan(PlanResponseDTO plan){
+    private void updatePlan(PlanResponseDTO plan) {
         currentPlanTitle = plan.getTitle();
         currentPlanId = plan.getId();
         currentTaskText.setText(plan.getTitle());
