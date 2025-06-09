@@ -1,4 +1,5 @@
 package com.mobile.pomodoro.dto.response;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -18,6 +19,7 @@ public class ToDoResponseDTO {
     @Builder
     @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class SingleToDoDTO {
+        Long id;
         String title;
         int is_done;
     }

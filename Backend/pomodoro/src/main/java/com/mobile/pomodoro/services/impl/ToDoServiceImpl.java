@@ -43,6 +43,7 @@ public class ToDoServiceImpl extends AService implements IToDoService {
 
         List<SingleToDoDTO> todoDTOs = todos.stream()
                 .map(todo -> SingleToDoDTO.builder()
+                        .id(todo.getToDoId())
                         .title(todo.getTitle())
                         .is_done(todo.getIsDone())
                         .build())

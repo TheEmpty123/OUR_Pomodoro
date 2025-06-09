@@ -22,7 +22,6 @@ public class ToDoController {
         return toDoService.getAllTodosByUserId(user.getUserId());
     }
 
-
     @PostMapping()
     public ResponseEntity<MessageResponseDTO> createPlan(@RequestBody ToDoRequestDTO requestDTO, @RequestAttribute(name = "user") User user) {
         return new ResponseEntity<>(toDoService.createToDo(requestDTO, user), HttpStatus.CREATED);
