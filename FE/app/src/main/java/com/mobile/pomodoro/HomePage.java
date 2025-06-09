@@ -13,6 +13,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mobile.pomodoro.enums.ApplicationMode;
 import com.mobile.pomodoro.enums.TimerMode;
+import com.mobile.pomodoro.mapper.PlanMapper;
 import com.mobile.pomodoro.response_dto.PlanResponseDTO;
 import com.mobile.pomodoro.response_dto.PlanTaskResponseDTO;
 import com.mobile.pomodoro.room.DatabaseClient;
@@ -25,6 +26,9 @@ import com.mobile.pomodoro.utils.MyUtils;
 import com.mobile.pomodoro.utils.SessionManager;
 import com.mobile.pomodoro.utils.Timer.TimerAnimationHelper;
 import com.mobile.pomodoro.utils.Timer.TimerManager;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -53,6 +57,10 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
     private String currentPlanTitle = "Work Session";
     private Long currentPlanId = -1L;
     private LogObj log;
+
+    private interface TaskCallback{
+        void onTasksLoaded(PlanResponseDTO plan);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -196,24 +204,7 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
                     if (response.isSuccessful() && response.body() != null) {
                         PlanResponseDTO plan = response.body();
                         // cập nhật lại plan dc gọi từ API
-                        currentPlanTitle = plan.getTitle();
-                        currentPlanId = plan.getId();
-                        currentTaskText.setText(plan.getTitle());
-
-                        if (plan.getSteps() != null && !plan.getSteps().isEmpty()) {
-                            sessionManager.initializeSession(plan.getSteps());
-
-                            PlanTaskResponseDTO firstTask = plan.getSteps().get(0);
-                            TimerManager.updateTimerModeFromSeconds(HomePage.this, TimerMode.FOCUS, firstTask.getPlan_duration());
-
-                            if (timerService.getCurrentMode() == TimerMode.FOCUS && !timerService.isTimerRunning()) {
-                                timerService.initializeTimer(TimerMode.FOCUS);
-                            }
-
-                            sessionManager.updateSessionIndicators(indicators);
-                        } else {
-                            showDefaultTask(); // không có task
-                        }
+                        updatePlan(plan);
                     } else {
                         showDefaultTask();
                     }
@@ -228,8 +219,31 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
         else {
             log.info("Application is OFFLINE");
 
-            var app = DatabaseClient.getInstance(HomePage.this).getAppDatabase();
-            var plan = app.plan().getAllPlanWithTasks();
+
+                log.info("Loading recent task");
+                /** 1. Get instance
+                 *  2. Fetch all saved plan
+                 *  3. Map to PlanResponseDTO
+                 *  4. Update UI
+                 */
+                var app = DatabaseClient.getInstance(HomePage.this).getAppDatabase();
+
+                ExecutorService executor= Executors.newSingleThreadExecutor();
+                executor.execute(() -> {
+                    try {
+                        var plan = app.plan().getAllPlanWithTasks();
+                        var mapper = PlanMapper.getInstance();
+                        var dto = mapper.mapToDTO(plan);
+
+                        runOnUiThread(() -> {
+                            ((TaskCallback) this::updatePlan).onTasksLoaded(dto);
+                        });
+                    }
+                    catch (Exception e){
+                        runOnUiThread(this::showDefaultTask);
+                    }
+                });
+
         }
     }
 
@@ -237,6 +251,27 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
     private void showDefaultTask() {
         log.warn("There is no task, show default task");
         currentTaskText.setText("Work");
+    }
+
+    private void updatePlan(PlanResponseDTO plan){
+        currentPlanTitle = plan.getTitle();
+        currentPlanId = plan.getId();
+        currentTaskText.setText(plan.getTitle());
+
+        if (plan.getSteps() != null && !plan.getSteps().isEmpty()) {
+            sessionManager.initializeSession(plan.getSteps());
+
+            PlanTaskResponseDTO firstTask = plan.getSteps().get(0);
+            TimerManager.updateTimerModeFromSeconds(HomePage.this, TimerMode.FOCUS, firstTask.getPlan_duration());
+
+            if (timerService.getCurrentMode() == TimerMode.FOCUS && !timerService.isTimerRunning()) {
+                timerService.initializeTimer(TimerMode.FOCUS);
+            }
+
+            sessionManager.updateSessionIndicators(indicators);
+        } else {
+            showDefaultTask(); // không có task
+        }
     }
 
     private void showStopConfirmationDialog() {
