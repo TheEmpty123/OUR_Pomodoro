@@ -19,6 +19,7 @@ import com.mobile.pomodoro.response_dto.MessageResponseDTO;
 import com.mobile.pomodoro.response_dto.PlanResponseDTO;
 import com.mobile.pomodoro.service.PomodoroService;
 import com.mobile.pomodoro.utils.LogObj;
+import com.mobile.pomodoro.utils.MyUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -138,16 +139,20 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             for (int i = 0; i < planList.size(); i++) {
                 planList.get(i).setOrder(i + 1);
             }
-
+//        b2: tạo requestDTO
+            PlanRequestDTO request = new PlanRequestDTO();
+            request.setTitle(title);
+            request.setS_break_duration(globalShortBreak *60);
+            request.setL_break_duration(globalLongBreak *60);
+            request.setSteps(planList);
 //  gọi api gửi cho BE và nhận lại recent_plan
-            PomodoroService.getClient().savePlan(
-                    PlanRequestDTO.builder()
-                            .title(title)
-                            .s_break_duration(globalShortBreak * 60)
-                            .l_break_duration(globalLongBreak * 60)
-                            .steps(planList)
-                            .build()
-            ).enqueue(new Callback<PlanResponseDTO>() {
+            var username = MyUtils.get(this, "username"); // Lấy username
+            if (username == null || username.trim().isEmpty()) {
+                log.error("Username is null or empty");
+                Toast.makeText(this, "Vui lòng đăng nhập để cập nhật todo", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            PomodoroService.getRetrofitInstance(username).savePlan(request).enqueue(new Callback<PlanResponseDTO>() {
                 @Override
                 public void onResponse(Call<PlanResponseDTO> call, Response<PlanResponseDTO> response) {
                     if (!response.isSuccessful() || response.body() == null) {
@@ -205,16 +210,22 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             for (int i = 0; i < planList.size(); i++) {
                 planList.get(i).setOrder(i + 1);
             }
+//     tạo requestDTO
+            PlanRequestDTO request = new PlanRequestDTO();
+            request.setTitle(planTitle);
+            request.setS_break_duration(globalShortBreak *60 );
+            request.setL_break_duration(globalLongBreak *60 );
+            request.setSteps(planList);
+            log.info("Sending startPlanWithoutSaving API request");
 
 // api : nhận dl từ BE và hiển thị sang home
-            PomodoroService.getClient().startPlan(
-                    PlanRequestDTO.builder()
-                            .title(planTitle)
-                            .s_break_duration(globalShortBreak * 60)
-                            .l_break_duration(globalLongBreak * 60)
-                            .steps(planList)
-                            .build()
-            ).enqueue(new Callback<PlanResponseDTO>() {
+            var username = MyUtils.get(this, "username"); // Lấy username
+            if (username == null || username.trim().isEmpty()) {
+                log.error("Username is null or empty");
+                Toast.makeText(this, "Vui lòng đăng nhập để cập nhật todo", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            PomodoroService.getRetrofitInstance(username).startPlan(request).enqueue(new Callback<PlanResponseDTO>() {
                 @Override
                 public void onResponse(Call<PlanResponseDTO> call, Response<PlanResponseDTO> response) {
                     log.info("onResponse called");

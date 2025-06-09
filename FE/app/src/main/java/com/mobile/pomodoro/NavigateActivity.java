@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.mobile.pomodoro.ui.activities.TodoActivity;
 
 public abstract class NavigateActivity extends AppCompatActivity {
     protected BottomNavigationView bottomNavigationView;
