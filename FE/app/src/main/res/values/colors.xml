@@ -6,6 +6,8 @@
     <color name="accent">#FF4081</color>
     <color name="background_light">#FFFFFF</color>
     <color name="white">#FFFFFF</color>
+    <color name="black">#FF000000</color>
+    <color name="red">#FFA07A</color>
     <color name="text_primary">#212121</color>
     <color name="text_secondary">#757575</color>
     <color name="indicator_active">#9C4EFF</color>
@@ -14,4 +16,6 @@
     <!-- Các màu mới theo thiết kế -->
     <color name="settings_background">#9C4EFF</color>
     <color name="settings_button_bg">#AD7BFF</color>
+    <color name="blue">#2F3C7E</color>
+    <color name="pink">#FBEAEB</color>
 </resources>

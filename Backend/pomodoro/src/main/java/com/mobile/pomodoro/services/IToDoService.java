@@ -1,7 +1,7 @@
 package com.mobile.pomodoro.services;
 import com.mobile.pomodoro.dto.request.ToDoRequestDTO;
 import com.mobile.pomodoro.dto.response.MessageResponseDTO;
-import com.mobile.pomodoro.dto.response.ToDoResponeseDTO.ToDoResponseDTO;
+import com.mobile.pomodoro.dto.response.ToDoResponseDTO;
 import com.mobile.pomodoro.entities.User;
 
 public interface IToDoService extends IInitializerData{

@@ -43,16 +43,16 @@ public abstract class NavigateActivity extends AppCompatActivity {
                 finish();
                 return true;
             } else if (itemId == R.id.page_todo) {
-//                startActivity(new Intent(this, TodoActivity.class));
-//                finish();
+                startActivity(new Intent(this, TodoActivity.class));
+                finish();
                 return true;
-            } else if (itemId == R.id.page_task) {
-//                startActivity(new Intent(this, TaskActivity.class));
-//                finish();
+            } else if (itemId == R.id.page_plan) {
+                startActivity(new Intent(this, PlanActivity.class));
+                finish();
                 return true;
             } else if (itemId == R.id.page_calendar) {
-//                startActivity(new Intent(this, CalendarActivity.class));
-//                finish();
+                startActivity(new Intent(this, DailyTaskActivity.class));
+                finish();
                 return true;
             } else if (itemId == R.id.page_setting) {
                 startActivity(new Intent(this, SettingsActivity.class));

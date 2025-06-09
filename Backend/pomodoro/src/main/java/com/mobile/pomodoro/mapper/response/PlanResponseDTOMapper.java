@@ -1,11 +1,9 @@
 package com.mobile.pomodoro.mapper.response;
 
-import com.mobile.pomodoro.dto.response.PlanResponseDTO.PlanResponseDTO;
+import com.mobile.pomodoro.dto.response.PlanResponseDTO;
 import com.mobile.pomodoro.entities.Plan;
 import com.mobile.pomodoro.entities.PlanTask;
 import org.mapstruct.*;
-
-import java.util.List;
 
 @Mapper(componentModel = "spring")
 public abstract class PlanResponseDTOMapper {

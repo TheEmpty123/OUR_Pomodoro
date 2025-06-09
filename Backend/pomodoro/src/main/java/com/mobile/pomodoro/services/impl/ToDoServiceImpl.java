@@ -1,14 +1,12 @@
 package com.mobile.pomodoro.services.impl;
 
-import com.mobile.pomodoro.CustomException.UserNotFoundException;
 import com.mobile.pomodoro.dto.request.ToDoRequestDTO;
 import com.mobile.pomodoro.dto.response.MessageResponseDTO;
-import com.mobile.pomodoro.dto.response.ToDoResponeseDTO.ToDoResponseDTO;
-import com.mobile.pomodoro.dto.response.ToDoResponeseDTO.ToDoResponseDTO.SingleToDoDTO;
+import com.mobile.pomodoro.dto.response.ToDoResponseDTO;
+import com.mobile.pomodoro.dto.response.ToDoResponseDTO.SingleToDoDTO;
 import com.mobile.pomodoro.entities.Todo;
 import com.mobile.pomodoro.entities.User;
 import com.mobile.pomodoro.repositories.ToDoRepository;
-import com.mobile.pomodoro.repositories.UserRepository;
 import com.mobile.pomodoro.services.IToDoService;
 import com.mobile.pomodoro.services.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,7 +14,6 @@ import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -68,13 +65,13 @@ public class ToDoServiceImpl extends AService implements IToDoService {
             toDoRepository.save(todo);
             log.info("Tạo todo thành công cho user id: " + user.getUserId());
             return MessageResponseDTO.builder()
-                    .message("Thêm thành công hjhj")
+                    .message("Succeed")
                     .build();
 
         } catch (Exception e) {
             log.error("Lỗi khi thêm ToDo: " + e.getMessage(), e);
             return MessageResponseDTO.builder()
-                    .message("Lỗi khi thêm ToDo: " + e.getMessage())
+                    .message("Failed")
                     .build();
         }
     }
@@ -92,13 +89,13 @@ public class ToDoServiceImpl extends AService implements IToDoService {
             toDoRepository.save(todo);
             log.info("Cập nhật thành công cho user id: " + user.getUserId());
             return MessageResponseDTO.builder()
-                    .message("Cập nhật thành công")
+                    .message("Succeed")
                     .build();
 
         } catch (Exception e) {
             log.error("Lỗi khi cập nhật ToDo: " + e.getMessage(), e);
             return MessageResponseDTO.builder()
-                    .message("Lỗi khi cập nhật ToDo: " + e.getMessage())
+                    .message("Failed")
                     .build();
         }
     }
@@ -111,13 +108,13 @@ public class ToDoServiceImpl extends AService implements IToDoService {
             toDoRepository.delete(todo);
             log.info("Xóa thành công todo id: " + todoId);
             return MessageResponseDTO.builder()
-                    .message("Xóa thành công")
+                    .message("Succeed")
                     .build();
 
         } catch (Exception e) {
             log.error("Lỗi khi xóa ToDo: " + e.getMessage(), e);
             return MessageResponseDTO.builder()
-                    .message("Lỗi khi xóa ToDo: " + e.getMessage())
+                    .message("Failed")
                     .build();
         }
     }

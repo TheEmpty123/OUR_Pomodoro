@@ -9,9 +9,9 @@
         android:icon="@drawable/ic_todo"
         android:title="Todo" />
     <item
-        android:id="@+id/page_task"
+        android:id="@+id/page_plan"
         android:icon="@drawable/ic_list_task"
-        android:title="Tasks" />
+        android:title="Plan" />
     <item
         android:id="@+id/page_calendar"
         android:icon="@drawable/ic_calendar"
