@@ -5,7 +5,10 @@
         <item name="colorPrimary">@color/blue</item>
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorSurface">@color/pink</item>
+        <item name="colorSecondary">#E0E0E0</item>
+        <item name="colorSurfaceContainer">@color/white</item>
         <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorPrimaryDark">@color/white</item>
         <item name="android:windowBackground">@color/background_light</item>
     </style>
 

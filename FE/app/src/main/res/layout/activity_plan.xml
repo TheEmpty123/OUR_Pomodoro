@@ -20,7 +20,7 @@
         android:inputType="textCapSentences"
         android:padding="16dp"
         android:layout_margin="20dp"
-        android:background="@color/white"
+        android:background="?attr/colorSurfaceContainer"
         style="@style/task_edittext"/>
 
 
@@ -101,7 +101,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@color/white"
+        android:background="?attr/colorPrimaryDark"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/bottom_navigation_menu" />

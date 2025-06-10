@@ -18,6 +18,9 @@
     <color name="settings_background">#9C4EFF</color>
     <color name="settings_button_bg">#AD7BFF</color>
     <color name="blue">#2F3C7E</color>
+    <color name="light_gray">#adb5bd</color>
+    <color name="gray">#ced4da</color>
+    <color name="dark_gray">#495057</color>
     <color name="dark_blue">#023e8a</color>
     <color name="pink">#FBEAEB</color>
 </resources>
