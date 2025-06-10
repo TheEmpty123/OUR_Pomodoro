@@ -139,25 +139,20 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                 planList.get(i).setOrder(i + 1);
             }
 
-//        b2: tạo requestDTO
-            PlanRequestDTO request = new PlanRequestDTO();
-            request.setTitle(title);
-            request.setS_break_duration(globalShortBreak *60);
-            request.setL_break_duration(globalLongBreak *60);
-            request.setSteps(planList);
-// Log body JSON trước khi gửi
-            Gson gson = new Gson();
-            String requestBodyString = gson.toJson(request);
-            Log.d("API Request", "POST body: " + requestBodyString);
-            log.info("Sending savePlan API request");
-
-//        b3:gọi api gửi cho be và nhận lại recent_plan
-            PomodoroService.getClient().savePlan(request).enqueue(new Callback<PlanResponseDTO>() {
+//  gọi api gửi cho BE và nhận lại recent_plan
+            PomodoroService.getClient().savePlan(
+                    PlanRequestDTO.builder()
+                            .title(title)
+                            .s_break_duration(globalShortBreak * 60)
+                            .l_break_duration(globalLongBreak * 60)
+                            .steps(planList)
+                            .build()
+            ).enqueue(new Callback<PlanResponseDTO>() {
                 @Override
                 public void onResponse(Call<PlanResponseDTO> call, Response<PlanResponseDTO> response) {
                     if (!response.isSuccessful() || response.body() == null) {
                         log.warn("Failed to receive recent plan");
-                        Toast.makeText(PlanActivity.this, "Không nhận được kế hoạch vừa lưu", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(PlanActivity.this, "Không nhận được kế hoạch", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     PlanResponseDTO plan = response.body();
@@ -211,15 +206,15 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                 planList.get(i).setOrder(i + 1);
             }
 
-//     tạo requestDTO
-            PlanRequestDTO request = new PlanRequestDTO();
-            request.setTitle(planTitle);
-            request.setS_break_duration(globalShortBreak *60 );
-            request.setL_break_duration(globalLongBreak *60 );
-            request.setSteps(planList);
-            log.info("Sending startPlanWithoutSaving API request");
 // api : nhận dl từ BE và hiển thị sang home
-            PomodoroService.getClient().startPlan(request).enqueue(new Callback<PlanResponseDTO>() {
+            PomodoroService.getClient().startPlan(
+                    PlanRequestDTO.builder()
+                            .title(planTitle)
+                            .s_break_duration(globalShortBreak * 60)
+                            .l_break_duration(globalLongBreak * 60)
+                            .steps(planList)
+                            .build()
+            ).enqueue(new Callback<PlanResponseDTO>() {
                 @Override
                 public void onResponse(Call<PlanResponseDTO> call, Response<PlanResponseDTO> response) {
                     log.info("onResponse called");
@@ -236,6 +231,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                              intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             // Truyền toàn bộ thông tin plan
                             intent.putExtra("plan_title", startplan.getTitle());
+                            intent.putExtra("plan_id", startplan.getId());
 
 //                            // Truyền danh sách tasks dưới dạng JSON
                             Gson gson = new Gson();
@@ -244,7 +240,6 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
 
                             startActivity(intent);
                             finish(); // Đóng
-
 
                 }
                 @Override
