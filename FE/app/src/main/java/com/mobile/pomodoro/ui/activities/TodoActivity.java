@@ -3,12 +3,19 @@ package com.mobile.pomodoro.ui.activities;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mobile.pomodoro.NavigateActivity;
 import com.mobile.pomodoro.R;
+import com.mobile.pomodoro.enums.ApplicationMode;
+import com.mobile.pomodoro.room.AppDatabase;
+import com.mobile.pomodoro.room.DatabaseClient;
+import com.mobile.pomodoro.room.entity.TodoItem;
+import com.mobile.pomodoro.room.repo.SingleThreadRepo;
+import com.mobile.pomodoro.room.repo.TodoRepository;
 import com.mobile.pomodoro.ui.adapters.TodoAdapter;
 import com.mobile.pomodoro.ui.fragments.TodoPopupFragment;
 import com.mobile.pomodoro.request_dto.TodoRequestDTO;
@@ -16,6 +23,8 @@ import com.mobile.pomodoro.response_dto.MessageResponseDTO;
 import com.mobile.pomodoro.response_dto.TodoListResponseDTO;
 import com.mobile.pomodoro.response_dto.TodoResponseDTO;
 import com.mobile.pomodoro.service.PomodoroService;
+import com.mobile.pomodoro.ui.view_model.TodoViewModel;
+import com.mobile.pomodoro.ui.view_model.TodoViewModelFactory;
 import com.mobile.pomodoro.utils.LogObj;
 import com.mobile.pomodoro.utils.MyUtils;
 
@@ -32,7 +41,7 @@ public class TodoActivity extends NavigateActivity implements TodoAdapter.TodoIt
     private List<TodoResponseDTO> todoList = new ArrayList<>();
     private FloatingActionButton btnAdd;
     private LogObj log;
-
+    private TodoViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,11 +50,13 @@ public class TodoActivity extends NavigateActivity implements TodoAdapter.TodoIt
         log.setName(getClass().getSimpleName());
         log.info("onCreate - Initializing TodoActivity");
 //        setContentView(R.layout.activity_todo);
+
         // Khởi tạo
         recyclerView = findViewById(R.id.recyclerTodo);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new TodoAdapter(todoList, this);
         recyclerView.setAdapter(adapter);
+
 //        Button thêm
         btnAdd = findViewById(R.id.btnAddTodo);
         btnAdd.setOnClickListener(v -> {
@@ -55,6 +66,7 @@ public class TodoActivity extends NavigateActivity implements TodoAdapter.TodoIt
 
         loadTodos();
     }
+
     // Hiển thị #popups_todo
     private void showTodoPopup(TodoResponseDTO item) {
         TodoPopupFragment fragment = TodoPopupFragment.newInstance(item);
@@ -110,33 +122,74 @@ public class TodoActivity extends NavigateActivity implements TodoAdapter.TodoIt
 
     //    Tải danh sách todo
     private void loadTodos() {
-        log.info("Loading todos from API");
-        var username = MyUtils.get(this, "username");
-        if (username == null || username.trim().isEmpty()) {
-            log.error("Username is null or empty");
-            Toast.makeText(this, "Vui lòng đăng nhập để tải danh sách todo", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        PomodoroService.getRetrofitInstance(username).getTodos().enqueue(new Callback<TodoListResponseDTO>() {
-            @Override
-            public void onResponse(Call<TodoListResponseDTO> call, Response<TodoListResponseDTO> response) {
-                if (!response.isSuccessful() || response.body() == null || response.body().getList() == null) {
-                    log.warn("Failed to load todos");
-                    Toast.makeText(TodoActivity.this, "Không tải được danh sách todo", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                todoList.clear(); // xóa dl cũ
-                todoList.addAll(response.body().getList()); // thêm mới
-                adapter.notifyDataSetChanged(); // cập nhập giao diện
-                log.info("Todos loaded: " + todoList.size() + " items");
-            }
+        // Check Application Status
+        if (MyUtils.applicationMode == ApplicationMode.ONLINE) {
 
-            @Override
-            public void onFailure(Call<TodoListResponseDTO> call, Throwable t) {
-                log.error("Load todos failed: " + t.getMessage());
-                Toast.makeText(TodoActivity.this, "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            log.info("Loading todos from API");
+            var username = MyUtils.get(this, "username");
+            if (username == null || username.trim().isEmpty()) {
+                log.error("Username is null or empty");
+                Toast.makeText(this, "Vui lòng đăng nhập để tải danh sách todo", Toast.LENGTH_SHORT).show();
+                return;
             }
-        });
+            PomodoroService.getRetrofitInstance(username).getTodos().enqueue(new Callback<TodoListResponseDTO>() {
+                @Override
+                public void onResponse(Call<TodoListResponseDTO> call, Response<TodoListResponseDTO> response) {
+                    if (!response.isSuccessful() || response.body() == null || response.body().getList() == null) {
+                        log.warn("Failed to load todos");
+                        Toast.makeText(TodoActivity.this, "Không tải được danh sách todo", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    todoList.clear(); // xóa dl cũ
+                    todoList.addAll(response.body().getList()); // thêm mới
+                    adapter.notifyDataSetChanged(); // cập nhập giao diện
+                    log.info("Todos loaded: " + todoList.size() + " items");
+                }
+
+                @Override
+                public void onFailure(Call<TodoListResponseDTO> call, Throwable t) {
+                    log.error("Load todos failed: " + t.getMessage());
+                    Toast.makeText(TodoActivity.this, "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            log.info("Loading todos from local storage");
+            /** Fetch todo using room storage
+             * 1. Get AppDatabase
+             * 2. Create new background thread
+             * 3. Initialize ViewModel (using factory)
+             * 4. Assign observer
+             */
+            AppDatabase db = DatabaseClient.getInstance(TodoActivity.this).getAppDatabase();    // 1.
+            SingleThreadRepo<TodoRepository, TodoItem> repo = new SingleThreadRepo<>(db.todoItem());   // 2.
+
+            // 3. Init
+            TodoViewModelFactory factory = new TodoViewModelFactory(repo);
+            viewModel = new ViewModelProvider(this, factory).get(TodoViewModel.class);
+
+            // 4. Assign observer
+            viewModel.getLiveData().observe(this, resource ->{
+                if (resource != null){
+                    switch (resource.getStatus()){
+                        // 1. Resources are loading, wait (maybe put a lazy mark here)
+                        case LOADING:
+                            break;
+                        // 2. Resources are completed to be loaded
+                        // - Stop lazy mark (if any)
+                        // - Check resources whether it's null -> show nothing
+                        // - Check resources whether it's not null -> shows up
+                        case SUCCESS:
+                            break;
+
+                        case ERROR:
+                            break;
+                    }
+                }
+            });
+
+            // Start load todos
+            viewModel.loadTodos();
+        }
     }
 
     //    Dùng để cập nhập trạng thái của checkbox
