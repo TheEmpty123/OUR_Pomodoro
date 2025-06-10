@@ -6,6 +6,9 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.mobile.pomodoro.DailyTask.DailyTaskActivity;
+import com.mobile.pomodoro.Plan.PlanActivity;
+import com.mobile.pomodoro.Todo.TodoActivity;
 
 public abstract class NavigateActivity extends AppCompatActivity {
     protected BottomNavigationView bottomNavigationView;

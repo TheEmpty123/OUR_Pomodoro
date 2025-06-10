@@ -1,4 +1,4 @@
-package com.mobile.pomodoro;
+package com.mobile.pomodoro.DailyTask;
 
 import android.app.Dialog;
 import android.os.Bundle;
@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.google.android.material.button.MaterialButton;
+import com.mobile.pomodoro.R;
 import com.mobile.pomodoro.entity.DailyTask;
 
 public class DailyTaskPopupFragment extends DialogFragment {
