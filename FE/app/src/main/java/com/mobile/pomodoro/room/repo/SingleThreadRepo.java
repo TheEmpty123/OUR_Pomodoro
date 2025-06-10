@@ -61,6 +61,7 @@ public class SingleThreadRepo<K extends BaseRepository<V>, V extends BaseEntity>
 
     public void cleanUp(){
         if (executor != null && !executor.isShutdown()){
+            log.info("Shutting down " + executor);
             executor.shutdown();
         }
     }
