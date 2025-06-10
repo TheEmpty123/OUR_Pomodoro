@@ -228,9 +228,9 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
             ExecutorService executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
                 try {
-                    var plan = app.plan().getAllPlanWithTasks();
+                    var plan = app.plan().getAll();
                     var mapper = PlanMapper.getInstance();
-                    var dto = mapper.mapToDTO(plan);
+                    var dto = mapper.mapToDTO(plan.get(0));
 
                     runOnUiThread(() -> {
                         ((TaskCallback) this::updatePlan).onTasksLoaded(dto);

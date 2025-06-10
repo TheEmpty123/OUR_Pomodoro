@@ -4,12 +4,10 @@ import androidx.room.*;
 import com.mobile.pomodoro.room.entity.User;
 
 @Dao
-public abstract class UserRepository extends BaseRepository<User>{
-    @Override
+public abstract class UserRepository{
     @Insert(onConflict = OnConflictStrategy.ABORT)
     public abstract void insert(User user);
 
-    @Override
     @Update
     public abstract void update(User user);
 

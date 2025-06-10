@@ -16,5 +16,5 @@ public class TodoItem implements BaseEntity{
     @PrimaryKey(autoGenerate = true)
     Long id;
     private String title;
-    private boolean isDone;
+    private int isDone;
 }

@@ -73,6 +73,7 @@ public class TodoActivity extends NavigateActivity implements TodoAdapter.TodoIt
         fragment.setListener(new TodoPopupFragment.OnTodoActionListener() {
             @Override
             public void onTodoSaved(TodoResponseDTO newItem) {
+                // Save todo
                 log.info("Todo saved: " + newItem.getTitle());
                 boolean isUpdate = false;
                 for (int i = 0; i < todoList.size(); i++) {
@@ -97,11 +98,10 @@ public class TodoActivity extends NavigateActivity implements TodoAdapter.TodoIt
             }
             @Override
             public void onTodoCreated() {
-                log.info("Todo mới được tạo, tải lại danh sách");
+                // Create new todo
                 loadTodos(); // Tải lại danh sách sau khi tạo TODO mới
             }
         });
-
         fragment.show(getSupportFragmentManager(), "TodoPopupFragment");
     }
 
@@ -124,7 +124,8 @@ public class TodoActivity extends NavigateActivity implements TodoAdapter.TodoIt
     private void loadTodos() {
         // Check Application Status
         if (MyUtils.applicationMode == ApplicationMode.ONLINE) {
-
+            // =======================================================================================
+            // If application running online
             log.info("Loading todos from API");
             var username = MyUtils.get(this, "username");
             if (username == null || username.trim().isEmpty()) {
@@ -152,7 +153,8 @@ public class TodoActivity extends NavigateActivity implements TodoAdapter.TodoIt
                     Toast.makeText(TodoActivity.this, "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
-        } else {
+        } else {// ===================================================================================
+            // If application running offline
             log.info("Loading todos from local storage");
             /** Fetch todo using room storage
              * 1. Get AppDatabase
@@ -161,7 +163,7 @@ public class TodoActivity extends NavigateActivity implements TodoAdapter.TodoIt
              * 4. Assign observer
              */
             AppDatabase db = DatabaseClient.getInstance(TodoActivity.this).getAppDatabase();    // 1.
-            SingleThreadRepo<TodoRepository, TodoItem> repo = new SingleThreadRepo<>(db.todoItem());   // 2.
+            SingleThreadRepo repo = new SingleThreadRepo(db.todoItem());   // 2.
 
             // 3. Init
             TodoViewModelFactory factory = new TodoViewModelFactory(repo);
@@ -174,14 +176,39 @@ public class TodoActivity extends NavigateActivity implements TodoAdapter.TodoIt
                         // 1. Resources are loading, wait (maybe put a lazy mark here)
                         case LOADING:
                             break;
+
                         // 2. Resources are completed to be loaded
-                        // - Stop lazy mark (if any)
-                        // - Check resources whether it's null -> show nothing
-                        // - Check resources whether it's not null -> shows up
+                        // 2.1 Stop lazy mark (if any)
+                        // 2.2 Check resources whether it's null -> shows nothing
+                        // 2.3 Check resources whether it's not null -> shows up
                         case SUCCESS:
+                            // 2.1
+
+                            // 2.2
+                            if (resource.getData() == null || resource.getData().isEmpty()){
+                                return;
+                            }
+
+                            // 2.3
+                            todoList.clear(); // xóa dl cũ
+                            var data = resource.getData();  // Fetch resources
+                            data.forEach(item -> { // thêm mới
+                                todoList.add(TodoResponseDTO
+                                                .builder()
+                                                .title(item.getTitle())
+                                                .id(item.getId())
+                                                .is_done(item.getIsDone())
+                                                .build());
+                            });
+
+                            adapter.notifyDataSetChanged(); // cập nhập giao diện
+                            log.info("Todos loaded: " + todoList.size() + " items");
                             break;
 
+                        // 3. Error while loading todos
+                        // Use Toast to shows message
                         case ERROR:
+                            Toast.makeText(TodoActivity.this, resource.getMessage(), Toast.LENGTH_SHORT).show();
                             break;
                     }
                 }
@@ -189,6 +216,7 @@ public class TodoActivity extends NavigateActivity implements TodoAdapter.TodoIt
 
             // Start load todos
             viewModel.loadTodos();
+            // =======================================================================================
         }
     }
 
