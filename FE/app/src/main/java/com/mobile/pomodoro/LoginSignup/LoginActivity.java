@@ -70,7 +70,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 log.info("Login as guest");
-                Toast.makeText(LoginActivity.this, "Welcome back, master", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, "Welcome back, Master", Toast.LENGTH_SHORT).show();
 
                 MyUtils.applicationMode = ApplicationMode.OFFLINE; // Assign application mode to offline
                 Intent intent = new Intent(LoginActivity.this ,WelcomeActivity.class);
