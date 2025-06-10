@@ -7,7 +7,7 @@ import lombok.experimental.FieldDefaults;
 
 @Entity(tableName = "users")
 @FieldDefaults(level = AccessLevel.PUBLIC)
-public class User {
+public class User implements BaseEntity{
     @PrimaryKey
     Long id;
     String username;

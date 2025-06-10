@@ -12,7 +12,7 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @Entity(tableName = "todo")
 @FieldDefaults(level = AccessLevel.PUBLIC)
-public class TodoItem {
+public class TodoItem implements BaseEntity{
     @PrimaryKey(autoGenerate = true)
     Long id;
     private String title;

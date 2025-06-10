@@ -17,7 +17,7 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @Entity(tableName = "plan_task")
 @FieldDefaults(level = AccessLevel.PUBLIC)
-public class PlanTask {
+public class PlanTask implements BaseEntity{
     @PrimaryKey(autoGenerate = true)
     Long id;
     private String plan_title;

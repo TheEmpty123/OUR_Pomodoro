@@ -6,9 +6,12 @@ import androidx.room.Transaction;
 
 import com.mobile.pomodoro.room.entity.relation.PlanWithTasks;
 
+import java.util.List;
+
 @Dao
-public interface PlanRepository {
+public abstract class PlanRepository extends BaseRepository<PlanWithTasks>{
+    @Override
     @Transaction
     @Query("SELECT * FROM plan_task")
-    PlanWithTasks getAllPlanWithTasks();
+    public abstract List<PlanWithTasks> getAll();
 }

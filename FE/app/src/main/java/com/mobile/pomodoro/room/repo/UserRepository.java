@@ -4,13 +4,13 @@ import androidx.room.*;
 import com.mobile.pomodoro.room.entity.User;
 
 @Dao
-public interface UserRepository {
+public abstract class UserRepository extends BaseRepository<User>{
+    @Override
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    void insert(User user);
+    public abstract void insert(User user);
 
+    @Override
     @Update
-    void update(User user);
+    public abstract void update(User user);
 
-    @Query("SELECT * FROM users WHERE username = :username")
-    User getUserByUsername(String username);
 }
