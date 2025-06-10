@@ -2,7 +2,14 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.OurPomodoro" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/blue</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSurface">@color/pink</item>
+        <item name="colorSecondary">#E0E0E0</item>
+        <item name="colorSurfaceContainer">@color/white</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorPrimaryDark">@color/white</item>
+        <item name="android:windowBackground">@color/background_light</item>
     </style>
 
     <style name="Theme.OurPomodoro" parent="Base.Theme.OurPomodoro" />
