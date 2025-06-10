@@ -24,11 +24,14 @@ public class TodoViewModel extends ViewModel {
     }
 
     public TodoViewModel(Application app){
+        // For manual purpose only
         AppDatabase db = DatabaseClient.getInstance(app).getAppDatabase();
         this.repo = new SingleThreadRepo<>(db.todoItem());
     }
 
     public void loadTodos(){
+        // 1. Remove old source if there's any
+        // 2. Add new source
         if (source != null){
             liveData.removeSource(source);
         }
@@ -53,5 +56,6 @@ public class TodoViewModel extends ViewModel {
     protected void onCleared() {
         super.onCleared();
         repo.cleanUp();
+        // Shutdown thread
     }
 }
