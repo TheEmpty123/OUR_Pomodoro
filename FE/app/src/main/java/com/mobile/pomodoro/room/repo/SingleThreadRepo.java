@@ -8,19 +8,40 @@ import com.mobile.pomodoro.ui.view_model.Resource;
 import com.mobile.pomodoro.utils.LogObj;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
-public class SingleThreadRepo{
-    private final TodoRepository repo;
+import lombok.Getter;
+
+public class SingleThreadRepo<T>{
+    private TodoRepository repo;
     private final ExecutorService executor;
     private final LogObj log;
+    @Getter
+    private T alterRepo;
 
     public SingleThreadRepo(TodoRepository repo) {
         this.repo = repo;
         this.executor = Executors.newSingleThreadExecutor();
         this.log = new LogObj();
         log.setName(getClass().getSimpleName());
+    }
+
+    public SingleThreadRepo(T repo) {
+        this.alterRepo = repo;
+        this.executor = Executors.newSingleThreadExecutor();
+        this.log = new LogObj();
+        log.setName(getClass().getSimpleName());
+    }
+
+    public <R> Future<R> execute(Callable<R> task) {
+        return executor.submit(task);
+    }
+
+    public void execute(Runnable task) {
+        executor.execute(task);
     }
 
     public LiveData<Resource<List<TodoItem>>> getAll(){
