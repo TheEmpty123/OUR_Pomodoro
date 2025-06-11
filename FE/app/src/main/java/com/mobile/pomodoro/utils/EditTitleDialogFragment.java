@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+// đổi tên task/plan
 public class EditTitleDialogFragment extends DialogFragment {
 
     public interface OnTitleEditListener {
@@ -31,7 +32,7 @@ public class EditTitleDialogFragment extends DialogFragment {
         editText.setSelectAllOnFocus(true);
 
         return new AlertDialog.Builder(requireContext())
-                .setTitle("Chỉnh sửa tiêu đề task")
+                .setTitle("Edit Task Title")
                 .setView(editText)
                 .setPositiveButton("OK", (dialog, which) -> {
                     String newTitle = editText.getText().toString().trim();
@@ -39,7 +40,7 @@ public class EditTitleDialogFragment extends DialogFragment {
                         listener.onTitleChanged(newTitle);
                     }
                 })
-                .setNegativeButton("Hủy", null)
+                .setNegativeButton("Cancel", null)
                 .create();
     }
 }

@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/pink"
     tools:context=".SettingsActivity">
+
     <!-- tựa đề -->
     <androidx.cardview.widget.CardView
         android:id="@+id/topBarCard"
@@ -39,12 +40,15 @@
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
     <!-- main -->
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
+        android:clipToPadding="false"
         android:fillViewport="true"
+        android:padding="0dp"
         android:scrollbars="none"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
         app:layout_constraintEnd_toEndOf="parent"
@@ -54,12 +58,16 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:orientation="vertical"
             android:paddingHorizontal="16dp"
-            android:paddingBottom="20dp">
+            android:paddingTop="0dp"
+            android:paddingBottom="32dp">
 
             <!-- thông tin user-->
             <androidx.cardview.widget.CardView
+                android:id="@+id/userInfoCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
@@ -75,6 +83,7 @@
                     android:padding="20dp">
 
                     <androidx.cardview.widget.CardView
+                        android:id="@+id/avatarCard"
                         android:layout_width="56dp"
                         android:layout_height="56dp"
                         app:cardBackgroundColor="@color/blue"
@@ -123,7 +132,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="20dp"
                 app:cardBackgroundColor="@color/white"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="6dp">
@@ -131,13 +140,15 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
                     android:orientation="vertical"
                     android:padding="24dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="20dp"
+                        android:layout_marginBottom="24dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
 
@@ -165,6 +176,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         android:background="@drawable/setting_item_bg"
+                        android:clipChildren="false"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:padding="16dp">
@@ -192,49 +204,57 @@
                                 android:textSize="12sp" />
                         </LinearLayout>
 
-                        <androidx.cardview.widget.CardView
-                            android:id="@+id/cardPomodoroTime"
-                            android:layout_width="120dp"
-                            android:layout_height="48dp"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:foreground="?attr/selectableItemBackground"
-                            app:cardBackgroundColor="@color/blue"
-                            app:cardCornerRadius="24dp"
-                            app:cardElevation="4dp">
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:clipChildren="false"
+                            android:clipToPadding="false"
+                            android:padding="4dp">
 
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:gravity="center"
-                                android:orientation="horizontal">
+                            <androidx.cardview.widget.CardView
+                                android:id="@+id/cardPomodoroTime"
+                                android:layout_width="120dp"
+                                android:layout_height="48dp"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:foreground="?attr/selectableItemBackground"
+                                app:cardBackgroundColor="@color/blue"
+                                app:cardCornerRadius="24dp"
+                                app:cardElevation="4dp">
 
-                                <TextView
-                                    android:id="@+id/txtPomodoroTime"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="25"
-                                    android:textColor="@color/white"
-                                    android:textSize="18sp"
-                                    android:textStyle="bold" />
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center"
+                                    android:orientation="horizontal">
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="4dp"
-                                    android:text="min"
-                                    android:textColor="@color/white"
-                                    android:textSize="12sp" />
+                                    <TextView
+                                        android:id="@+id/txtPomodoroTime"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="25"
+                                        android:textColor="@color/white"
+                                        android:textSize="18sp"
+                                        android:textStyle="bold" />
 
-                                <ImageView
-                                    android:layout_width="16dp"
-                                    android:layout_height="16dp"
-                                    android:layout_marginStart="8dp"
-                                    android:contentDescription="Expand icon"
-                                    android:src="@drawable/ic_arrow_expand"
-                                    app:tint="@color/white" />
-                            </LinearLayout>
-                        </androidx.cardview.widget.CardView>
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="4dp"
+                                        android:text="min"
+                                        android:textColor="@color/white"
+                                        android:textSize="12sp" />
+
+                                    <ImageView
+                                        android:layout_width="16dp"
+                                        android:layout_height="16dp"
+                                        android:layout_marginStart="8dp"
+                                        android:contentDescription="Expand icon"
+                                        android:src="@drawable/ic_arrow_expand"
+                                        app:tint="@color/white" />
+                                </LinearLayout>
+                            </androidx.cardview.widget.CardView>
+                        </FrameLayout>
                     </LinearLayout>
 
                     <!-- short break -->
@@ -243,6 +263,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         android:background="@drawable/setting_item_bg"
+                        android:clipChildren="false"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:padding="16dp">
@@ -270,49 +291,58 @@
                                 android:textSize="12sp" />
                         </LinearLayout>
 
-                        <androidx.cardview.widget.CardView
-                            android:id="@+id/cardShortBreakTime"
-                            android:layout_width="120dp"
-                            android:layout_height="48dp"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:foreground="?attr/selectableItemBackground"
-                            app:cardBackgroundColor="@color/background_light"
-                            app:cardCornerRadius="24dp"
-                            app:cardElevation="4dp">
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:clipChildren="false"
+                            android:clipToPadding="false"
+                            android:padding="4dp">
 
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:gravity="center"
-                                android:orientation="horizontal">
+                            <androidx.cardview.widget.CardView
+                                android:id="@+id/cardShortBreakTime"
+                                android:layout_width="120dp"
+                                android:layout_height="48dp"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:foreground="?attr/selectableItemBackground"
+                                app:cardBackgroundColor="@color/background_light"
+                                app:cardCornerRadius="24dp"
+                                app:cardElevation="4dp">
 
-                                <TextView
-                                    android:id="@+id/txtShortBreakTime"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="5"
-                                    android:textColor="@color/blue"
-                                    android:textSize="18sp"
-                                    android:textStyle="bold" />
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center"
+                                    android:orientation="horizontal">
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="4dp"
-                                    android:text="min"
-                                    android:textColor="@color/blue"
-                                    android:textSize="12sp" />
+                                    <TextView
+                                        android:id="@+id/txtShortBreakTime"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="5"
+                                        android:textColor="@color/blue"
+                                        android:textSize="18sp"
+                                        android:textStyle="bold" />
 
-                                <ImageView
-                                    android:layout_width="16dp"
-                                    android:layout_height="16dp"
-                                    android:layout_marginStart="8dp"
-                                    android:contentDescription="Expand icon"
-                                    android:src="@drawable/ic_arrow_expand"
-                                    app:tint="@color/blue" />
-                            </LinearLayout>
-                        </androidx.cardview.widget.CardView>
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="4dp"
+                                        android:text="min"
+                                        android:textColor="@color/blue"
+                                        android:textSize="12sp" />
+
+                                    <ImageView
+                                        android:layout_width="16dp"
+                                        android:layout_height="16dp"
+                                        android:layout_marginStart="8dp"
+                                        android:contentDescription="Expand icon"
+                                        android:src="@drawable/ic_arrow_expand"
+                                        app:tint="@color/blue" />
+                                </LinearLayout>
+                            </androidx.cardview.widget.CardView>
+                        </FrameLayout>
                     </LinearLayout>
 
                     <!-- long break -->
@@ -320,6 +350,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/setting_item_bg"
+                        android:clipChildren="false"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:padding="16dp">
@@ -347,49 +378,58 @@
                                 android:textSize="12sp" />
                         </LinearLayout>
 
-                        <androidx.cardview.widget.CardView
-                            android:id="@+id/cardLongBreakTime"
-                            android:layout_width="120dp"
-                            android:layout_height="48dp"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:foreground="?attr/selectableItemBackground"
-                            app:cardBackgroundColor="@color/background_light"
-                            app:cardCornerRadius="24dp"
-                            app:cardElevation="4dp">
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:clipChildren="false"
+                            android:clipToPadding="false"
+                            android:padding="4dp">
 
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:gravity="center"
-                                android:orientation="horizontal">
+                            <androidx.cardview.widget.CardView
+                                android:id="@+id/cardLongBreakTime"
+                                android:layout_width="120dp"
+                                android:layout_height="48dp"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:foreground="?attr/selectableItemBackground"
+                                app:cardBackgroundColor="@color/background_light"
+                                app:cardCornerRadius="24dp"
+                                app:cardElevation="4dp">
 
-                                <TextView
-                                    android:id="@+id/txtLongBreakTime"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="20"
-                                    android:textColor="@color/blue"
-                                    android:textSize="18sp"
-                                    android:textStyle="bold" />
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center"
+                                    android:orientation="horizontal">
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="4dp"
-                                    android:text="min"
-                                    android:textColor="@color/blue"
-                                    android:textSize="12sp" />
+                                    <TextView
+                                        android:id="@+id/txtLongBreakTime"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="20"
+                                        android:textColor="@color/blue"
+                                        android:textSize="18sp"
+                                        android:textStyle="bold" />
 
-                                <ImageView
-                                    android:layout_width="16dp"
-                                    android:layout_height="16dp"
-                                    android:layout_marginStart="8dp"
-                                    android:contentDescription="Expand icon"
-                                    android:src="@drawable/ic_arrow_expand"
-                                    app:tint="@color/blue" />
-                            </LinearLayout>
-                        </androidx.cardview.widget.CardView>
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="4dp"
+                                        android:text="min"
+                                        android:textColor="@color/blue"
+                                        android:textSize="12sp" />
+
+                                    <ImageView
+                                        android:layout_width="16dp"
+                                        android:layout_height="16dp"
+                                        android:layout_marginStart="8dp"
+                                        android:contentDescription="Expand icon"
+                                        android:src="@drawable/ic_arrow_expand"
+                                        app:tint="@color/blue" />
+                                </LinearLayout>
+                            </androidx.cardview.widget.CardView>
+                        </FrameLayout>
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
