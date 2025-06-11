@@ -1,14 +1,14 @@
-package com.mobile.pomodoro;
+package com.mobile.pomodoro.Todo;
 
 import android.os.Bundle;
 
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.mobile.pomodoro.NavigateActivity;
+import com.mobile.pomodoro.R;
 import com.mobile.pomodoro.entity.TodoItem;
 
 import java.util.ArrayList;

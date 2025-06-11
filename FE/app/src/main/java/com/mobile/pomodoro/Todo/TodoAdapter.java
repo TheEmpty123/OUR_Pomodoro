@@ -1,4 +1,4 @@
-package com.mobile.pomodoro;
+package com.mobile.pomodoro.Todo;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.mobile.pomodoro.R;
 import com.mobile.pomodoro.entity.TodoItem;
 
 import java.util.List;

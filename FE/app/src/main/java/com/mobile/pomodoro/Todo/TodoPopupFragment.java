@@ -1,4 +1,4 @@
-package com.mobile.pomodoro;
+package com.mobile.pomodoro.Todo;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.google.android.material.button.MaterialButton;
+import com.mobile.pomodoro.R;
 import com.mobile.pomodoro.entity.TodoItem;
 
 public class TodoPopupFragment extends DialogFragment {
