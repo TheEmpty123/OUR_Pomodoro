@@ -142,7 +142,7 @@ public class TimeSelection {
             if (timeValue == currentValue) {
                 textView.setBackgroundColor(Color.parseColor("#E3F2FD"));
                 textView.setTextColor(Color.parseColor("#1976D2"));
-                textView.setText("✓ " + timeValue + " minutes (current");
+                textView.setText("✓ " + timeValue + " minutes (current)");
             } else {
                 textView.setBackgroundColor(Color.TRANSPARENT);
                 textView.setTextColor(Color.parseColor("#333333"));
