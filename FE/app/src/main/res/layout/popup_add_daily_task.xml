@@ -1,34 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:padding="24dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp">
+    android:orientation="vertical"
+    android:padding="16dp">
 
-    <EditText
-        android:id="@+id/etTaskTitle"
-        android:hint="Nhập tên công việc"
-        android:padding="24dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnSaveTask"
-        android:text="Lưu"
-        android:layout_marginTop="16dp"
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:backgroundTint="@color/blue"
-        />
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnDeleteTask"
-        android:layout_marginTop="16dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Delete"
-        app:backgroundTint="@color/red"
-        />
+        android:hint="Mô tả Daily Task">
 
-
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
 </LinearLayout>
