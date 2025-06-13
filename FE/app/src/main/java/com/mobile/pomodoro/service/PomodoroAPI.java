@@ -56,4 +56,6 @@ public interface PomodoroAPI {
     Call<MessageResponseDTO> completeDailyTask(@Path("id") long id);
     @DELETE("api/v1/daily-task/{id}")
     Call<MessageResponseDTO> deleteDailyTask(@Path("id") long id);
+    @GET("/api/v1/recent-plan")
+    Call<PlanResponseDTO> getRecentPlan();
 }

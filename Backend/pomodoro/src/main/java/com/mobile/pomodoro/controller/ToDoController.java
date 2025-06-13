@@ -2,7 +2,7 @@ package com.mobile.pomodoro.controller;
 
 import com.mobile.pomodoro.dto.request.ToDoRequestDTO;
 import com.mobile.pomodoro.dto.response.MessageResponseDTO;
-import com.mobile.pomodoro.dto.response.ToDoResponeseDTO.ToDoResponseDTO;
+import com.mobile.pomodoro.dto.response.ToDoResponseDTO;
 import com.mobile.pomodoro.entities.User;
 import com.mobile.pomodoro.services.IToDoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,6 @@ public class ToDoController {
     public ToDoResponseDTO getRecentPlan(@RequestAttribute(name = "user") User user) throws Exception {
         return toDoService.getAllTodosByUserId(user.getUserId());
     }
-
 
     @PostMapping()
     public ResponseEntity<MessageResponseDTO> createPlan(@RequestBody ToDoRequestDTO requestDTO, @RequestAttribute(name = "user") User user) {
