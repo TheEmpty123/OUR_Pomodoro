@@ -1,14 +1,11 @@
 package com.mobile.pomodoro.services.impl;
 
-import com.mobile.pomodoro.dto.request.DailyTaskRequestDTO;
-import com.mobile.pomodoro.dto.request.PlanRequestDTO;
-import com.mobile.pomodoro.dto.request.PlanToEditRequestDTO;
-import com.mobile.pomodoro.dto.response.DailyTaskResponeseDTO.DailyTaskResponeseDTO;
+import com.mobile.pomodoro.dto.request.*;
+import com.mobile.pomodoro.dto.response.DailyTaskResponeseDTO;
+import com.mobile.pomodoro.dto.response.DailyTaskResponeseDTO.*;
 import com.mobile.pomodoro.dto.response.MessageResponseDTO;
-import com.mobile.pomodoro.dto.response.PlanResponseDTO.PlanResponseDTO;
-import com.mobile.pomodoro.dto.response.PlanToEditResponseDTO.PlanToEditResponseDTO;
+import com.mobile.pomodoro.dto.response.PlanToEditResponseDTO;
 import com.mobile.pomodoro.entities.DailyTask;
-import com.mobile.pomodoro.dto.response.DailyTaskResponeseDTO.DailyTaskResponeseDTO.SingleDailyTaskDTO;
 import com.mobile.pomodoro.entities.Plan;
 import com.mobile.pomodoro.entities.PlanTask;
 import com.mobile.pomodoro.entities.User;
@@ -16,8 +13,6 @@ import com.mobile.pomodoro.repositories.DailyTaskRepository;
 import com.mobile.pomodoro.repositories.PlanRepository;
 import com.mobile.pomodoro.repositories.PlanTaskRepository;
 import com.mobile.pomodoro.services.IDailyTaskService;
-
-import com.mobile.pomodoro.services.IPlanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,6 +49,7 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
             if (dailytasks.isEmpty()) {
                 log.warn("Không tìm thấy công việc nào cho userId: {}", userId);
             }
+
             List<SingleDailyTaskDTO> dailytaskDTOs = dailytasks.stream()
                     .map(dailytask -> SingleDailyTaskDTO.builder()
                             .plan_id(dailytask.getPlanId())
@@ -187,30 +183,41 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
             throw new RuntimeException("Không thể lấy chi tiết DailyTask. " + e.getMessage());
         }
     }
+
     @Override
-    public PlanToEditResponseDTO planToEdit(PlanToEditRequestDTO request, User user) {
-        log.info(String.format("Bắt đầu xử lý plan-to-edit cho planId: %d và userId: %d", request.getPlan_id(), user.getUserId()));
+    public PlanToEditResponseDTO planToEdit(Long id, User user) {
+        log.info(String.format("Bắt đầu xử lý plan-to-edit cho planId: %d và userId: %d", id, user.getUserId()));
         try {
-            List<PlanTask> tasks = planTaskRepository.findTaskByPlanId(request.getPlan_id());
+            // Kiểm tra xem người dùng có quyền truy cập vào kế hoạch này không
+            // Lấy danh sách các PlanTask liên quan đến kế hoạch
+            List<PlanTask> tasks = planTaskRepository.findTaskByPlanId(id);
             if (tasks.isEmpty()) {
-                log.warn(String.format("Không tìm thấy kế hoạch hoặc không được phép truy cập cho planId: %d", request.getPlan_id()));
+                log.warn(String.format("Không tìm thấy kế hoạch hoặc không được phép truy cập cho planId: %d", id));
                 throw new IllegalArgumentException("Kế hoạch không tồn tại hoặc không thuộc về người dùng");
             }
+            // Lấy thông tin kế hoạch
+            Plan plan = planRepository.findById(id).get();
 
             int sBreakDuration = 0;
             int lBreakDuration = 0;
+
+            // Tính toán thời gian nghỉ ngắn và dài từ danh sách các PlanTask
             for (PlanTask task : tasks) {
                 if ("short break".equalsIgnoreCase(task.getTask_name())) {
                     sBreakDuration = (int) task.getDuration();
                     break;
                 }
             }
+
+            // Tính toán thời gian nghỉ dài
             for (PlanTask task : tasks) {
                 if ("long break".equalsIgnoreCase(task.getTask_name())) {
                     lBreakDuration = (int) task.getDuration();
                     break;
                 }
             }
+
+            // Tính toán thời gian của từng bước trong kế hoạch
             Map<String, Integer> taskDurations = new HashMap<>();
             for (PlanTask task : tasks) {
                 String title = task.getTask_name();
@@ -222,6 +229,8 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
                     }
                 }
             }
+
+            // Tạo danh sách các bước để trả về
             List<PlanToEditResponseDTO.Step> stepList = new ArrayList<>();
             int order = 1;
             for (Map.Entry<String, Integer> entry : taskDurations.entrySet()) {
@@ -232,18 +241,107 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
                         .build();
                 stepList.add(step);
             }
+
+            // Tạo đối tượng PlanToEditResponseDTO để trả về
             PlanToEditResponseDTO response = PlanToEditResponseDTO.builder()
-                    .title(request.getTitle())
+                    .title(plan.getTitle())
                     .s_break_duration(sBreakDuration)
                     .l_break_duration(lBreakDuration)
                     .steps(stepList)
                     .build();
-            log.info(String.format("Hoàn tất xử lý plan-to-edit cho planId: %d", request.getPlan_id()));
+
+            log.info(String.format("Hoàn tất xử lý plan-to-edit cho planId: %d", id));
             return response;
+
         } catch (Exception e) {
             log.error(String.format("Lỗi khi xử lý plan-to-edit: %s", e.getMessage()), e);
             throw new RuntimeException("Không thể xử lý kế hoạch để chỉnh sửa: " + e.getMessage());
         }
     }
 
+    @Override
+    public MessageResponseDTO completeDailyTask(Long id, User user) {
+        log.info("Bắt đầu đánh dấu hoàn thành DailyTask ID: " + id + " cho userId: " + (user != null ? user.getUserId() : "null"));
+        try {
+            if (id == null) {
+                log.error("ID tác vụ hàng ngày không hợp lệ");
+                throw new IllegalArgumentException("ID tác vụ hàng ngày không hợp lệ");
+            }
+            if (user == null) {
+                log.error("Không tìm thấy thông tin người dùng cho yêu cầu hoàn thành task ID: " + id);
+                throw new IllegalArgumentException("Không tìm thấy thông tin người dùng");
+            }
+
+            Optional<DailyTask> dailyTaskOptional = dailyTaskRepository.findById(id);
+            if (!dailyTaskOptional.isPresent()) {
+                log.error("Không tìm thấy DailyTask với ID: " + id);
+                throw new IllegalArgumentException("Không thành công");
+            }
+
+            DailyTask dailyTask = dailyTaskOptional.get();
+            if (!dailyTask.getUserId().equals(user.getUserId())) {
+                log.error("Người dùng " + user.getUserId() + " không sở hữu DailyTask " + id);
+                throw new IllegalArgumentException("Truy cập không được phép vào tác vụ hàng ngày");
+            }
+
+            if (dailyTask.getIsDone() == 1) {
+                log.info("DailyTask ID: " + id + " đã được đánh dấu hoàn thành trước đó");
+                return new MessageResponseDTO("Tác vụ hàng ngày đã được hoàn thành trước đó");
+            }
+
+            dailyTask.setIsDone(1);
+            dailyTaskRepository.save(dailyTask);
+            log.info("Đã đánh dấu hoàn thành DailyTask ID: " + id);
+            return new MessageResponseDTO("Tác vụ hàng ngày đã được đánh dấu hoàn thành");
+        } catch (IllegalArgumentException e) {
+            log.error("Lỗi xác thực khi đánh dấu hoàn thành DailyTask ID: " + id + ": " + e.getMessage());
+            return new MessageResponseDTO(e.getMessage());
+        } catch (Exception e) {
+            log.error("Lỗi hệ thống khi đánh dấu hoàn thành DailyTask ID: " + id + ": " + e.getMessage(), e);
+            return new MessageResponseDTO("Tác vụ hàng ngày không thành công");
+        }
+    }
+
+    @Override
+    public MessageResponseDTO deleteDailyTask(Long id, User user) {
+        log.info("Bắt đầu xóa DailyTask ID: " + id + " cho userId: " + (user != null ? user.getUserId() : "null"));
+        try {
+            if (id == null) {
+                log.error("ID tác vụ hàng ngày không hợp lệ");
+                throw new IllegalArgumentException("ID tác vụ hàng ngày không hợp lệ");
+            }
+            if (user == null) {
+                log.error("Không tìm thấy thông tin người dùng cho yêu cầu xóa task ID: " + id);
+                throw new IllegalArgumentException("Không tìm thấy thông tin người dùng");
+            }
+
+            Optional<DailyTask> dailyTaskOptional = dailyTaskRepository.findById(id);
+            if (!dailyTaskOptional.isPresent()) {
+                log.error("Không tìm thấy DailyTask với ID: " + id);
+                throw new IllegalArgumentException("Không thành công");
+            }
+
+            DailyTask dailyTask = dailyTaskOptional.get();
+            if (!dailyTask.getUserId().equals(user.getUserId())) {
+                log.error("Người dùng " + user.getUserId() + " không sở hữu DailyTask " + id);
+                throw new IllegalArgumentException("Truy cập không được phép vào tác vụ hàng ngày");
+            }
+
+            Long planId = dailyTask.getPlanId();
+            if (planId != null) {
+                planTaskRepository.deleteByPlanId(planId);
+                log.info("Đã xóa các PlanTask liên quan đến planId: " + planId);
+            }
+
+            dailyTaskRepository.deleteById(id);
+            log.info("Đã xóa DailyTask ID: " + id);
+            return new MessageResponseDTO("Xóa tác vụ hàng ngày thành công");
+        } catch (IllegalArgumentException e) {
+            log.error("Lỗi xác thực khi xóa DailyTask ID: " + id + ": " + e.getMessage());
+            return new MessageResponseDTO(e.getMessage());
+        } catch (Exception e) {
+            log.error("Lỗi hệ thống khi xóa DailyTask ID: " + id + ": " + e.getMessage(), e);
+            return new MessageResponseDTO("Không thể xóa tác vụ hàng ngày: Lỗi hệ thống");
+        }
+    }
 }

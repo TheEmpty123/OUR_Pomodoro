@@ -22,8 +22,6 @@ import com.mobile.pomodoro.service.PomodoroService;
 import com.mobile.pomodoro.utils.LogObj;
 import com.mobile.pomodoro.utils.MyUtils;
 
-import java.util.Objects;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -90,36 +88,36 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         // TEST
-        PomodoroService.getClient().testLogin(LoginRequestDTO.builder()
-                        .username(username)
-                        .password(password)
-                        .build())
-                .enqueue(new Callback<MessageResponseDTO>() {
-                    @Override
-                    public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
-                        if (response.isSuccessful() &&
-                                Objects.requireNonNull(response.body()).getMessage() != null) {
-                            Toast.makeText(LoginActivity.this,
-                                            response.body().getMessage(),
-                                            Toast.LENGTH_SHORT)
-                                    .show();
-                        } else {
-                            Toast.makeText(LoginActivity.this,
-                                            "No response",
-                                            Toast.LENGTH_SHORT)
-                                    .show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<MessageResponseDTO> call, Throwable throwable) {
-                        log.error("Network request failed", throwable);
-                        Toast.makeText(LoginActivity.this,
-                                        "Failed to connect to the server. Please try again later.",
-                                        Toast.LENGTH_SHORT)
-                                .show();
-                    }
-                });
+//        PomodoroService.getClient().testLogin(LoginRequestDTO.builder()
+//                        .username(username)
+//                        .password(password)
+//                        .build())
+//                .enqueue(new Callback<MessageResponseDTO>() {
+//                    @Override
+//                    public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
+//                        if (response.isSuccessful() &&
+//                                Objects.requireNonNull(response.body()).getMessage() != null) {
+//                            Toast.makeText(LoginActivity.this,
+//                                            response.body().getMessage(),
+//                                            Toast.LENGTH_SHORT)
+//                                    .show();
+//                        } else {
+//                            Toast.makeText(LoginActivity.this,
+//                                            "No response",
+//                                            Toast.LENGTH_SHORT)
+//                                    .show();
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<MessageResponseDTO> call, Throwable throwable) {
+//                        log.error("Network request failed", throwable);
+//                        Toast.makeText(LoginActivity.this,
+//                                        "Failed to connect to the server. Please try again later.",
+//                                        Toast.LENGTH_SHORT)
+//                                .show();
+//                    }
+//                });
 
         // Login handler
         PomodoroService.getClient().login(LoginRequestDTO.builder()

@@ -1,14 +1,12 @@
 package com.mobile.pomodoro.services.impl;
 
-import com.mobile.pomodoro.CustomException.UserNotFoundException;
 import com.mobile.pomodoro.dto.request.ToDoRequestDTO;
 import com.mobile.pomodoro.dto.response.MessageResponseDTO;
-import com.mobile.pomodoro.dto.response.ToDoResponeseDTO.ToDoResponseDTO;
-import com.mobile.pomodoro.dto.response.ToDoResponeseDTO.ToDoResponseDTO.SingleToDoDTO;
+import com.mobile.pomodoro.dto.response.ToDoResponseDTO;
+import com.mobile.pomodoro.dto.response.ToDoResponseDTO.SingleToDoDTO;
 import com.mobile.pomodoro.entities.Todo;
 import com.mobile.pomodoro.entities.User;
 import com.mobile.pomodoro.repositories.ToDoRepository;
-import com.mobile.pomodoro.repositories.UserRepository;
 import com.mobile.pomodoro.services.IToDoService;
 import com.mobile.pomodoro.services.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,7 +14,6 @@ import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,6 +43,7 @@ public class ToDoServiceImpl extends AService implements IToDoService {
 
         List<SingleToDoDTO> todoDTOs = todos.stream()
                 .map(todo -> SingleToDoDTO.builder()
+                        .id(todo.getToDoId())
                         .title(todo.getTitle())
                         .is_done(todo.getIsDone())
                         .build())
