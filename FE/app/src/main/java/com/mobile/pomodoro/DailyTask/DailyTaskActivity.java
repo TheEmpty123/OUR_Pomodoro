@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
 import com.mobile.pomodoro.Plan.PlanActivity;
 import com.mobile.pomodoro.response_dto.DailyTaskListResponseDTO;
 import com.mobile.pomodoro.response_dto.DailyTaskResponseDTO;
@@ -76,6 +77,8 @@ private void loadDailyTasks() {
         @Override
         public void onResponse(Call<DailyTaskListResponseDTO> call, Response<DailyTaskListResponseDTO> response) {
             if (response.isSuccessful() && response.body() != null) {
+                String responseJson = new Gson().toJson(response.body());
+                log.info("Daily task list response: " + responseJson);
                 dailyTaskList.clear();
                 dailyTaskList.addAll(response.body().getList());
                 adapter.notifyDataSetChanged();
@@ -101,7 +104,18 @@ private void loadDailyTasks() {
 
 
     private void openPlanScreenForEdit(long planId) {
+        if (planId <= 0) {
+            LogObj log = new LogObj();
+            log.setName(getClass().getSimpleName());
+            log.error("Invalid planId: " + planId);
+            Toast.makeText(this, "ID kế hoạch không hợp lệ", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        LogObj log = new LogObj();
+        log.setName(getClass().getSimpleName());
+        log.info("Opening PlanActivity for edit, planId: " + planId);
         Intent intent = new Intent(this, PlanActivity.class);
+        intent.putExtra("isDailyTaskMode", true);
         intent.putExtra("isEditMode", true);
         intent.putExtra("planId", planId);
         startActivity(intent);

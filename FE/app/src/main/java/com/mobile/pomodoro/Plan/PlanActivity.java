@@ -73,10 +73,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             adapter = new PlanAdapter(planList); //  adapter kết nối dl với RecyclerView
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
             recyclerView.setAdapter(adapter);
-// Kiểm tra mode
-            isDailyTaskMode = getIntent().getBooleanExtra("isDailyTaskMode", false);
-            isEditMode = getIntent().getBooleanExtra("isEditMode", false);
-            planId = getIntent().getLongExtra("planId", -1);
+
 // Lấy Intent extras
             Intent intent = getIntent();
             isDailyTaskMode = intent.getBooleanExtra("isDailyTaskMode", false);
@@ -90,17 +87,21 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             // Tải dữ liệu nếu ở chế độ chỉnh sửa
             if (isEditMode && planId != -1) {
                 loadPlanForEdit();
+            }else if (isEditMode) {
+                log.warn("Edit mode enabled but planId is invalid: " + planId);
+                Toast.makeText(this, "ID kế hoạch không hợp lệ", Toast.LENGTH_SHORT).show();
+                finish();
             }
         }
     private void configureButtons() {
-        if (isDailyTaskMode) {
+        if (isDailyTaskMode && !isEditMode) {
             btnSave.setText("Add Daily");
             btnSave.setVisibility(View.VISIBLE);
             btnStart.setVisibility(View.GONE);
             btnImport.setVisibility(View.GONE);
             btnExport.setVisibility(View.GONE);
             btnSave.setOnClickListener(v -> showAddDailyTaskPopup());
-        } else if (isEditMode) {
+        } else if (isDailyTaskMode && isEditMode) {
             btnSave.setText("Save");
             btnStart.setText("Start");
             btnImport.setText("Delete");
@@ -386,6 +387,12 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
     }
     private void loadPlanForEdit() {
         var username = MyUtils.get(this, "username");
+        if (planId <= 0) {
+            log.error("Invalid planId: " + planId);
+            Toast.makeText(this, "ID kế hoạch không hợp lệ", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
         log.info("Loading plan for edit, planId: " + planId);
         PomodoroService.getRetrofitInstance(username).getPlanToEdit(planId).enqueue(new Callback<DailyTaskDetailResponseDTO>() {
             @Override
@@ -412,10 +419,10 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                         }
                     }
                     adapter.notifyDataSetChanged();
-                    log.info("Loaded plan for edit: " + plan.getTitle());
+                    log.info("Loaded plan successfully: " + new Gson().toJson(plan));
                     Toast.makeText(PlanActivity.this, "SUCCESS", Toast.LENGTH_SHORT).show();
                 } else {
-                    log.warn("Failed to load plan for edit");
+                    log.warn("Failed to load plan for edit " + response.code());
                     try {
                         String errorBody = response.errorBody() != null ? response.errorBody().string() : "error";
                         Toast.makeText(PlanActivity.this, " LOAD FAILED " + errorBody, Toast.LENGTH_SHORT).show();
