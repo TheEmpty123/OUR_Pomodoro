@@ -308,7 +308,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
         private void showImportPopup() {
         }
 
-        //fragment nhập mô tả
+        //fragment nhập mô tả cho dailytask
     private void showAddDailyTaskPopup() {
         new AlertDialog.Builder(this)
                 .setTitle("Enter Daily Task description")
@@ -387,6 +387,12 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
     }
     private void loadPlanForEdit() {
         var username = MyUtils.get(this, "username");
+        if (username == null || username.trim().isEmpty()) {
+            log.error("Username is null or empty");
+            Toast.makeText(this, "Vui lòng đăng nhập", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
         if (planId <= 0) {
             log.error("Invalid planId: " + planId);
             Toast.makeText(this, "ID kế hoạch không hợp lệ", Toast.LENGTH_LONG).show();
@@ -427,7 +433,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                         String errorBody = response.errorBody() != null ? response.errorBody().string() : "error";
                         Toast.makeText(PlanActivity.this, " LOAD FAILED " + errorBody, Toast.LENGTH_SHORT).show();
                     } catch (Exception e) {
-                        Toast.makeText(PlanActivity.this, "ERROE", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(PlanActivity.this, "ERROR", Toast.LENGTH_SHORT).show();
                     }
                     finish();
                 }
