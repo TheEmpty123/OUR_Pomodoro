@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PlanTaskResponseDTO {
     private String plan_title;
-    private double plan_duration;
+    private int plan_duration;
     private int order;
 }

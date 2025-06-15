@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PlanTaskDTO {
         private String plan_title;
-        private double plan_duration;
+        private int plan_duration;
         private int order;
         private transient int shortBreak;
         private transient int longBreak;

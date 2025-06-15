@@ -38,8 +38,8 @@ import retrofit2.Response;
 public class PlanActivity extends NavigateActivity implements AddPlanFragment.OnPlanAddedListener {
         private RecyclerView recyclerView;
         private MaterialButton  btnSave, btnStart, btnExport, btnImport;
-       private  FloatingActionButton btnAdd;
-    private EditText titlePlan;
+       private  MaterialButton btnAdd;
+        private EditText titlePlan;
         private PlanAdapter adapter;
         private List<PlanTaskDTO> planList;
          private LogObj log;
@@ -74,7 +74,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
             recyclerView.setAdapter(adapter);
 
-// Lấy Intent extras
+            // Lấy Intent extras
             Intent intent = getIntent();
             isDailyTaskMode = intent.getBooleanExtra("isDailyTaskMode", false);
             isEditMode = intent.getBooleanExtra("isEditMode", false);
@@ -107,7 +107,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             btnImport.setText("Delete");
             btnExport.setText("Complete");
             btnSave.setOnClickListener(v -> updateDailyTask());
-            btnStart.setOnClickListener(v -> startPlanWithoutSaving());
+            btnStart.setOnClickListener(v -> startDailyTaskEdit());
             btnImport.setOnClickListener(v -> deleteDailyTask());
             btnExport.setOnClickListener(v -> completeDailyTask());
         } else {
@@ -154,7 +154,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
         AddPlanFragment fragment = AddPlanFragment.newInstance(isFirstTask, globalShortBreak, globalLongBreak);
         fragment.show(getSupportFragmentManager(), "AddPlanFragment");
     }
-
+//api save plan
         private void savePlan() {
 //        B1: ktr danh sách task
             if (planList.isEmpty()) {
@@ -230,7 +230,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             });
         }
 
-
+// api start plan
         private void startPlanWithoutSaving() {
         // Kiểm tra ds
             if (planList.isEmpty()) {
@@ -325,6 +325,8 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                 .setNegativeButton("Cancel", null)
                 .show();
     }
+
+    // api save dailytask
     private void saveDailyTask(String description) {
         if (planList.isEmpty()) {
             log.warn("Attempt to save empty plan list");
@@ -385,6 +387,8 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             }
         });
     }
+
+    // api load dailytask for edit
     private void loadPlanForEdit() {
         var username = MyUtils.get(this, "username");
         if (username == null || username.trim().isEmpty()) {
@@ -405,10 +409,10 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             public void onResponse(Call<DailyTaskDetailResponseDTO> call, Response<DailyTaskDetailResponseDTO> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     DailyTaskDetailResponseDTO plan = response.body();
+                    dailyTaskDescription = plan.getDaily_task_description();
                     titlePlan.setText(plan.getTitle() != null ? plan.getTitle() : "");
                     globalShortBreak = plan.getS_break_duration() / 60;
                     globalLongBreak = plan.getL_break_duration() / 60;
-                    dailyTaskDescription = plan.getDaily_task_description();
                     hasBreakTimeSet = true;
                     planList.clear();
                     List<PlanTaskResponseDTO> steps = plan.getSteps();
@@ -469,7 +473,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             planList.get(i).setPlan_duration(planList.get(i).getPlan_duration() * 60);
         }
         DailyTaskRequestDTO request = DailyTaskRequestDTO.builder()
-                .daily_task_description(dailyTaskDescription != null ? dailyTaskDescription : "Updated plan")
+                .daily_task_description(dailyTaskDescription)
                 .title(title)
                 .s_break_duration(globalShortBreak * 60)
                 .l_break_duration(globalLongBreak * 60)
@@ -515,7 +519,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                 } else {
                     log.warn("Failed to delete Daily Task");
                     try {
-                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown error";
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "error";
                         Toast.makeText(PlanActivity.this, "Delete failed: " + errorBody, Toast.LENGTH_SHORT).show();
                     } catch (Exception e) {
                         Toast.makeText(PlanActivity.this, "ERROR", Toast.LENGTH_SHORT).show();
@@ -559,6 +563,62 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
         });
     }
 
+    // lấy chi tiết 1 dailytask cho trang home
+    private void startDailyTaskEdit() {
+        if (planId <= 0) {
+            log.error("Invalid planId: " + planId);
+            Toast.makeText(this, "ID kế hoạch không hợp lệ", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Lấy username
+        var username = MyUtils.get(this, "username");
+        if (username == null || username.trim().isEmpty()) {
+            log.error("Username is null or empty");
+            Toast.makeText(this, "Vui lòng đăng nhập", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Gọi API
+        log.info("Loading dailytask " + planId);
+        PomodoroService.getRetrofitInstance(username).getDailyTaskDetails(planId).enqueue(new Callback<PlanResponseDTO>() {
+            @Override
+            public void onResponse(Call<PlanResponseDTO> call, Response<PlanResponseDTO> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    PlanResponseDTO plan = response.body();
+                    log.info("Received dailytask details: " + new Gson().toJson(plan));
+
+                    // Chuyển sang HomePage
+                    Intent intent = new Intent(PlanActivity.this, HomePage.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.putExtra("plan_id", plan.getId());
+                    intent.putExtra("plan_title", plan.getTitle());
+
+                    // Truyền danh sách steps dưới dạng JSON
+                    Gson gson = new Gson();
+                    String stepsJson = gson.toJson(plan.getSteps());
+                    intent.putExtra("tasks_json", stepsJson);
+
+                    startActivity(intent);
+                    finish(); // Đóng PlanActivity
+                } else {
+                    log.warn("Failed to load daily task details, HTTP code: " + response.code());
+                    try {
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "error";
+                        Toast.makeText(PlanActivity.this, "Failed to load dailytask: " + errorBody, Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        Toast.makeText(PlanActivity.this, "ERROR: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PlanResponseDTO> call, Throwable t) {
+                log.error("getDailyTaskDetails failed: " + t.getMessage());
+                Toast.makeText(PlanActivity.this, "ERROR: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 // dùng cho Navbar
     @Override
     protected int getLayoutResourceId() {

@@ -42,12 +42,13 @@ public interface PomodoroAPI {
 
     @DELETE("/api/v1/todos/{id}")
     Call<MessageResponseDTO> deleteTodo(@Path("id") long id);
+
     @GET("/api/v1/plan-to-edit/{id}")
     Call<DailyTaskDetailResponseDTO> getPlanToEdit(@Path("id") long id);
-    @GET("api/v1/daily-task")
-    Call<DailyTaskListResponseDTO> getDailyTasks();
     @GET("api/v1/daily-task/{id}")
     Call<PlanResponseDTO> getDailyTaskDetails(@Path("id") long id);
+    @GET("api/v1/daily-task")
+    Call<DailyTaskListResponseDTO> getDailyTasks();
     @POST("api/v1/daily-task")
     Call<MessageResponseDTO> createDailyTask(@Body DailyTaskRequestDTO request);
     @PUT("api/v1/daily-task/{id}")

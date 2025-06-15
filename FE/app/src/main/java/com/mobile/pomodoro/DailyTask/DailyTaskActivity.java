@@ -46,7 +46,6 @@ public class DailyTaskActivity extends NavigateActivity {
 
         recyclerView = findViewById(R.id.recyclerDailyTasks);
         btnAddDailyTask = findViewById(R.id.btnAddDailyTask);
-
         dailyTaskList = new ArrayList<>();
         adapter = new DailyTaskAdapter(dailyTaskList, task -> {
             log.info("Daily Task clicked: " + task.getTitle());

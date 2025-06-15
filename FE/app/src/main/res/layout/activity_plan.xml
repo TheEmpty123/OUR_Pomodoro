@@ -12,14 +12,14 @@
         android:id="@+id/titlePlan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nhập tiêu đề kế hoạch"
+        android:hint="Enter Plan Title"
         android:textSize="24sp"
         android:gravity="center"
         android:textColor="@color/black"
         android:textStyle="bold"
         android:inputType="textCapSentences"
         android:padding="16dp"
-        android:layout_margin="20dp"
+        android:layout_margin="15dp"
         android:background="@color/white"
         style="@style/task_edittext"/>
 
@@ -29,24 +29,28 @@
         android:id="@+id/recyclerPlan"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_below="@id/titlePlan"
+        android:layout_below="@id/btnAdd"
         android:layout_above="@+id/controlPanel"
         android:layout_margin="8dp"
         android:padding="4dp"
         android:contentDescription="List of Pomodoro tasks" />
 
     <!-- button add plan -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnAdd"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_above="@+id/controlPanel"
-        android:layout_margin="20dp"
-        android:contentDescription="Thêm công việc"
+        android:layout_below="@id/titlePlan"
+        android:layout_marginHorizontal="20dp"
         android:backgroundTint="@color/blue"
-        app:srcCompat="@android:drawable/ic_input_add"
-        app:tint="@android:color/white"/>
+        android:text="Add task"
+        android:padding="10dp"
+        android:textColor="@android:color/white"
+        android:icon="@android:drawable/ic_input_add"
+        android:iconTint="@android:color/white"
+        android:gravity="center"
+        style="@style/btn_add_task"
+        app:cornerRadius="30dp" />
 
     <!-- 4 Button chức năng  -->
     <LinearLayout
