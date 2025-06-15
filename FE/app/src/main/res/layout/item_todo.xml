@@ -4,7 +4,8 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:background="@drawable/item_todo"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:layout_marginTop="10dp">
 
     <CheckBox
         android:id="@+id/cbTodoDone"
