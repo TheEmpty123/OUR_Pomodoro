@@ -2,28 +2,22 @@ package com.mobile.pomodoro;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatDelegate;
 
 public class SettingsActivity extends NavigateActivity {
     private TextView txtPomodoroTime, txtShortBreakTime, txtLongBreakTime;
     private ImageButton btnClose, btnRefresh;
     private Button btnSaveSettings;
-    private Switch switchDarkMode;
     private SharedPreferences sharedPreferences;
     private static final String PREF_NAME = "PomodoroSettings";
     private static final String KEY_POMODORO_TIME = "pomodoro_time";
     private static final String KEY_SHORT_BREAK_TIME = "short_break_time";
     private static final String KEY_LONG_BREAK_TIME = "long_break_time";
-    private static final String KEY_DARK_MODE = "dark_mode";
     // Time default
     private int pomodoroTime = 25;
     private int shortBreakTime = 5;
@@ -36,13 +30,8 @@ public class SettingsActivity extends NavigateActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
-        boolean isDarkMode = sharedPreferences.getBoolean(KEY_DARK_MODE, false);
-        AppCompatDelegate.setDefaultNightMode(
-                isDarkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO
-        );
         super.onCreate(savedInstanceState);
-        switchDarkMode = findViewById(R.id.switchDarkMode);
+
         txtPomodoroTime = findViewById(R.id.txtPomodoroTime);
         txtShortBreakTime = findViewById(R.id.txtShortBreakTime);
         txtLongBreakTime = findViewById(R.id.txtLongBreakTime);
@@ -53,7 +42,6 @@ public class SettingsActivity extends NavigateActivity {
 
         // khởi tạo share preference để lưu setting của người dùng
         sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
-        setupDarkModeSwitch();
         setupListeners();
         loadSettings();
     }
@@ -83,25 +71,6 @@ public class SettingsActivity extends NavigateActivity {
 
         // tăng/giảm thời gian
         setupTimeSelectionListeners();
-    }
-    private void setupDarkModeSwitch() {
-        boolean isDarkMode = sharedPreferences.getBoolean(KEY_DARK_MODE, false);
-        switchDarkMode.setChecked(isDarkMode);
-
-        switchDarkMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            sharedPreferences.edit().putBoolean(KEY_DARK_MODE, isChecked).apply();
-
-            AppCompatDelegate.setDefaultNightMode(
-                    isChecked ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO
-            );
-            Intent intent = new Intent(SettingsActivity.this, SettingsActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            finish();
-            overridePendingTransition(0, 0);
-            //khúc này chả hiểu sao cứ bật/tắt darkmode là giao diện nó bị lệch header vs footer nên chữa cháy bằng cách restart
-            //gpt dùng recreate() nhưng mà nó bị lệch header footer dùng cái này thì nó ko bị lệch nhma nó delay khoảng chưa tới 1s mới cập nhật
-        });
     }
 
     // hiển thị danh sách thời gian
@@ -181,7 +150,6 @@ public class SettingsActivity extends NavigateActivity {
         shortBreakTime = 5;
         longBreakTime = 20;
         updateTimeDisplay();
-        switchDarkMode.setChecked(false);//resert darkmode
     }
 
     private void loadSettings() {
