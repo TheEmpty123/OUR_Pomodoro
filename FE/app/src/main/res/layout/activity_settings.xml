@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/pink"
+    android:background="?attr/colorSurface"
     tools:context=".SettingsActivity">
 
     <!-- tựa đề -->
@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="24dp"
-        app:cardBackgroundColor="@color/white"
+        app:cardBackgroundColor="?attr/colorSurfaceContainer"
         app:cardCornerRadius="20dp"
         app:cardElevation="8dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -34,7 +34,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_weight="1"
                 android:text="Timer Settings"
-                android:textColor="@color/blue"
+                android:textColor="?attr/colorPrimary"
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
@@ -66,12 +66,13 @@
             android:paddingBottom="32dp">
 
             <!-- thông tin user-->
+
             <androidx.cardview.widget.CardView
                 android:id="@+id/userInfoCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="@color/white"
+                app:cardBackgroundColor="?attr/colorSurfaceContainer"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="6dp">
 
@@ -86,7 +87,7 @@
                         android:id="@+id/avatarCard"
                         android:layout_width="56dp"
                         android:layout_height="56dp"
-                        app:cardBackgroundColor="@color/blue"
+                        app:cardBackgroundColor="?attr/colorPrimary"
                         app:cardCornerRadius="28dp"
                         app:cardElevation="4dp">
 
@@ -129,11 +130,12 @@
             </androidx.cardview.widget.CardView>
 
             <!-- section cài đặt -->
+
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                app:cardBackgroundColor="@color/white"
+                app:cardBackgroundColor="?attr/colorSurfaceContainer"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="6dp">
 
@@ -157,7 +159,7 @@
                             android:layout_height="28dp"
                             android:contentDescription="Timer icon"
                             android:src="@drawable/ic_timer"
-                            app:tint="@color/blue" />
+                            app:tint="?attr/colorPrimary" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -168,9 +170,51 @@
                             android:textColor="@color/text_primary"
                             android:textSize="20sp"
                             android:textStyle="bold" />
+
                     </LinearLayout>
 
                     <!-- focus -->
+                    <!-- darkmode -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:background="@drawable/setting_item_bg"
+                        android:clipChildren="false"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Dark mode"
+                                android:textColor="@color/text_primary"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="Click to change color background"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchDarkMode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="?attr/colorOnSurface" />
+                    </LinearLayout>
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -218,7 +262,7 @@
                                 android:clickable="true"
                                 android:focusable="true"
                                 android:foreground="?attr/selectableItemBackground"
-                                app:cardBackgroundColor="@color/blue"
+                                app:cardBackgroundColor="?attr/colorPrimary"
                                 app:cardCornerRadius="24dp"
                                 app:cardElevation="4dp">
 
@@ -306,7 +350,7 @@
                                 android:clickable="true"
                                 android:focusable="true"
                                 android:foreground="?attr/selectableItemBackground"
-                                app:cardBackgroundColor="@color/background_light"
+                                app:cardBackgroundColor="?attr/colorSurfaceContainer"
                                 app:cardCornerRadius="24dp"
                                 app:cardElevation="4dp">
 
@@ -393,7 +437,7 @@
                                 android:clickable="true"
                                 android:focusable="true"
                                 android:foreground="?attr/selectableItemBackground"
-                                app:cardBackgroundColor="@color/background_light"
+                                app:cardBackgroundColor="?attr/colorSurfaceContainer"
                                 app:cardCornerRadius="24dp"
                                 app:cardElevation="4dp">
 
@@ -450,7 +494,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
-                    app:cardBackgroundColor="@color/background_light"
+                    app:cardBackgroundColor="?attr/colorSurfaceContainer"
                     app:cardCornerRadius="28dp"
                     app:cardElevation="4dp">
 
@@ -487,7 +531,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
-                    app:cardBackgroundColor="@color/blue"
+                    app:cardBackgroundColor="?attr/colorPrimary"
                     app:cardCornerRadius="28dp"
                     app:cardElevation="8dp">
 
@@ -523,7 +567,7 @@
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="?attr/colorPrimaryDark"
         android:elevation="12dp"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
