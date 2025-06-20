@@ -51,10 +51,6 @@ public class SettingsActivity extends NavigateActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        boolean isDarkMode = MyUtils.getBoolean(this, "dark_mode", false);
-        AppCompatDelegate.setDefaultNightMode(
-                isDarkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO
-        );
         super.onCreate(savedInstanceState);
 
         initializeComponents();    // khởi tạo UI
