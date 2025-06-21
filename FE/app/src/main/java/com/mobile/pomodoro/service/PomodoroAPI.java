@@ -1,6 +1,7 @@
 package com.mobile.pomodoro.service;
 
 import com.mobile.pomodoro.request_dto.DailyTaskRequestDTO;
+import com.mobile.pomodoro.request_dto.DailyTaskUpdateRequestDTO;
 import com.mobile.pomodoro.request_dto.LoginRequestDTO;
 import com.mobile.pomodoro.request_dto.PlanRequestDTO;
 import com.mobile.pomodoro.request_dto.RegisterRequestDTO;
@@ -42,8 +43,7 @@ public interface PomodoroAPI {
 
     @DELETE("/api/v1/todos/{id}")
     Call<MessageResponseDTO> deleteTodo(@Path("id") long id);
-
-    @GET("/api/v1/plan-to-edit/{id}")
+    @GET("api/v1/daily-task/plan-to-edit/{id}")
     Call<DailyTaskDetailResponseDTO> getPlanToEdit(@Path("id") long id);
     @GET("api/v1/daily-task/{id}")
     Call<PlanResponseDTO> getDailyTaskDetails(@Path("id") long id);
@@ -52,7 +52,7 @@ public interface PomodoroAPI {
     @POST("api/v1/daily-task")
     Call<MessageResponseDTO> createDailyTask(@Body DailyTaskRequestDTO request);
     @PUT("api/v1/daily-task/{id}")
-    Call<MessageResponseDTO> updateDailyTask(@Path("id") long id, @Body DailyTaskRequestDTO request);
+    Call<MessageResponseDTO> updateDailyTask(@Path("id") long id, @Body DailyTaskUpdateRequestDTO request);
     @PUT("api/v1/daily-task/complete/{id}")
     Call<MessageResponseDTO> completeDailyTask(@Path("id") long id);
     @DELETE("api/v1/daily-task/{id}")

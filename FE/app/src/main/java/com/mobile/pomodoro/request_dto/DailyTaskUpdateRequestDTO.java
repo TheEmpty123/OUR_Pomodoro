@@ -1,6 +1,4 @@
-package com.mobile.pomodoro.response_dto;
-
-import com.mobile.pomodoro.request_dto.PlanTaskDTO;
+package com.mobile.pomodoro.request_dto;
 
 import java.util.List;
 
@@ -13,9 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DailyTaskDetailResponseDTO {
+public class DailyTaskUpdateRequestDTO {
     private String title;
     private int s_break_duration;
     private int l_break_duration;
-    private List<PlanTaskResponseDTO> steps;
+    private List<PlanTaskDTO> steps;
 }

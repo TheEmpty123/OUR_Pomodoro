@@ -1,5 +1,6 @@
 package com.mobile.pomodoro.Plan;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,6 +20,7 @@ import com.mobile.pomodoro.HomePage;
 import com.mobile.pomodoro.NavigateActivity;
 import com.mobile.pomodoro.R;
 import com.mobile.pomodoro.request_dto.DailyTaskRequestDTO;
+import com.mobile.pomodoro.request_dto.DailyTaskUpdateRequestDTO;
 import com.mobile.pomodoro.request_dto.PlanRequestDTO;
 import com.mobile.pomodoro.request_dto.PlanTaskDTO;
 import com.mobile.pomodoro.response_dto.DailyTaskDetailResponseDTO;
@@ -30,6 +32,7 @@ import com.mobile.pomodoro.utils.LogObj;
 import com.mobile.pomodoro.utils.MyUtils;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -107,7 +110,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             btnImport.setText("Delete");
             btnExport.setText("Complete");
             btnSave.setOnClickListener(v -> updateDailyTask());
-            btnStart.setOnClickListener(v -> startDailyTaskEdit());
+            btnStart.setOnClickListener(v -> startPlanWithoutSaving());
             btnImport.setOnClickListener(v -> deleteDailyTask());
             btnExport.setOnClickListener(v -> completeDailyTask());
         } else {
@@ -368,6 +371,8 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                 if (response.isSuccessful() && response.body() != null && response.body().getMessage().equals("Succeed")) {
                     log.info("Daily Task saved successfully");
                     Toast.makeText(PlanActivity.this, "Thêm Daily Task thành công", Toast.LENGTH_SHORT).show();
+                    Intent resultIntent = new Intent();
+                    setResult(RESULT_OK, resultIntent);
                     finish();
                 } else {
                     log.warn("Failed to save Daily Task");
@@ -409,10 +414,9 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             public void onResponse(Call<DailyTaskDetailResponseDTO> call, Response<DailyTaskDetailResponseDTO> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     DailyTaskDetailResponseDTO plan = response.body();
-                    dailyTaskDescription = plan.getDaily_task_description();
                     titlePlan.setText(plan.getTitle() != null ? plan.getTitle() : "");
-                    globalShortBreak = plan.getS_break_duration() / 60;
-                    globalLongBreak = plan.getL_break_duration() / 60;
+                    globalShortBreak = plan.getS_break_duration() /60;
+                    globalLongBreak = plan.getL_break_duration() /60;
                     hasBreakTimeSet = true;
                     planList.clear();
                     List<PlanTaskResponseDTO> steps = plan.getSteps();
@@ -472,8 +476,8 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             planList.get(i).setOrder(i + 1);
             planList.get(i).setPlan_duration(planList.get(i).getPlan_duration() * 60);
         }
-        DailyTaskRequestDTO request = DailyTaskRequestDTO.builder()
-                .daily_task_description(dailyTaskDescription)
+        DailyTaskUpdateRequestDTO request = DailyTaskUpdateRequestDTO.builder()
+//                .daily_task_description(title)
                 .title(title)
                 .s_break_duration(globalShortBreak * 60)
                 .l_break_duration(globalLongBreak * 60)
@@ -487,6 +491,8 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                 if (response.isSuccessful() && response.body() != null && response.body().getMessage().equals("Succeed")) {
                     log.info("Daily Task updated successfully");
                     Toast.makeText(PlanActivity.this, "UPDATE SUCCESS", Toast.LENGTH_SHORT).show();
+                    Intent resultIntent = new Intent();
+                    setResult(Activity.RESULT_OK, resultIntent);
                     finish();
                 } else {
                     log.warn("Failed to update Daily Task");
@@ -595,10 +601,18 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                     intent.putExtra("plan_title", plan.getTitle());
 
                     // Truyền danh sách steps dưới dạng JSON
-                    Gson gson = new Gson();
-                    String stepsJson = gson.toJson(plan.getSteps());
-                    intent.putExtra("tasks_json", stepsJson);
-
+                    List<PlanTaskResponseDTO> steps = plan.getSteps();
+                    if (steps != null) {
+                        // Chuyển steps thành JSON, xử lý null
+                        List<PlanTaskDTO> tasks = steps.stream().map(step -> PlanTaskDTO.builder()
+                                .plan_title(step.getPlan_title() != null ? step.getPlan_title() : "")
+                                .plan_duration(step.getPlan_duration())
+                                .order(step.getOrder())
+                                .build()).collect(Collectors.toList());
+                        Gson gson = new Gson();
+                        String stepsJson = gson.toJson(plan.getSteps());
+                        intent.putExtra("tasks_json", stepsJson);
+                    }
                     startActivity(intent);
                     finish(); // Đóng PlanActivity
                 } else {

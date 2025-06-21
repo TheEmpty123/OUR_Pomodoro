@@ -60,12 +60,21 @@ public class DailyTaskActivity extends NavigateActivity {
             log.info("Add Daily Task button clicked");
             Intent intent = new Intent(this, PlanActivity.class);
             intent.putExtra("isDailyTaskMode", true);
-            startActivity(intent);
+            startActivityForResult(intent, 1001);
         });
         // Tải danh sách Daily Task
         loadDailyTasks();
     }
-private void loadDailyTasks() {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if ((requestCode == 1001 || requestCode == 1002) && resultCode == RESULT_OK) {
+            log.info("Daily Task was added, reloading list...");
+            loadDailyTasks();  // Gọi lại API
+        }
+    }
+
+    private void loadDailyTasks() {
     var username = MyUtils.get(this, "username");
     if (username == null || username.trim().isEmpty()) {
         log.error("Username is null or empty");
@@ -117,7 +126,8 @@ private void loadDailyTasks() {
         intent.putExtra("isDailyTaskMode", true);
         intent.putExtra("isEditMode", true);
         intent.putExtra("planId", planId);
-        startActivity(intent);
+//        startActivity(intent);
+        startActivityForResult(intent, 1002);
     }
     @Override
     protected int getLayoutResourceId() {
