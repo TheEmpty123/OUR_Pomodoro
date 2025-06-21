@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    tools:context=".Plan.AddPlanFragment"
-    android:background="@color/white">
+    tools:context=".AddPlanFragment"
+    android:background="?attr/android:windowBackground">
 
     <TextView
         android:layout_width="wrap_content"

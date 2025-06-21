@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/pink"
+    android:background="?attr/colorSurface"
     android:layout_alignParentTop="true"
     android:id="@+id/plan"
   >
@@ -12,15 +12,15 @@
         android:id="@+id/titlePlan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter Plan Title"
+        android:hint="Nhập tiêu đề kế hoạch"
         android:textSize="24sp"
         android:gravity="center"
         android:textColor="@color/black"
         android:textStyle="bold"
         android:inputType="textCapSentences"
         android:padding="16dp"
-        android:layout_margin="15dp"
-        android:background="@color/white"
+        android:layout_margin="20dp"
+        android:background="?attr/colorSurfaceContainer"
         style="@style/task_edittext"/>
 
 
@@ -29,28 +29,24 @@
         android:id="@+id/recyclerPlan"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_below="@id/btnAdd"
+        android:layout_below="@id/titlePlan"
         android:layout_above="@+id/controlPanel"
         android:layout_margin="8dp"
         android:padding="4dp"
         android:contentDescription="List of Pomodoro tasks" />
 
     <!-- button add plan -->
-    <com.google.android.material.button.MaterialButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnAdd"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/titlePlan"
-        android:layout_marginHorizontal="20dp"
-        android:backgroundTint="@color/blue"
-        android:text="Add task"
-        android:padding="10dp"
-        android:textColor="@android:color/white"
-        android:icon="@android:drawable/ic_input_add"
-        android:iconTint="@android:color/white"
-        android:gravity="center"
-        style="@style/btn_add_task"
-        app:cornerRadius="30dp" />
+        android:layout_alignParentEnd="true"
+        android:layout_above="@+id/controlPanel"
+        android:layout_margin="20dp"
+        android:contentDescription="Thêm công việc"
+        android:backgroundTint="?attr/colorPrimary"
+        app:srcCompat="@android:drawable/ic_input_add"
+        app:tint="@android:color/white"/>
 
     <!-- 4 Button chức năng  -->
     <LinearLayout
@@ -105,8 +101,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@color/white"
+        android:background="?attr/colorPrimaryDark"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/bottom_navigation_menu" />
+
+
 </RelativeLayout>

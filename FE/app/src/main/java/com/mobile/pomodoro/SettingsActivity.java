@@ -16,6 +16,9 @@ import com.mobile.pomodoro.utils.Settings.SettingManager;
 import com.mobile.pomodoro.utils.Settings.TimeSelection;
 import com.mobile.pomodoro.utils.Timer.TimerAnimationHelper;
 import com.mobile.pomodoro.utils.Timer.TimerManager;
+import androidx.appcompat.app.AppCompatDelegate;
+
+import com.google.android.material.materialswitch.MaterialSwitch;
 /*
 - Cho phép user điều chỉnh thời gian
 - Hiển thị thông tin user
@@ -37,6 +40,7 @@ public class SettingsActivity extends NavigateActivity {
     private CardView btnResetCard;
     private SettingManager settingsManager;
     private TimeSelection timeDialog;
+    private MaterialSwitch switchDarkMode;
     private String currentUsername;
     private int pomodoroTime;
     private int shortBreakTime;
@@ -47,6 +51,10 @@ public class SettingsActivity extends NavigateActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        boolean isDarkMode = MyUtils.getBoolean(this, "dark_mode", false);
+        AppCompatDelegate.setDefaultNightMode(
+                isDarkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO
+        );
         super.onCreate(savedInstanceState);
 
         initializeComponents();    // khởi tạo UI
@@ -57,6 +65,8 @@ public class SettingsActivity extends NavigateActivity {
     }
 
     private void initializeViews() {
+        //khai bao nút darkmode
+        switchDarkMode = findViewById(R.id.switchDarkMode);
         // Timer value TextViews - hiển thị số phút
         txtPomodoroTime = findViewById(R.id.txtPomodoroTime);
         txtShortBreakTime = findViewById(R.id.txtShortBreakTime);
@@ -129,8 +139,28 @@ public class SettingsActivity extends NavigateActivity {
         settingsManager.updateUsername(currentUsername);
         timeDialog = new TimeSelection(this);
         setupUserInfo();
+        setupDarkModeSwitch();
     }
+    private void setupDarkModeSwitch() {
+        boolean isDarkModeEnabled = MyUtils.getBoolean(this, "dark_mode", false);
+        switchDarkMode.setChecked(isDarkModeEnabled);
+        switchDarkMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            MyUtils.saveBoolean(this, "dark_mode", isChecked);
 
+            if (isChecked) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            }
+            restartActivity();
+        });
+    }
+    private void restartActivity() {
+        Intent intent = getIntent();
+        finish();
+        startActivity(intent);
+        overridePendingTransition(0, 0);  // Không hiệu ứng chuyển cảnh
+    }
     private void initializeUserForSettings() {
         // lấy username từ shared preferences
         currentUsername = MyUtils.get(this, "username");
