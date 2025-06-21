@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.mobile.pomodoro.HomePage;
 import com.mobile.pomodoro.NavigateActivity;
@@ -32,7 +31,6 @@ import com.mobile.pomodoro.utils.LogObj;
 import com.mobile.pomodoro.utils.MyUtils;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -52,7 +50,6 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
         private boolean isDailyTaskMode;
         private boolean isEditMode;
         private long planId;
-        private String dailyTaskDescription;
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -97,14 +94,14 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             }
         }
     private void configureButtons() {
-        if (isDailyTaskMode && !isEditMode) {
+        if (isDailyTaskMode && !isEditMode) { //thêm dailytask mới
             btnSave.setText("Add Daily");
             btnSave.setVisibility(View.VISIBLE);
             btnStart.setVisibility(View.GONE);
             btnImport.setVisibility(View.GONE);
             btnExport.setVisibility(View.GONE);
             btnSave.setOnClickListener(v -> showAddDailyTaskPopup());
-        } else if (isDailyTaskMode && isEditMode) {
+        } else if (isDailyTaskMode && isEditMode) { // cập nhập dailytask
             btnSave.setText("Save");
             btnStart.setText("Start");
             btnImport.setText("Delete");
@@ -113,7 +110,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             btnStart.setOnClickListener(v -> startPlanWithoutSaving());
             btnImport.setOnClickListener(v -> deleteDailyTask());
             btnExport.setOnClickListener(v -> completeDailyTask());
-        } else {
+        } else { // khi mở trang plan
             btnSave.setText("Save");
             btnStart.setText("Start");
             btnImport.setText("Import");
@@ -518,21 +515,20 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
         PomodoroService.getRetrofitInstance(username).deleteDailyTask(planId).enqueue(new Callback<MessageResponseDTO>() {
             @Override
             public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getMessage().equals("Succeed")) {
-                    log.info("Daily Task deleted successfully");
-                    Toast.makeText(PlanActivity.this, "Delete success", Toast.LENGTH_SHORT).show();
-                    finish();
-                } else {
-                    log.warn("Failed to delete Daily Task");
-                    try {
-                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "error";
-                        Toast.makeText(PlanActivity.this, "Delete failed: " + errorBody, Toast.LENGTH_SHORT).show();
-                    } catch (Exception e) {
-                        Toast.makeText(PlanActivity.this, "ERROR", Toast.LENGTH_SHORT).show();
+                if (response.isSuccessful()) {
+                    MessageResponseDTO body = response.body();
+                    if (body != null && body.getMessage().equalsIgnoreCase("Succeed")) {
+                        log.info("Daily Task deleted successfully");
+                        Toast.makeText(PlanActivity.this, "Deleted successfully", Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else {
+                        log.warn("Delete failed with message: " + (body != null ? body.getMessage() : "null"));
+                        Toast.makeText(PlanActivity.this, "Delete failed: " + (body != null ? body.getMessage() : "Unknown error"), Toast.LENGTH_SHORT).show();
                     }
+                } else {
+                    Toast.makeText(PlanActivity.this, "Delete failed: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
-
             @Override
             public void onFailure(Call<MessageResponseDTO> call, Throwable t) {
                 log.error("deleteDailyTask failed: " + t.getMessage());
@@ -546,18 +542,18 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
         PomodoroService.getRetrofitInstance(username).completeDailyTask(planId).enqueue(new Callback<MessageResponseDTO>() {
             @Override
             public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getMessage().equals("Succeed")) {
-                    log.info("Daily Task completed successfully");
-                    Toast.makeText(PlanActivity.this, "Mark complete", Toast.LENGTH_SHORT).show();
-                    finish();
-                } else {
-                    log.warn("Failed to complete Daily Task");
-                    try {
-                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "error";
-                        Toast.makeText(PlanActivity.this, "Failed: " + errorBody, Toast.LENGTH_SHORT).show();
-                    } catch (Exception e) {
-                        Toast.makeText(PlanActivity.this, "ERROR", Toast.LENGTH_SHORT).show();
+                if (response.isSuccessful()) {
+                    MessageResponseDTO body = response.body();
+                    if (body != null && body.getMessage().equalsIgnoreCase("Succeed")) {
+                        log.info("Daily Task marked as completed");
+                        Toast.makeText(PlanActivity.this, "Marked as completed", Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else {
+                        log.warn("Complete failed with message: " + (body != null ? body.getMessage() : "null"));
+                        Toast.makeText(PlanActivity.this, "Mark complete failed: " + (body != null ? body.getMessage() : "Unknown error"), Toast.LENGTH_SHORT).show();
                     }
+                } else {
+                    Toast.makeText(PlanActivity.this, "Mark complete failed:  " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -601,18 +597,9 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                     intent.putExtra("plan_title", plan.getTitle());
 
                     // Truyền danh sách steps dưới dạng JSON
-                    List<PlanTaskResponseDTO> steps = plan.getSteps();
-                    if (steps != null) {
-                        // Chuyển steps thành JSON, xử lý null
-                        List<PlanTaskDTO> tasks = steps.stream().map(step -> PlanTaskDTO.builder()
-                                .plan_title(step.getPlan_title() != null ? step.getPlan_title() : "")
-                                .plan_duration(step.getPlan_duration())
-                                .order(step.getOrder())
-                                .build()).collect(Collectors.toList());
                         Gson gson = new Gson();
                         String stepsJson = gson.toJson(plan.getSteps());
                         intent.putExtra("tasks_json", stepsJson);
-                    }
                     startActivity(intent);
                     finish(); // Đóng PlanActivity
                 } else {
