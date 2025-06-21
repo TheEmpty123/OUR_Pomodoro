@@ -67,6 +67,7 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        log = new LogObj();
 
         // khởi tạo user session
         initializeUserSession();
@@ -130,20 +131,25 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
             if (steps != null && !steps.isEmpty()) {
                 // Cập nhật UI và SessionManager
                 currentTaskText.setText(currentPlanTitle); // title plan
-                sessionManager.initializeSession(new ArrayList<>(steps)); // Chuyển sang List để SessionManager quản lý
+                sessionManager.initializeSession(new ArrayList<>(steps)); // chuyển sang List để SessionManager quản lý
 
-                // Cập nhật timer cho plan đầu tiên
+                // Cập nhật timer cho plan
                 PlanTaskResponseDTO firstTask = steps.get(0);
-                if (firstTask.getPlan_duration() > 0) {
-                    TimerManager.updateTimerModeFromSeconds(this, TimerMode.FOCUS, firstTask.getPlan_duration());
-                    if (timerService.getCurrentMode() == TimerMode.FOCUS && !timerService.isTimerRunning()) {
-                        timerService.initializeTimer(TimerMode.FOCUS);
+                long firstDurationInMillis = firstTask.getPlan_duration() * 1000L;
+                if (firstDurationInMillis > 0) {
+                    TimerMode.FOCUS.updateDuration(firstDurationInMillis);
+                    if (timerService.getCurrentMode() != TimerMode.FOCUS) {
+                        timerService.switchToMode(TimerMode.FOCUS);
                     }
+                    // Đặt thời gian cho timer
+                    timerService.restoreTimerState(firstDurationInMillis, false);
                 }
 
                 sessionManager.updateSessionIndicators(indicators);
+                if (log != null) {
                 log.info("Loaded plan from Intent: plan_id=" + currentPlanId + ", title=" + currentPlanTitle + ", steps=" + steps.size());
-            } else {
+                }
+                } else {
                 // Fallback nếu steps rỗng
                 showDefaultTask();
                 fetchRecentPlan(); // Gọi API để lấy plan mặc định

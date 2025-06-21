@@ -455,7 +455,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
         });
     }
 
-    // cập nhập dailytask
+    // api cập nhập dailytask
     private void updateDailyTask() {
         if (planList.isEmpty()) {
             log.warn("Attempt to save empty plan list");
@@ -540,7 +540,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             }
         });
     }
-    // đánh dấu hoàn thành
+    //api đánh dấu hoàn thành
     private void completeDailyTask() {
         var username = MyUtils.get(this, "username");
         PomodoroService.getRetrofitInstance(username).completeDailyTask(planId).enqueue(new Callback<MessageResponseDTO>() {
@@ -553,7 +553,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                 } else {
                     log.warn("Failed to complete Daily Task");
                     try {
-                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown error";
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "error";
                         Toast.makeText(PlanActivity.this, "Failed: " + errorBody, Toast.LENGTH_SHORT).show();
                     } catch (Exception e) {
                         Toast.makeText(PlanActivity.this, "ERROR", Toast.LENGTH_SHORT).show();
