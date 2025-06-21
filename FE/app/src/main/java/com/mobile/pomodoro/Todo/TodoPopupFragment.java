@@ -1,4 +1,4 @@
-package com.mobile.pomodoro.ui.fragments;
+package com.mobile.pomodoro.Todo;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -24,7 +24,6 @@ import com.mobile.pomodoro.room.DatabaseClient;
 import com.mobile.pomodoro.room.entity.TodoItem;
 import com.mobile.pomodoro.room.repo.SingleThreadRepo;
 import com.mobile.pomodoro.service.PomodoroService;
-import com.mobile.pomodoro.ui.activities.TodoActivity;
 import com.mobile.pomodoro.utils.LogObj;
 import com.mobile.pomodoro.utils.MyUtils;
 

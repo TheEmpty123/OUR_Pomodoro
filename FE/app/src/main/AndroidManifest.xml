@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -34,13 +35,13 @@
             android:name=".HomePage"
             android:exported="false" />
         <activity
-            android:name=".PlanActivity"
+            android:name=".Plan.PlanActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activities.TodoActivity"
+            android:name=".Todo.TodoActivity"
             android:exported="false" />
         <activity
-            android:name=".DailyTaskActivity"
+            android:name=".DailyTask.DailyTaskActivity"
             android:exported="false" />
     </application>
 

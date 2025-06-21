@@ -112,15 +112,6 @@ public class TimerService {
         setTimerForCurrentMode();
     }
 
-    public void updateCurrentModeDuration(long durationInMillis) {
-        currentMode.updateDuration(durationInMillis);
-
-        // Update timer if not running
-        if (!timerRunning) {
-            setTimerForCurrentMode();
-        }
-    }
-
     // định dạng giờ giấc
     private String formatTime(long milliseconds) {
         int hours = (int) (milliseconds / 3600000);
@@ -158,10 +149,6 @@ public class TimerService {
         } else {
             setTimerForCurrentMode();
         }
-    }
-
-    public long getTotalTime() {
-        return totalTime;
     }
 
     public void destroy() {

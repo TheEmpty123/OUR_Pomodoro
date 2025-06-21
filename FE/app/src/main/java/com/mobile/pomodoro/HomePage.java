@@ -34,8 +34,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class HomePage extends NavigateActivity implements TimerService.TimerCallback, SessionManager.SessionCallback {
+/*
+ * Homepage: Màn hình chính của ứng dụng
+ * Chức năng: Điều khiển timer, hiển thị task hiện tại, quản lý session
+ */
 
+
+public class HomePage extends NavigateActivity implements TimerService.TimerCallback, SessionManager.SessionCallback, TimerManager.TimerSettingsChangeListener {
     private TextView timerText;
     private TextView timerSubText;
     private TextView currentTaskText;
@@ -69,19 +74,17 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
         log.setName(getClass().getSimpleName());
         log.info("Initializing...");
 
+        // khởi tạo user session
+        initializeUserSession();
+
+        // khi user thay đổi cài đặt timer, HomePage sẽ tự cập nhật
+        TimerManager.setTimerSettingsChangeListener(this);
+
         timerService = new TimerService(this);
         sessionManager = new SessionManager(this);
-        // load cài đặt thời gian (setting)
+
+        // load cài đặt timer hiện tại của user
         TimerManager.loadTimerPreferences(this);
-
-        if (savedInstanceState != null) {
-            long timeLeft = savedInstanceState.getLong("timeLeft", TimerMode.FOCUS.getDuration());
-            boolean timerRunning = savedInstanceState.getBoolean("timerRunning", false);
-            int currentTaskIndex = savedInstanceState.getInt("currentTaskIndex", 0);
-
-            sessionManager.setCurrentTaskIndex(currentTaskIndex);
-            timerService.restoreTimerState(timeLeft, timerRunning);
-        }
 
         initializeViews();
         setupClickListeners();
@@ -90,15 +93,8 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
         updateModeUI();
         sessionManager.updateSessionIndicators(indicators);
 
+        // call API lấy ra plan của user
         fetchRecentPlan();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putLong("timeLeft", timerService.getTimeLeftInMillis());
-        outState.putBoolean("timerRunning", timerService.isTimerRunning());
-        outState.putInt("currentTaskIndex", sessionManager.getCurrentTaskIndex());
     }
 
     private void initializeViews() {
@@ -121,6 +117,79 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
         indicators = new View[]{indicator1, indicator2, indicator3, indicator4};
     }
 
+    // khởi tạo session cho user, lấy ra username để load đúng setting của user đó
+    private void initializeUserSession() {
+        // lấy username đã đăng nhập
+        String username = MyUtils.get(this, "username");
+
+        if (username == null || username.trim().isEmpty()) {
+            // nếu lần đầu sử dụng app thì tạo username tự động
+            username = "user_" + System.currentTimeMillis() % 10000; // VD: user_1234
+            MyUtils.save(this, "username", username);
+
+            Toast.makeText(this, "Create new session: " + username, Toast.LENGTH_SHORT).show();
+        }
+        // load settings cho user này
+        TimerManager.setCurrentUsername(username);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // kiểm tra user nào đang sử dụng
+        String currentStoredUsername = MyUtils.get(this, "username");
+        boolean usernameChanged = currentStoredUsername != null &&
+                !currentStoredUsername.equals(TimerManager.getCurrentUsername());
+
+        if (usernameChanged) {
+            // nếu không phải user hiện tại, reload lại tất cả setting
+            TimerManager.setCurrentUsername(currentStoredUsername);
+            TimerManager.loadTimerPreferences(this); // Chỉ reload khi user change
+            Toast.makeText(this, "Change user: " + currentStoredUsername, Toast.LENGTH_SHORT).show();
+
+            // reset timer khi đổi user vì mỗi user có mỗi setting timer riêng
+            if (!timerService.isTimerRunning()) {
+                timerService.initializeTimer(timerService.getCurrentMode());
+                updateModeUI();
+            }
+
+            fetchRecentPlan(); // reload recent plan cho user mới
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // lưu trạng thái timer hiện tại
+        TimerManager.saveTimerState(this,
+                timerService.getTimeLeftInMillis(),
+                timerService.isTimerRunning(),
+                timerService.getCurrentMode());
+
+        // lưu cài đặt timer
+        TimerManager.saveTimerPreferences(this);
+    }
+
+    // cập nhật setting timer mà không cần phải restart lại ứng dụng
+    @Override
+    public void onTimerSettingsChanged(int focusTime, int shortBreakTime, int longBreakTime) {
+        runOnUiThread(() -> {
+            // chỉ cập nhật timer khi không chạy
+            if (!timerService.isTimerRunning()) {
+                timerService.initializeTimer(timerService.getCurrentMode());
+                updateModeUI();
+            }
+
+            // hiển thị thông báo cập nhật cho user
+            Toast.makeText(this,
+                    String.format("Updated: Focus=%d minutes, Short Break=%d minutes, Long Break=%d minutes",
+                            focusTime, shortBreakTime, longBreakTime),
+                    Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    // xử lí sự kiện các nút nhấn button
     private void setupClickListeners() {
         //  gọi sự kiện các button
         btnPlayPause.setOnClickListener(v -> {
@@ -165,14 +234,17 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
         });
         // sửa tên task
         currentTaskText.setOnClickListener(v -> {
-            EditTitleDialogFragment dialog = new EditTitleDialogFragment(currentTaskText.getText().toString(), newTitle -> {
-                currentTaskText.setText(newTitle);
-                PlanTaskResponseDTO currentTask = sessionManager.getCurrentTask();
-                if (currentTask != null) {
-                    currentTask.setPlan_title(newTitle);
-                }
-                TimerAnimationHelper.animateTextChange(currentTaskText);
-            });
+            EditTitleDialogFragment dialog = new EditTitleDialogFragment(
+                    currentTaskText.getText().toString(),
+                    newTitle -> {
+                        currentTaskText.setText(newTitle);
+                        PlanTaskResponseDTO currentTask = sessionManager.getCurrentTask();
+                        if (currentTask != null) {
+                            currentTask.setPlan_title(newTitle);
+                        }
+                        TimerAnimationHelper.animateTextChange(currentTaskText);
+                    }
+            );
             dialog.show(getSupportFragmentManager(), "EditTitleDialog");
         });
 
@@ -257,9 +329,21 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
         if (plan.getSteps() != null && !plan.getSteps().isEmpty()) {
             sessionManager.initializeSession(plan.getSteps());
 
+                       //PlanTaskResponseDTO firstTask = plan.getSteps().get(0);
             PlanTaskResponseDTO firstTask = plan.getSteps().get(0);
             TimerManager.updateTimerModeFromSeconds(HomePage.this, TimerMode.FOCUS, firstTask.getPlan_duration());
 
+                        // nếu task có timer riêng thì cập nhật lại timer
+                        if (firstTask.getPlan_duration() > 0) {
+                            TimerManager.updateTimerModeFromSeconds(HomePage.this,
+                                    TimerMode.FOCUS, firstTask.getPlan_duration());
+                        }
+
+                        // khởi tạo lại timer nếu đang ở Focus mode mà không chạy
+                        if (timerService.getCurrentMode() == TimerMode.FOCUS
+                                && !timerService.isTimerRunning()) {
+                            timerService.initializeTimer(TimerMode.FOCUS);
+                        }
             if (timerService.getCurrentMode() == TimerMode.FOCUS && !timerService.isTimerRunning()) {
                 timerService.initializeTimer(TimerMode.FOCUS);
             }
@@ -270,24 +354,36 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
         }
     }
 
+    // các nút nhấn dừng, hoàn thành, bắt đầu lại, tiếp tục
     private void showStopConfirmationDialog() {
-        new AlertDialog.Builder(this).setTitle("Tạm dừng phiên làm việc?").setMessage("Bạn có muốn hoàn thành hoặc bắt đầu lại?").setPositiveButton("Hoàn thành", (dialog, which) -> {
-            timerService.pauseTimer();
-            sessionManager.completeCurrentSession();
-            sessionManager.moveToNextTask();
-        }).setNegativeButton("Bắt đầu lại", (dialog, which) -> {
-            timerService.resetTimer();
-            TimerAnimationHelper.animateReset(progressCircle);
-        }).setNeutralButton("Tiếp tục", (dialog, which) -> {
-        }).show();
+        new AlertDialog.Builder(this)
+                .setTitle("Tạm dừng phiên làm việc?")
+                .setMessage("Bạn có muốn hoàn thành hoặc bắt đầu lại?")
+                .setPositiveButton("Hoàn thành", (dialog, which) -> {
+                    timerService.pauseTimer();
+                    sessionManager.completeCurrentSession();
+                    sessionManager.moveToNextTask();
+                })
+                .setNegativeButton("Bắt đầu lại", (dialog, which) -> {
+                    timerService.resetTimer();
+                    TimerAnimationHelper.animateReset(progressCircle);
+                })
+                .setNeutralButton("Tiếp tục", (dialog, which) -> {
+                })
+                .show();
     }
 
     private void showCompletionDialog() {
-        new AlertDialog.Builder(this).setTitle("🎉 Hoàn thành!").setMessage("Bạn đã hoàn thành tất cả các task! Chúc mừng bạn!").setPositiveButton("Bắt đầu lại", (dialog, which) -> {
-            sessionManager.resetSession();
-            timerService.resetTimer();
-            TimerAnimationHelper.animateReset(progressCircle);
-        }).setNegativeButton("Đóng", null).show();
+        new AlertDialog.Builder(this)
+                .setTitle("🎉 Hoàn thành!")
+                .setMessage("Bạn đã hoàn thành tất cả các task! Chúc mừng bạn!")
+                .setPositiveButton("Bắt đầu lại", (dialog, which) -> {
+                    sessionManager.resetSession();
+                    timerService.resetTimer();
+                    TimerAnimationHelper.animateReset(progressCircle);
+                })
+                .setNegativeButton("Đóng", null)
+                .show();
     }
 
     private void updateModeUI() {
@@ -339,9 +435,17 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
 
     @Override
     public void onFinish() {
-        progressCircle.setProgress(0);
-        btnPlayPause.setImageResource(R.drawable.ic_play);
-        TimerAnimationHelper.animateCompletion(progressCircle, btnPlayPause);
+        if (progressCircle != null) {
+            progressCircle.setProgress(0);
+        }
+
+        if (btnPlayPause != null) {
+            btnPlayPause.setImageResource(R.drawable.ic_play);
+            if (progressCircle != null) {
+                TimerAnimationHelper.animateCompletion(progressCircle, btnPlayPause);
+            }
+        }
+
         // khi chạy xong 1 session thì tự chuyển sang task tiếp theo
         sessionManager.completeCurrentSession(); // đánh dấu complete
         sessionManager.moveToNextTask();
@@ -359,9 +463,15 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
             // có task mới thì cập nhật UI
             currentTaskText.setText(task.getPlan_title());
 
-            TimerManager.updateTimerModeFromSeconds(this, TimerMode.FOCUS, task.getPlan_duration());
+            // nếu task có timer riêng thì cập nhật lại timer duration
+            if (task.getPlan_duration() > 0) {
+                TimerManager.updateTimerModeFromSeconds(this,
+                        TimerMode.FOCUS, task.getPlan_duration());
+            }
 
-            if (timerService.getCurrentMode() == TimerMode.FOCUS && !timerService.isTimerRunning()) {
+            // khởi tạo lại timer nếu đang ở Focus mode mà không chạy
+            if (timerService.getCurrentMode() == TimerMode.FOCUS
+                    && !timerService.isTimerRunning()) {
                 timerService.initializeTimer(TimerMode.FOCUS);
             }
 
@@ -375,6 +485,14 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        TimerManager.setTimerSettingsChangeListener(null);
+        timerService.destroy();
+        TimerAnimationHelper.clearAnimations(progressCircle, currentTaskText);
+    }
+
+    @Override
     public void onAllTasksCompleted() {
         // xong hết task thì popup noti chúc mừng
         showCompletionDialog();
@@ -382,21 +500,7 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
 
     @Override
     public void onSessionStatsUpdated(int completed, int current) {
-        // chưa xài tới
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        TimerManager.saveTimerState(this, timerService.getTimeLeftInMillis(), timerService.isTimerRunning());
-        TimerManager.saveTimerPreferences(this);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        timerService.destroy();
-        TimerAnimationHelper.clearAnimations(progressCircle, currentTaskText);
+        // chưa xài tới - hiển thị số session đã hoàn thành
     }
 
     @Override
@@ -407,30 +511,6 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
     @Override
     protected int getCurrentMenuItemId() {
         return R.id.page_home;
-    }
-
-    public static void setFocusTime(long minutes) {
-        TimerManager.setFocusTime(minutes);
-    }
-
-    public static void setShortBreakTime(long minutes) {
-        TimerManager.setShortBreakTime(minutes);
-    }
-
-    public static void setLongBreakTime(long minutes) {
-        TimerManager.setLongBreakTime(minutes);
-    }
-
-    public static long getFocusTimeMinutes() {
-        return TimerManager.getFocusTimeMinutes();
-    }
-
-    public static long getShortBreakTimeMinutes() {
-        return TimerManager.getShortBreakTimeMinutes();
-    }
-
-    public static long getLongBreakTimeMinutes() {
-        return TimerManager.getLongBreakTimeMinutes();
     }
 
     @Override

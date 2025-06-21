@@ -1,4 +1,4 @@
-package com.mobile.pomodoro.ui.activities;
+package com.mobile.pomodoro.Todo;
 
 import android.os.Bundle;
 import android.widget.Toast;
@@ -16,8 +16,6 @@ import com.mobile.pomodoro.room.DatabaseClient;
 import com.mobile.pomodoro.room.entity.TodoItem;
 import com.mobile.pomodoro.room.repo.SingleThreadRepo;
 import com.mobile.pomodoro.room.repo.TodoRepository;
-import com.mobile.pomodoro.ui.adapters.TodoAdapter;
-import com.mobile.pomodoro.ui.fragments.TodoPopupFragment;
 import com.mobile.pomodoro.request_dto.TodoRequestDTO;
 import com.mobile.pomodoro.response_dto.MessageResponseDTO;
 import com.mobile.pomodoro.response_dto.TodoListResponseDTO;
