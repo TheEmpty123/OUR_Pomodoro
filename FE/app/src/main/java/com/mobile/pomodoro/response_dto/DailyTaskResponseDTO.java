@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PlanTaskResponseDTO {
-    private String plan_title;
-    private int plan_duration;
-    private int order;
+public class DailyTaskResponseDTO {
+    private long plan_id;
+    private String title;
+    private int is_done;
 }
