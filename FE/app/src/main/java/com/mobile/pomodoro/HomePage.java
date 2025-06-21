@@ -308,6 +308,7 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
                         ((TaskCallback) this::updatePlan).onTasksLoaded(dto);
                     });
                 } catch (Exception e) {
+                    // If there is no task exist, load default
                     runOnUiThread(this::showDefaultTask);
                 }
             });

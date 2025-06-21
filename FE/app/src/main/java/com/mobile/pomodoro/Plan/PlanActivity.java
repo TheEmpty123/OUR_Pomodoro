@@ -78,6 +78,8 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             log.info("Start button clicked");
             startPlanWithoutSaving();
         });
+
+        // not implemented feature
         btnImport.setOnClickListener(v -> {
             log.info("Import button clicked");
             showImportPopup();
