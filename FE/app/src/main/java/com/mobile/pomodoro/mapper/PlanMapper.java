@@ -2,10 +2,8 @@ package com.mobile.pomodoro.mapper;
 
 import com.mobile.pomodoro.response_dto.PlanResponseDTO;
 import com.mobile.pomodoro.response_dto.PlanTaskResponseDTO;
-import com.mobile.pomodoro.room.entity.PlanTask;
 import com.mobile.pomodoro.room.entity.relation.PlanWithTasks;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,7 +21,7 @@ public class PlanMapper {
         List<PlanTaskResponseDTO> stepDTOs = planWithTask.tasks.stream()
                 .map(task -> PlanTaskResponseDTO.builder()
                         .plan_title(task.getPlan_title())
-                        .plan_duration(task.getPlan_duration())
+                        .plan_duration((int) task.getPlan_duration())
                         .order(task.getOrder())
                         .build())
                 .collect(Collectors.toList());
