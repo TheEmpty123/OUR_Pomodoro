@@ -12,9 +12,9 @@ import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.mobile.pomodoro.enums.ApplicationMode;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.mobile.pomodoro.enums.ApplicationMode;
 import com.mobile.pomodoro.enums.TimerMode;
 import com.mobile.pomodoro.mapper.PlanMapper;
 import com.mobile.pomodoro.response_dto.PlanResponseDTO;
@@ -30,12 +30,11 @@ import com.mobile.pomodoro.utils.SessionManager;
 import com.mobile.pomodoro.utils.Timer.TimerAnimationHelper;
 import com.mobile.pomodoro.utils.Timer.TimerManager;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -317,26 +316,38 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
             PomodoroAPI api = PomodoroService.getRetrofitInstance(username);
             Call<PlanResponseDTO> call = api.getRecentPlan();
 
-        call.enqueue(new Callback<PlanResponseDTO>() {
-            @Override
-            public void onResponse(Call<PlanResponseDTO> call, Response<PlanResponseDTO> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    PlanResponseDTO plan = response.body();
-
-                    // cập nhật lại plan dc gọi từ API
-                    String titleToShow = plan.getPlanTitle() != null ? plan.getPlanTitle() : "No Title";
-                    Long idToShow = plan.getPlanId() != null ? plan.getPlanId() : -999L;
-
-                    currentPlanTitle = titleToShow;
-                    currentPlanId = idToShow;
-                    currentTaskText.setText(titleToShow);
             call.enqueue(new Callback<PlanResponseDTO>() {
                 @Override
                 public void onResponse(Call<PlanResponseDTO> call, Response<PlanResponseDTO> response) {
                     if (response.isSuccessful() && response.body() != null) {
                         PlanResponseDTO plan = response.body();
-                        // cập nhật lại plan dc gọi từ API
-                        updatePlan(plan);
+
+                        // cập nhật lại plan dc gọi từ API - USING FE_SavePlan format
+                        String titleToShow = plan.getPlanTitle() != null ? plan.getPlanTitle() : "No Title";
+                        Long idToShow = plan.getPlanId() != null ? plan.getPlanId() : -999L;
+
+                        currentPlanTitle = titleToShow;
+                        currentPlanId = idToShow;
+                        currentTaskText.setText(titleToShow);
+
+                        if (plan.getSteps() != null && !plan.getSteps().isEmpty()) {
+                            sessionManager.initializeSession(plan.getSteps());
+
+                            PlanTaskResponseDTO firstTask = plan.getSteps().get(0);
+
+                            // nếu task có timer riêng thì cập nhật lại timer
+                            if (firstTask.getPlan_duration() > 0) {
+                                TimerManager.updateTimerModeFromSeconds(HomePage.this, TimerMode.FOCUS, firstTask.getPlan_duration());
+                            }
+
+                            if (timerService.getCurrentMode() == TimerMode.FOCUS && !timerService.isTimerRunning()) {
+                                timerService.initializeTimer(TimerMode.FOCUS);
+                            }
+
+                            sessionManager.updateSessionIndicators(indicators);
+                        } else {
+                            showDefaultTask();
+                        }
                     } else {
                         showDefaultTask();
                     }
@@ -383,44 +394,25 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
     }
 
     private void updatePlan(PlanResponseDTO plan) {
-        currentPlanTitle = plan.getTitle();
-        currentPlanId = plan.getId();
-        currentTaskText.setText(plan.getTitle());
+        // USING FE_SavePlan format
+        currentPlanTitle = plan.getPlanTitle();
+        currentPlanId = plan.getPlanId();
+        currentTaskText.setText(plan.getPlanTitle());
 
         if (plan.getSteps() != null && !plan.getSteps().isEmpty()) {
             sessionManager.initializeSession(plan.getSteps());
 
-                        PlanTaskResponseDTO firstTask = plan.getSteps().get(0);
-                       //PlanTaskResponseDTO firstTask = plan.getSteps().get(0);
             PlanTaskResponseDTO firstTask = plan.getSteps().get(0);
-            TimerManager.updateTimerModeFromSeconds(HomePage.this, TimerMode.FOCUS, firstTask.getPlan_duration());
 
-                        // nếu task có timer riêng thì cập nhật lại timer
-                        if (firstTask.getPlan_duration() > 0) {
-                            TimerManager.updateTimerModeFromSeconds(HomePage.this, TimerMode.FOCUS, firstTask.getPlan_duration());
-                        }
+            // nếu task có timer riêng thì cập nhật lại timer
+            if (firstTask.getPlan_duration() > 0) {
+                TimerManager.updateTimerModeFromSeconds(HomePage.this, TimerMode.FOCUS, firstTask.getPlan_duration());
+            }
 
-                        if (timerService.getCurrentMode() == TimerMode.FOCUS && !timerService.isTimerRunning()) {
-                            timerService.initializeTimer(TimerMode.FOCUS);
-                        }
             if (timerService.getCurrentMode() == TimerMode.FOCUS && !timerService.isTimerRunning()) {
                 timerService.initializeTimer(TimerMode.FOCUS);
             }
 
-                        sessionManager.updateSessionIndicators(indicators);
-                    } else {
-                        showDefaultTask();
-                    }
-                } else {
-                    showDefaultTask();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<PlanResponseDTO> call, Throwable t) {
-                showDefaultTask();
-            }
-        });
             sessionManager.updateSessionIndicators(indicators);
         } else {
             showDefaultTask(); // không có task
@@ -524,16 +516,21 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
         if (task != null) {
             // có task mới thì cập nhật UI
             currentTaskText.setText(task.getPlan_title());
+            // tự chuyển về tab focus khi có task
+            if (timerService.getCurrentMode() != TimerMode.FOCUS) {
+                timerService.switchToMode(TimerMode.FOCUS);
+                updateModeUI(); // hiển thị tab active
+                Toast.makeText(this, "Chuyển về Focus mode", Toast.LENGTH_SHORT).show();
+            }
 
             // nếu task có timer riêng thì cập nhật lại timer duration
             if (task.getPlan_duration() > 0) {
-                // Cập nhật duration cho mode hiện tại của timer
-                TimerMode currentMode = timerService.getCurrentMode();
-                TimerManager.updateTimerModeFromSeconds(this, currentMode, task.getPlan_duration());
+                // Cập nhật duration cho FOCUS mode (vì đã switch về FOCUS rồi)
+                TimerManager.updateTimerModeFromSeconds(this, TimerMode.FOCUS, task.getPlan_duration());
 
                 // Khởi tạo lại timer với thời gian mới
                 if (!timerService.isTimerRunning()) {
-                    timerService.initializeTimer(currentMode);
+                    timerService.initializeTimer(TimerMode.FOCUS);
                 }
             }
 
