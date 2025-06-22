@@ -3,6 +3,7 @@ package com.mobile.pomodoro;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -139,11 +140,12 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
             Gson gson = new Gson();
             Type stepListType = new TypeToken<List<PlanTaskResponseDTO>>(){}.getType();
             List<PlanTaskResponseDTO> steps = gson.fromJson(tasksJson, stepListType);
-
+            Log.i("DEBUG", "Step 0 duration: " + steps.get(0).getPlan_duration());
             if (steps != null && !steps.isEmpty()) {
                 // Cập nhật UI và SessionManager
                 currentTaskText.setText(currentPlanTitle); // title plan
                 sessionManager.initializeSession(new ArrayList<>(steps)); // chuyển sang List để SessionManager quản lý
+                log.info("Steps loaded from intent: " + steps.size());
 
                 // Cập nhật timer cho plan
                 PlanTaskResponseDTO firstTask = steps.get(0);

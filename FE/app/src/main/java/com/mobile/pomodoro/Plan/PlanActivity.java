@@ -24,8 +24,8 @@ import com.mobile.pomodoro.request_dto.PlanRequestDTO;
 import com.mobile.pomodoro.request_dto.PlanTaskDTO;
 import com.mobile.pomodoro.response_dto.DailyTaskDetailResponseDTO;
 import com.mobile.pomodoro.response_dto.MessageResponseDTO;
+import com.mobile.pomodoro.response_dto.PlanEditResponseDTO;
 import com.mobile.pomodoro.response_dto.PlanResponseDTO;
-import com.mobile.pomodoro.response_dto.PlanTaskResponseDTO;
 import com.mobile.pomodoro.service.PomodoroService;
 import com.mobile.pomodoro.utils.LogObj;
 import com.mobile.pomodoro.utils.MyUtils;
@@ -250,10 +250,15 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
         }
 
 //            Thiết lập order
-        for (int i = 0; i < planList.size(); i++) {
-            planList.get(i).setOrder(i + 1);
-            planList.get(i).setPlan_duration(planList.get(i).getPlan_duration() * 60);
-        }
+            for (int i = 0; i < planList.size(); i++) {
+                PlanTaskDTO task = planList.get(i);
+                int duration = task.getPlan_duration() * 60;
+                task.setOrder(i + 1);
+                task.setPlan_duration(duration);
+
+                log.info("After: Task " + i + " - order=" + task.getOrder() + ", duration=" + task.getPlan_duration());
+            }
+            log.info("Plan list size before sending: " + planList.size());
 //     tạo requestDTO
         PlanRequestDTO request = new PlanRequestDTO();
         request.setTitle(planTitle);
@@ -289,12 +294,12 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                 intent.putExtra("plan_id", startplan.getId());
 
 //                            // Truyền danh sách tasks dưới dạng JSON
-                Gson gson = new Gson();
-                String tasksJson = gson.toJson(startplan.getSteps());
-                intent.putExtra("tasks_json", tasksJson);
-
-                startActivity(intent);
-                finish(); // Đóng
+                            Gson gson = new Gson();
+                            String tasksJson = gson.toJson(startplan.getSteps());
+                            intent.putExtra("tasks_json", tasksJson);
+                    log.info("Sending to Home: " + tasksJson);
+                            startActivity(intent);
+                            finish(); // Đóng
 
             }
 
@@ -373,7 +378,8 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().getMessage().equals("Succeed")) {
                     log.info("Daily Task saved successfully");
-                    Toast.makeText(PlanActivity.this, "Thêm Daily Task thành công", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PlanActivity.this, "Added Daily Task successfully", Toast.LENGTH_SHORT).show();
+                    //Hoàn thành chuyển lại trang DailyTask
                     Intent resultIntent = new Intent();
                     setResult(RESULT_OK, resultIntent);
                     finish();
@@ -422,9 +428,9 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                     globalLongBreak = plan.getL_break_duration() / 60;
                     hasBreakTimeSet = true;
                     planList.clear();
-                    List<PlanTaskResponseDTO> steps = plan.getSteps();
+                    List<PlanEditResponseDTO.PlanTaskEditResponseDTO> steps = plan.getSteps();
                     if (steps != null) {
-                        for (PlanTaskResponseDTO responseTask : steps) {
+                        for (PlanEditResponseDTO.PlanTaskEditResponseDTO responseTask : steps) {
                             PlanTaskDTO task = PlanTaskDTO.builder()
                                     .plan_title(responseTask.getPlan_title())
                                     .plan_duration(responseTask.getPlan_duration() / 60) // Giây sang phút
@@ -433,6 +439,8 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                                     .longBreak(globalLongBreak)
                                     .build();
                             planList.add(task);
+                            log.info("ResponseTask: " + new Gson().toJson(responseTask));
+
                         }
                     }
                     adapter.notifyDataSetChanged();
@@ -494,6 +502,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                 if (response.isSuccessful() && response.body() != null && response.body().getMessage().equals("Succeed")) {
                     log.info("Daily Task updated successfully");
                     Toast.makeText(PlanActivity.this, "UPDATE SUCCESS", Toast.LENGTH_SHORT).show();
+                    //Hoàn thành chuyển lại trang DailyTask
                     Intent resultIntent = new Intent();
                     setResult(Activity.RESULT_OK, resultIntent);
                     finish();
@@ -524,9 +533,12 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
                 if (response.isSuccessful()) {
                     MessageResponseDTO body = response.body();
-                    if (body != null && body.getMessage().equalsIgnoreCase("Succeed")) {
+                    if (body != null && body.getMessage().toLowerCase().contains("thành công")) {
                         log.info("Daily Task deleted successfully");
                         Toast.makeText(PlanActivity.this, "Deleted successfully", Toast.LENGTH_SHORT).show();
+                        //Hoàn thành chuyển lại trang DailyTask
+                        Intent resultIntent = new Intent();
+                        setResult(RESULT_OK, resultIntent);
                         finish();
                     } else {
                         log.warn("Delete failed with message: " + (body != null ? body.getMessage() : "null"));
@@ -553,9 +565,12 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
                 if (response.isSuccessful()) {
                     MessageResponseDTO body = response.body();
-                    if (body != null && body.getMessage().equalsIgnoreCase("Succeed")) {
+                    if (body != null && body.getMessage().toLowerCase().contains("hoàn thành")) {
                         log.info("Daily Task marked as completed");
                         Toast.makeText(PlanActivity.this, "Marked as completed", Toast.LENGTH_SHORT).show();
+                        //Hoàn thành chuyển lại trang DailyTask
+                        Intent resultIntent = new Intent();
+                        setResult(RESULT_OK, resultIntent);
                         finish();
                     } else {
                         log.warn("Complete failed with message: " + (body != null ? body.getMessage() : "null"));

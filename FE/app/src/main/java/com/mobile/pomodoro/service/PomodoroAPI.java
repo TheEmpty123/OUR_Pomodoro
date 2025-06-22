@@ -44,7 +44,8 @@ public interface PomodoroAPI {
     @DELETE("/api/v1/todos/{id}")
     Call<MessageResponseDTO> deleteTodo(@Path("id") long id);
 
-    @GET("api/v1/daily-task/plan-to-edit/{id}")
+//    @GET("api/v1/daily-task/plan-to-edit/{id}")
+    @GET("api/v1/daily-task/{id}")
     Call<DailyTaskDetailResponseDTO> getPlanToEdit(@Path("id") long id);
 
     @GET("api/v1/daily-task/{id}")

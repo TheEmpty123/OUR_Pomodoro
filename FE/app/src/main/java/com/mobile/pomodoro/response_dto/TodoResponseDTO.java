@@ -13,5 +13,4 @@ public class TodoResponseDTO {
     private long id;
     private String title;
     private int is_done;
-
 }
