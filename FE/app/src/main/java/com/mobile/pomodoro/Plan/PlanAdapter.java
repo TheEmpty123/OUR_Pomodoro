@@ -34,7 +34,7 @@ public class PlanAdapter extends RecyclerView.Adapter<PlanAdapter.PlanViewHolder
     public void onBindViewHolder(@NonNull PlanViewHolder holder, int position) {
         PlanTaskDTO task = planTasks.get(position);
         holder.txtTitle.setText(task.getPlan_title());
-        holder.txtTime.setText((int) task.getPlan_duration()  + " min");
+        holder.txtTime.setText(task.getPlan_duration()  + " min");
         holder.txtShortBreak.setText(task.getShortBreak() + " min");
         holder.txtLongBreak.setText(task.getLongBreak() + " min");
     }

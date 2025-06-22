@@ -33,8 +33,8 @@ public class ToDoController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<MessageResponseDTO> deleteToDo(@PathVariable("id") Long todoId, @RequestBody ToDoRequestDTO requestDTO, @RequestAttribute(name = "user") User user) {
-        return new ResponseEntity<>(toDoService.deleteToDo(todoId, requestDTO, user), HttpStatus.OK);
+    public ResponseEntity<MessageResponseDTO> deleteToDo(@PathVariable("id") Long todoId, @RequestAttribute(name = "user") User user) {
+        return new ResponseEntity<>(toDoService.deleteToDo(todoId, user), HttpStatus.OK);
     }
 
 }

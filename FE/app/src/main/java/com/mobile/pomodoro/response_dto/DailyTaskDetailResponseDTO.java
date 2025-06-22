@@ -1,5 +1,8 @@
 package com.mobile.pomodoro.response_dto;
 
+
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,8 +12,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class TodoResponseDTO {
-    private long id;
+public class DailyTaskDetailResponseDTO {
     private String title;
-    private int is_done;
+    private int s_break_duration;
+    private int l_break_duration;
+    private List<PlanEditResponseDTO.PlanTaskEditResponseDTO> steps;
 }

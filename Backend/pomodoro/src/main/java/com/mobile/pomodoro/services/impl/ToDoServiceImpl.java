@@ -101,7 +101,7 @@ public class ToDoServiceImpl extends AService implements IToDoService {
         }
     }
     @Override
-    public MessageResponseDTO deleteToDo(Long todoId, ToDoRequestDTO requestDTO, User user) {
+    public MessageResponseDTO deleteToDo(Long todoId, User user) {
         log.info("Yêu cầu xóa todo từ: " + user.getUsername() + " với todo id: " + todoId);
         try {
             Todo todo = toDoRepository.findByIdAndUserId(todoId, user.getUserId())

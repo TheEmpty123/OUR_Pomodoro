@@ -1,7 +1,9 @@
 package com.mobile.pomodoro;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -11,6 +13,8 @@ import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.mobile.pomodoro.enums.TimerMode;
 import com.mobile.pomodoro.response_dto.PlanResponseDTO;
 import com.mobile.pomodoro.response_dto.PlanTaskResponseDTO;
@@ -18,10 +22,15 @@ import com.mobile.pomodoro.service.PomodoroAPI;
 import com.mobile.pomodoro.service.PomodoroService;
 import com.mobile.pomodoro.service.TimerService;
 import com.mobile.pomodoro.utils.EditTitleDialogFragment;
+import com.mobile.pomodoro.utils.LogObj;
 import com.mobile.pomodoro.utils.MyUtils;
 import com.mobile.pomodoro.utils.SessionManager;
 import com.mobile.pomodoro.utils.Timer.TimerAnimationHelper;
 import com.mobile.pomodoro.utils.Timer.TimerManager;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -54,10 +63,12 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
 
     private String currentPlanTitle = "Work Session";
     private Long currentPlanId = -1L;
+    private LogObj log;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        log = new LogObj();
 
         // khởi tạo user session
         initializeUserSession();
@@ -74,12 +85,15 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
         initializeViews();
         setupClickListeners();
 
+        // Xử lý dữ liệu từ Intent (từ PlanActivity)
+        handleIntentData();
+
         timerService.initializeTimer(TimerMode.FOCUS);
         updateModeUI();
         sessionManager.updateSessionIndicators(indicators);
 
         // call API lấy ra plan của user
-        fetchRecentPlan();
+//        fetchRecentPlan();
     }
 
     private void initializeViews() {
@@ -100,6 +114,52 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
         indicator3 = findViewById(R.id.indicator3);
         indicator4 = findViewById(R.id.indicator4);
         indicators = new View[]{indicator1, indicator2, indicator3, indicator4};
+    }
+
+    private void handleIntentData() {
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra("plan_id") && intent.hasExtra("plan_title") && intent.hasExtra("tasks_json")) {
+            // lấy dữ liệu từ Intent
+            currentPlanId = intent.getLongExtra("plan_id", -1L);
+            currentPlanTitle = intent.getStringExtra("plan_title");
+            String tasksJson = intent.getStringExtra("tasks_json");
+
+            // Parse tasks_json thành List
+            Gson gson = new Gson();
+            Type stepListType = new TypeToken<List<PlanTaskResponseDTO>>(){}.getType();
+            List<PlanTaskResponseDTO> steps = gson.fromJson(tasksJson, stepListType);
+            Log.i("DEBUG", "Step 0 duration: " + steps.get(0).getPlan_duration());
+            if (steps != null && !steps.isEmpty()) {
+                // Cập nhật UI và SessionManager
+                currentTaskText.setText(currentPlanTitle); // title plan
+                sessionManager.initializeSession(new ArrayList<>(steps)); // chuyển sang List để SessionManager quản lý
+                log.info("Steps loaded from intent: " + steps.size());
+
+                // Cập nhật timer cho plan
+                PlanTaskResponseDTO firstTask = steps.get(0);
+                long firstDurationInMillis = firstTask.getPlan_duration() * 1000L;
+                if (firstDurationInMillis > 0) {
+                    TimerMode.FOCUS.updateDuration(firstDurationInMillis);
+                    if (timerService.getCurrentMode() != TimerMode.FOCUS) {
+                        timerService.switchToMode(TimerMode.FOCUS);
+                    }
+                    // Đặt thời gian cho timer
+                    timerService.restoreTimerState(firstDurationInMillis, false);
+                }
+
+                sessionManager.updateSessionIndicators(indicators);
+                if (log != null) {
+                log.info("Loaded plan from Intent: plan_id=" + currentPlanId + ", title=" + currentPlanTitle + ", steps=" + steps.size());
+                }
+                } else {
+                // Fallback nếu steps rỗng
+                showDefaultTask();
+                fetchRecentPlan(); // Gọi API để lấy plan mặc định
+            }
+        } else {
+            // Không có Intent thì lấy recent plan
+            fetchRecentPlan();
+        }
     }
 
     // khởi tạo session cho user, lấy ra username để load đúng setting của user đó

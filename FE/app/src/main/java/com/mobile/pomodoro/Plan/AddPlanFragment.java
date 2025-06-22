@@ -1,4 +1,4 @@
-package com.mobile.pomodoro;
+package com.mobile.pomodoro.Plan;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -14,7 +14,7 @@ import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
-import com.mobile.pomodoro.request_dto.PlanRequestDTO;
+import com.mobile.pomodoro.R;
 import com.mobile.pomodoro.request_dto.PlanTaskDTO;
 
 
