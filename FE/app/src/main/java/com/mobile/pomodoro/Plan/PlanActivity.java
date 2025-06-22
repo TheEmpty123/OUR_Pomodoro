@@ -26,6 +26,7 @@ import com.mobile.pomodoro.response_dto.DailyTaskDetailResponseDTO;
 import com.mobile.pomodoro.response_dto.MessageResponseDTO;
 import com.mobile.pomodoro.response_dto.PlanEditResponseDTO;
 import com.mobile.pomodoro.response_dto.PlanResponseDTO;
+import com.mobile.pomodoro.response_dto.PlanTaskResponseDTO;
 import com.mobile.pomodoro.response_dto.SavePlanResponseDTO;
 import com.mobile.pomodoro.service.PomodoroService;
 import com.mobile.pomodoro.utils.LogObj;
@@ -181,36 +182,47 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             return;
         }
 //            Thiết lập order
+        List<PlanTaskDTO> rawFocusTasks = new ArrayList<>();
         for (int i = 0; i < planList.size(); i++) {
-            planList.get(i).setOrder(i + 1);
-            planList.get(i).setPlan_duration(planList.get(i).getPlan_duration() * 60);
+            PlanTaskDTO task = new PlanTaskDTO();
+            task.setPlan_title(planList.get(i).getPlan_title());
+            task.setPlan_duration(planList.get(i).getPlan_duration() * 60); // Convert to seconds
+            task.setOrder(i + 1);
+            task.setShortBreak(globalShortBreak);
+            task.setLongBreak(globalLongBreak);
+            rawFocusTasks.add(task);
+
+            log.info("Raw focus task " + (i + 1) + ": " + task.getPlan_title() + " - " + (task.getPlan_duration() / 60) + " minutes");
         }
 //        b2: tạo requestDTO
         PlanRequestDTO request = new PlanRequestDTO();
         request.setTitle(title);
         request.setS_break_duration(globalShortBreak * 60);
         request.setL_break_duration(globalLongBreak * 60);
-        request.setSteps(planList);
+        request.setSteps(rawFocusTasks);
 //  gọi api gửi cho BE và nhận lại recent_plan - USING SavePlanResponseDTO from FE_SavePlan
+        log.info("Sending raw focus tasks to BE, count: " + rawFocusTasks.size());
+        log.info("Break times - Short: " + globalShortBreak + " min, Long: " + globalLongBreak + " min");
         var username = MyUtils.get(this, "username"); // Lấy username
         if (username == null || username.trim().isEmpty()) {
             log.error("Username is null or empty");
             Toast.makeText(this, "Vui lòng đăng nhập", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        String finalTitle = title;
         PomodoroService.getRetrofitInstance(username).savePlan(request).enqueue(new Callback<SavePlanResponseDTO>() {
             @Override
             public void onResponse(Call<SavePlanResponseDTO> call, Response<SavePlanResponseDTO> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     SavePlanResponseDTO result = response.body();
                     Log.d("SAVE_PLAN_SUCCESS", "Plan saved with ID: " + result.getPlanId());
+
                     runOnUiThread(() -> {
                         Toast.makeText(PlanActivity.this, "Plan saved successfully!", Toast.LENGTH_SHORT).show();
 
-                        Intent intent = new Intent(PlanActivity.this, HomePage.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(intent);
-                        finish();
+                        // Gọi recent-plan
+                        loadFullPlanAndNavigate(result.getPlanId(), finalTitle);
                     });
                 } else {
                     Log.w("SAVE_PLAN_FAILURE", "Response not successful or body is null");
@@ -223,6 +235,60 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                 Log.e("API_FAILURE", "Request failed: " + t.getMessage());
                 log.error("savePlan failed: " + t.getMessage());
                 Toast.makeText(PlanActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // FIX: Gọi recent-plan để lấy full plan với breaks
+    private void loadFullPlanAndNavigate(long planId, String planTitle) {
+        var username = MyUtils.get(this, "username");
+
+        PomodoroService.getRetrofitInstance(username).getRecentPlan().enqueue(new Callback<PlanResponseDTO>() {
+            @Override
+            public void onResponse(Call<PlanResponseDTO> call, Response<PlanResponseDTO> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    PlanResponseDTO fullPlan = response.body();
+
+                    log.info("BE returned full plan with " + fullPlan.getSteps().size() + " total steps (includes breaks)");
+                    for (int i = 0; i < fullPlan.getSteps().size(); i++) {
+                        PlanTaskResponseDTO step = fullPlan.getSteps().get(i);
+                        log.info("Step " + (i + 1) + ": " + step.getPlan_title() + " - " + (step.getPlan_duration() / 60) + " minutes");
+                    }
+
+                    // Navigate to HomePage với full plan
+                    Intent intent = new Intent(PlanActivity.this, HomePage.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.putExtra("plan_title", fullPlan.getPlanTitle());
+                    intent.putExtra("plan_id", fullPlan.getPlanId());
+
+                    // Truyền full plan với breaks
+                    Gson gson = new Gson();
+                    String tasksJson = gson.toJson(fullPlan.getSteps());
+                    intent.putExtra("tasks_json", tasksJson);
+
+                    log.info("Sending full plan to Home: " + tasksJson);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    // Fallback: navigate với basic info
+                    log.warn("Could not load recent plan, navigating with basic info");
+                    Intent intent = new Intent(PlanActivity.this, HomePage.class);
+                    intent.putExtra("plan_title", planTitle);
+                    intent.putExtra("plan_id", planId);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PlanResponseDTO> call, Throwable t) {
+                log.error("Failed to load recent plan: " + t.getMessage());
+                // Fallback: navigate với basic info
+                Intent intent = new Intent(PlanActivity.this, HomePage.class);
+                intent.putExtra("plan_title", planTitle);
+                intent.putExtra("plan_id", planId);
+                startActivity(intent);
+                finish();
             }
         });
     }
@@ -242,25 +308,32 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             planTitle = "My Plan";
         }
 
-//            Thiết lập order
+        // FIX: Chỉ gửi raw focus tasks, KHÔNG tự chia thời gian
+        List<PlanTaskDTO> rawFocusTasks = new ArrayList<>();
         for (int i = 0; i < planList.size(); i++) {
-            PlanTaskDTO task = planList.get(i);
-            int duration = task.getPlan_duration() * 60;
+            PlanTaskDTO task = new PlanTaskDTO();
+            task.setPlan_title(planList.get(i).getPlan_title());
+            task.setPlan_duration(planList.get(i).getPlan_duration() * 60); // Convert to seconds
             task.setOrder(i + 1);
-            task.setPlan_duration(duration);
+            task.setShortBreak(globalShortBreak);
+            task.setLongBreak(globalLongBreak);
+            rawFocusTasks.add(task);
 
-            log.info("After: Task " + i + " - order=" + task.getOrder() + ", duration=" + task.getPlan_duration());
+            log.info("Raw focus task " + (i + 1) + ": " + task.getPlan_title() + " - " + (task.getPlan_duration() / 60) + " minutes");
         }
-        log.info("Plan list size before sending: " + planList.size());
-//     tạo requestDTO
+
+        log.info("Raw focus tasks size before sending: " + rawFocusTasks.size());
+        log.info("Break times - Short: " + globalShortBreak + " min, Long: " + globalLongBreak + " min");
+
+        // tạo requestDTO
         PlanRequestDTO request = new PlanRequestDTO();
         request.setTitle(planTitle);
         request.setS_break_duration(globalShortBreak * 60);
         request.setL_break_duration(globalLongBreak * 60);
-        request.setSteps(planList);
+        request.setSteps(rawFocusTasks); // FIX: Gửi rawFocusTasks thay vì planList
         log.info("Sending startPlanWithoutSaving API request");
 
-// api : nhận dl từ BE và hiển thị sang home - USING FE_SavePlan version
+        // api : nhận dl từ BE và hiển thị sang home - USING FE_SavePlan version
         var username = MyUtils.get(this, "username"); // Lấy username
         if (username == null || username.trim().isEmpty()) {
             log.error("Username is null or empty");
@@ -295,13 +368,20 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
 
                 PlanResponseDTO startplan = response.body();
 
+                // FIX: Log để debug BE response
+                log.info("BE returned " + startplan.getSteps().size() + " total steps (includes breaks)");
+                for (int i = 0; i < startplan.getSteps().size(); i++) {
+                    PlanTaskResponseDTO step = startplan.getSteps().get(i);
+                    log.info("Step " + (i + 1) + ": " + step.getPlan_title() + " - " + (step.getPlan_duration() / 60) + " minutes");
+                }
+
                 Intent intent = new Intent(PlanActivity.this, HomePage.class);// Chuyển sang view home
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 // Truyền toàn bộ thông tin plan - USING FE_SavePlan format
                 intent.putExtra("plan_title", startplan.getPlanTitle());
                 intent.putExtra("plan_id", startplan.getPlanId());
 
-//                            // Truyền danh sách tasks dưới dạng JSON
+                // Truyền danh sách tasks dưới dạng JSON
                 Gson gson = new Gson();
                 String tasksJson = gson.toJson(startplan.getSteps());
                 intent.putExtra("tasks_json", tasksJson);
@@ -333,7 +413,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
         new AlertDialog.Builder(this)
                 .setTitle("Enter Daily Task description")
                 .setView(R.layout.popup_add_daily_task)
-                .setPositiveButton("Confiirm", (dialog, which) -> {
+                .setPositiveButton("Confirm", (dialog, which) -> {
                     EditText input = ((AlertDialog) dialog).findViewById(R.id.inputDescription);
                     String description = input.getText().toString().trim();
                     if (description.isEmpty()) {
