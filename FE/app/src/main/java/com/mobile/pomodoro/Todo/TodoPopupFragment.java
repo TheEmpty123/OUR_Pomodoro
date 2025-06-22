@@ -160,6 +160,26 @@ public class TodoPopupFragment extends DialogFragment {
             } else {
                 // API sửa
                 log.info("Updating todo: " + title);
+
+                // ==================================OFFLINE==============================================
+                if (MyUtils.applicationMode == ApplicationMode.OFFLINE){
+                    // If application running offline
+                    if (todoItem != null){
+                        log.info("Updating todo: " + title);
+                        var item = TodoItem.builder()
+                                .id(todoItem.getId())
+                                .title(title)
+                                .isDone(todoItem.getIs_done())
+                                .build();
+                        udpateTodo(item);
+
+                        if (callback != null) callback.onTodoSaved(todoItem); // gọi callback để reload
+                        dismiss(); // đóng popup
+                    }
+                    return;
+                    // ==============================OFFLINE==============================================
+                }
+
                 PomodoroService.getRetrofitInstance(username).updateTodo(todoItem.getId(),
                         TodoRequestDTO.builder()
                                 .title(title)
@@ -241,5 +261,20 @@ public class TodoPopupFragment extends DialogFragment {
 
 
         // ==================================OFFLINE==============================================
+    }
+
+    private void udpateTodo(TodoItem todo){
+        // Update todo
+        // ==================================OFFLINE==============================================
+        // Application is running offline
+        log.info("Updating todo");
+        /** Fetch todo using room storage
+         * 1. Get AppDatabase
+         * 2. Create new background thread
+         * 3. Update
+         */
+        AppDatabase db = DatabaseClient.getInstance(getContext()).getAppDatabase();    // 1.
+        SingleThreadRepo repo = new SingleThreadRepo(db.todoItem());   // 2.
+        repo.update(todo);
     }
 }

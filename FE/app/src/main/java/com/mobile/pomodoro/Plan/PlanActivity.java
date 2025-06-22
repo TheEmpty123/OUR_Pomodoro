@@ -26,6 +26,7 @@ import com.mobile.pomodoro.response_dto.DailyTaskDetailResponseDTO;
 import com.mobile.pomodoro.response_dto.MessageResponseDTO;
 import com.mobile.pomodoro.response_dto.PlanEditResponseDTO;
 import com.mobile.pomodoro.response_dto.PlanResponseDTO;
+import com.mobile.pomodoro.response_dto.PlanTaskResponseDTO;
 import com.mobile.pomodoro.service.PomodoroService;
 import com.mobile.pomodoro.utils.LogObj;
 import com.mobile.pomodoro.utils.MyUtils;
@@ -250,15 +251,10 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
         }
 
 //            Thiết lập order
-            for (int i = 0; i < planList.size(); i++) {
-                PlanTaskDTO task = planList.get(i);
-                int duration = task.getPlan_duration() * 60;
-                task.setOrder(i + 1);
-                task.setPlan_duration(duration);
-
-                log.info("After: Task " + i + " - order=" + task.getOrder() + ", duration=" + task.getPlan_duration());
-            }
-            log.info("Plan list size before sending: " + planList.size());
+        for (int i = 0; i < planList.size(); i++) {
+            planList.get(i).setOrder(i + 1);
+            planList.get(i).setPlan_duration(planList.get(i).getPlan_duration() * 60);
+        }
 //     tạo requestDTO
         PlanRequestDTO request = new PlanRequestDTO();
         request.setTitle(planTitle);
@@ -294,12 +290,12 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                 intent.putExtra("plan_id", startplan.getId());
 
 //                            // Truyền danh sách tasks dưới dạng JSON
-                            Gson gson = new Gson();
-                            String tasksJson = gson.toJson(startplan.getSteps());
-                            intent.putExtra("tasks_json", tasksJson);
-                    log.info("Sending to Home: " + tasksJson);
-                            startActivity(intent);
-                            finish(); // Đóng
+                Gson gson = new Gson();
+                String tasksJson = gson.toJson(startplan.getSteps());
+                intent.putExtra("tasks_json", tasksJson);
+
+                startActivity(intent);
+                finish(); // Đóng
 
             }
 
@@ -439,8 +435,6 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                                     .longBreak(globalLongBreak)
                                     .build();
                             planList.add(task);
-                            log.info("ResponseTask: " + new Gson().toJson(responseTask));
-
                         }
                     }
                     adapter.notifyDataSetChanged();
@@ -524,7 +518,6 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             }
         });
     }
-
     // Xóa dailytassk
     private void deleteDailyTask() {
         var username = MyUtils.get(this, "username");
@@ -548,7 +541,6 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                     Toast.makeText(PlanActivity.this, "Delete failed: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
-
             @Override
             public void onFailure(Call<MessageResponseDTO> call, Throwable t) {
                 log.error("deleteDailyTask failed: " + t.getMessage());
@@ -556,7 +548,6 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             }
         });
     }
-
     //api đánh dấu hoàn thành
     private void completeDailyTask() {
         var username = MyUtils.get(this, "username");
@@ -621,9 +612,9 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                     intent.putExtra("plan_title", plan.getTitle());
 
                     // Truyền danh sách steps dưới dạng JSON
-                    Gson gson = new Gson();
-                    String stepsJson = gson.toJson(plan.getSteps());
-                    intent.putExtra("tasks_json", stepsJson);
+                        Gson gson = new Gson();
+                        String stepsJson = gson.toJson(plan.getSteps());
+                        intent.putExtra("tasks_json", stepsJson);
                     startActivity(intent);
                     finish(); // Đóng PlanActivity
                 } else {
@@ -644,8 +635,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             }
         });
     }
-
-    // dùng cho Navbar
+// dùng cho Navbar
     @Override
     protected int getLayoutResourceId() {
         return R.layout.activity_plan;
@@ -656,4 +646,4 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
         return R.id.page_plan;
     }
 
-}
+    }

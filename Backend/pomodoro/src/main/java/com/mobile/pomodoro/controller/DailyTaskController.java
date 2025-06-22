@@ -48,13 +48,13 @@ public class DailyTaskController {
     }
 
     @PutMapping("{id}/edit")
-    public ResponseEntity<?> editDailyTask(
+    public ResponseEntity<MessageResponseDTO> editDailyTask(
             @PathVariable Long id,
             @RequestBody DailyTaskRequestDTO request,
             @RequestAttribute(name = "user") User user) {
         try {
-            dailyTaskService.planToEdit(id, user);
-            return new ResponseEntity<>("", HttpStatus.OK);
+            MessageResponseDTO response = dailyTaskService.updateDailyTask(id, request, user);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return new ResponseEntity<>(
                     MessageResponseDTO.builder()

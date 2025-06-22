@@ -14,7 +14,7 @@ import com.mobile.pomodoro.room.repo.PlanRepository;
 import com.mobile.pomodoro.room.repo.TodoRepository;
 import com.mobile.pomodoro.room.repo.UserRepository;
 
-@Database(entities = {User.class, TodoItem.class, Plan.class, PlanTask.class, DailyTask.class}, version = 5, exportSchema = false)
+@Database(entities = {User.class, TodoItem.class, Plan.class, PlanTask.class, DailyTask.class}, version = 6, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract UserRepository user();
     public abstract TodoRepository todoItem();

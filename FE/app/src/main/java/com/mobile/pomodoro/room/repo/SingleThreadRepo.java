@@ -55,7 +55,7 @@ public class SingleThreadRepo<T>{
                 res.postValue(Resource.success(items));
             }
             catch (Exception e){
-                res.setValue(Resource.error(null, "Failed to load plans: " + e.getMessage()));
+                //res.setValue(Resource.error(null, "Failed to load plans: " + e.getMessage()));
                 log.error("Error occurred while getting resources");
                 log.error(e.getMessage());
             }
