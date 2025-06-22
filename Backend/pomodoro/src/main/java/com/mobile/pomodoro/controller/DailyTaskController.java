@@ -46,20 +46,39 @@ public class DailyTaskController {
             );
         }
     }
-        @PutMapping("/complete/{id}")
-        public ResponseEntity<MessageResponseDTO> completeDailyTask(@PathVariable Long id,
-                                                                    @RequestAttribute(name = "user") User user) {
-            try {
-                return new ResponseEntity<>(dailyTaskService.completeDailyTask(id, user), HttpStatus.OK);
-            } catch (Exception e) {
-                return new ResponseEntity<>(
-                        MessageResponseDTO.builder()
-                                .message("Failed")
-                                .build()
-                        , HttpStatus.BAD_REQUEST);
 
-            }
+    @PutMapping("{id}/edit")
+    public ResponseEntity<MessageResponseDTO> editDailyTask(
+            @PathVariable Long id,
+            @RequestBody DailyTaskRequestDTO request,
+            @RequestAttribute(name = "user") User user) {
+        try {
+            MessageResponseDTO response = dailyTaskService.updateDailyTask(id, request, user);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    MessageResponseDTO.builder()
+                            .message("Failed")
+                            .build()
+                    , HttpStatus.BAD_REQUEST);
+        }
     }
+
+    @PutMapping("/complete/{id}")
+    public ResponseEntity<MessageResponseDTO> completeDailyTask(@PathVariable Long id,
+                                                                @RequestAttribute(name = "user") User user) {
+        try {
+            return new ResponseEntity<>(dailyTaskService.completeDailyTask(id, user), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    MessageResponseDTO.builder()
+                            .message("Failed")
+                            .build()
+                    , HttpStatus.BAD_REQUEST);
+
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<MessageResponseDTO> deleteDailyTask(
             @PathVariable Long id,
