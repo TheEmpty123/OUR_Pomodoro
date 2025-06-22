@@ -18,6 +18,7 @@ import com.google.gson.Gson;
 import com.mobile.pomodoro.HomePage;
 import com.mobile.pomodoro.NavigateActivity;
 import com.mobile.pomodoro.R;
+import com.mobile.pomodoro.enums.ApplicationMode;
 import com.mobile.pomodoro.request_dto.DailyTaskRequestDTO;
 import com.mobile.pomodoro.request_dto.DailyTaskUpdateRequestDTO;
 import com.mobile.pomodoro.request_dto.PlanRequestDTO;
@@ -26,13 +27,19 @@ import com.mobile.pomodoro.response_dto.DailyTaskDetailResponseDTO;
 import com.mobile.pomodoro.response_dto.MessageResponseDTO;
 import com.mobile.pomodoro.response_dto.PlanEditResponseDTO;
 import com.mobile.pomodoro.response_dto.PlanResponseDTO;
-import com.mobile.pomodoro.response_dto.PlanTaskResponseDTO;
+import com.mobile.pomodoro.room.AppDatabase;
+import com.mobile.pomodoro.room.DatabaseClient;
+import com.mobile.pomodoro.room.entity.Plan;
+import com.mobile.pomodoro.room.entity.PlanTask;
+import com.mobile.pomodoro.room.repo.PlanRepository;
+import com.mobile.pomodoro.room.repo.SingleThreadRepo;
 import com.mobile.pomodoro.service.PomodoroService;
 import com.mobile.pomodoro.utils.LogObj;
 import com.mobile.pomodoro.utils.MyUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -190,6 +197,49 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
         request.setS_break_duration(globalShortBreak * 60);
         request.setL_break_duration(globalLongBreak * 60);
         request.setSteps(planList);
+
+//        // ==================================OFFLINE==============================================
+//        if (MyUtils.applicationMode == ApplicationMode.OFFLINE){
+//            // If application running offline
+//            log.info("Saving plan to local storage");
+//            AppDatabase db = DatabaseClient.getInstance(PlanActivity.this).getAppDatabase();
+//            SingleThreadRepo<PlanRepository> threadRepo = new SingleThreadRepo<>(db.plan());
+//
+//            String finalTitle = title;
+//            AtomicReference<Long> planId = new AtomicReference<>(0L);
+//
+//            threadRepo.execute(() -> {
+//                var p = Plan.builder().title(finalTitle).build();
+//                Long pId = p.getId();
+//                planId.set(pId);
+//                db.plan().insert(p);
+//                for (var pt: planList) {
+//                    var i = PlanTask.builder()
+//                            .plan_id(pId)
+//                            .plan_title(pt.getPlan_title())
+//                            .plan_duration(pt.getPlan_duration())
+//                            .order(pt.getOrder())
+//                            .build();
+//                    db.plan().insert(i);
+//                }
+//            });
+//
+//            log.info("Daily Task saved successfully");
+//
+//            Intent intent = new Intent(PlanActivity.this, HomePage.class);
+//            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//
+//            // Truyền toàn bộ thông tin plan
+//            intent.putExtra("plan_id", planId);
+//            intent.putExtra("plan_title", title);
+//
+//            startActivity(intent);
+//            finish(); // Đóng
+//
+//            return;
+//            // ==============================OFFLINE==============================================
+//        }
+
 //  gọi api gửi cho BE và nhận lại recent_plan
         var username = MyUtils.get(this, "username"); // Lấy username
         if (username == null || username.trim().isEmpty()) {
@@ -361,6 +411,41 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                 .l_break_duration(globalLongBreak * 60)
                 .steps(planList)
                 .build();
+//
+//        // ==================================OFFLINE==============================================
+//        if (MyUtils.applicationMode == ApplicationMode.OFFLINE){
+//            // If application running offline
+//            log.info("Saving plan to local storage");
+//            AppDatabase db = DatabaseClient.getInstance(PlanActivity.this).getAppDatabase();
+//            SingleThreadRepo<PlanRepository> threadRepo = new SingleThreadRepo<>(db.plan());
+//
+//            String finalTitle = title;
+//            threadRepo.execute(() -> {
+//                var p = Plan.builder().title(finalTitle).build();
+//                Long pId = p.getId();
+//
+//                db.plan().insert(p);
+//                for (var pt: planList) {
+//                    var i = PlanTask.builder()
+//                            .plan_id(pId)
+//                            .plan_title(pt.getPlan_title())
+//                            .plan_duration(pt.getPlan_duration())
+//                            .order(pt.getOrder())
+//                            .build();
+//                    db.plan().insert(i);
+//                }
+//            });
+//
+//            log.info("Daily Task saved successfully");
+//            Toast.makeText(PlanActivity.this, "Added Daily Task successfully", Toast.LENGTH_SHORT).show();
+//            //Hoàn thành chuyển lại trang DailyTask
+//            Intent resultIntent = new Intent();
+//            setResult(RESULT_OK, resultIntent);
+//            finish();
+//
+//            return;
+//            // ==============================OFFLINE==============================================
+//        }
 
         var username = MyUtils.get(this, "username");
         if (username == null || username.trim().isEmpty()) {
