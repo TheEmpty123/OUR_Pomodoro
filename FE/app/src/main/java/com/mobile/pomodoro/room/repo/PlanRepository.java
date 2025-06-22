@@ -22,7 +22,6 @@ public abstract class PlanRepository{
     @Query("SELECT * FROM 'plan' ORDER BY id DESC LIMIT 1;")
     public abstract List<Plan> getRecentPlant();
 
-
     @Insert(onConflict = OnConflictStrategy.ABORT)
     public abstract void insert(Plan plan);
 
