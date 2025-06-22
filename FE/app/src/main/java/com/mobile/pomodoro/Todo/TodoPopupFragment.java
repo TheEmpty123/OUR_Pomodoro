@@ -40,11 +40,15 @@ public class TodoPopupFragment extends DialogFragment {
     private MaterialButton btnSave, btnDelete;
     private EditText etTitle;
     private LogObj log;
+
     public interface OnTodoActionListener {
         void onTodoSaved(TodoResponseDTO item);
+
         void onTodoDeleted(TodoResponseDTO item);
+
         void onTodoCreated(); // Callback thông báo tạo TODO thành công để reload
     }
+
     public void setListener(OnTodoActionListener callback) {
         this.callback = callback;
     }
@@ -77,7 +81,7 @@ public class TodoPopupFragment extends DialogFragment {
         }
     }
 
-//    tạo gd popup
+    //    tạo gd popup
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -105,10 +109,12 @@ public class TodoPopupFragment extends DialogFragment {
             }
             Context context = getContext();
 
+            log.info("Save button pressed");
+
             // ==================================OFFLINE==============================================
-            if (MyUtils.applicationMode == ApplicationMode.OFFLINE){
+            if (MyUtils.applicationMode == ApplicationMode.OFFLINE) {
                 // If application running offline
-                if (todoItem == null){
+                if (todoItem == null) {
                     log.info("Creating new todo: " + title);
                     var item = TodoItem.builder()
                             .title(title)
@@ -117,6 +123,19 @@ public class TodoPopupFragment extends DialogFragment {
                     newTodo(item);
 
                     if (callback != null) callback.onTodoCreated(); // gọi callback để reload
+                    dismiss(); // đóng popup
+                }
+
+                if (todoItem != null) {
+                    log.info("Updating todo: " + title);
+                    var item = TodoItem.builder()
+                            .id(todoItem.getId())
+                            .title(title)
+                            .isDone(todoItem.getIs_done())
+                            .build();
+                    udpateTodo(item);
+
+                    if (callback != null) callback.onTodoSaved(todoItem); // gọi callback để reload
                     dismiss(); // đóng popup
                 }
                 return;
@@ -160,12 +179,13 @@ public class TodoPopupFragment extends DialogFragment {
             } else {
                 // API sửa
                 log.info("Updating todo: " + title);
+
                 PomodoroService.getRetrofitInstance(username).updateTodo(todoItem.getId(),
                         TodoRequestDTO.builder()
                                 .title(title)
                                 .is_done(todoItem.getIs_done())
                                 .build()
-                        ).enqueue(new Callback<MessageResponseDTO>() {
+                ).enqueue(new Callback<MessageResponseDTO>() {
                     @Override
                     public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
                         if (!response.isSuccessful() || response.body() == null) {
@@ -192,6 +212,20 @@ public class TodoPopupFragment extends DialogFragment {
         btnDelete.setOnClickListener(v -> {
             if (todoItem != null) {
                 log.info("Deleting todo: " + todoItem.getTitle());
+
+                // ==================================OFFLINE==============================================
+                if (MyUtils.applicationMode == ApplicationMode.OFFLINE) {
+                    // If application running offline
+                    if (todoItem != null) {
+                        deleteTodo(todoItem.getId());
+                        if (callback != null)
+                            callback.onTodoDeleted(todoItem); // gọi callback để reload
+                        dismiss(); // đóng popup
+                    }
+                    return;
+                    // ==============================OFFLINE==============================================
+                }
+
                 Context context = getContext();
                 var username = MyUtils.get(context, "username");
                 if (username == null || username.trim().isEmpty()) {
@@ -225,7 +259,7 @@ public class TodoPopupFragment extends DialogFragment {
         return builder.create();
     }
 
-    private void newTodo(TodoItem todo){
+    private void newTodo(TodoItem todo) {
         // Create new todo
         // ==================================OFFLINE==============================================
         // Application is running offline
@@ -241,5 +275,35 @@ public class TodoPopupFragment extends DialogFragment {
 
 
         // ==================================OFFLINE==============================================
+    }
+
+    private void udpateTodo(TodoItem todo) {
+        // Update todo
+        // ==================================OFFLINE==============================================
+        // Application is running offline
+        log.info("Updating todo");
+        /** Fetch todo using room storage
+         * 1. Get AppDatabase
+         * 2. Create new background thread
+         * 3. Update
+         */
+        AppDatabase db = DatabaseClient.getInstance(getContext()).getAppDatabase();    // 1.
+        SingleThreadRepo repo = new SingleThreadRepo(db.todoItem());   // 2.
+        repo.update(todo);
+    }
+
+    private void deleteTodo(Long id) {
+        // Delete todo
+        // ==================================OFFLINE==============================================
+        // Application is running offline
+        log.info("Deleting todo");
+        /** Fetch todo using room storage
+         * 1. Get AppDatabase
+         * 2. Create new background thread
+         * 3. Delete
+         */
+        AppDatabase db = DatabaseClient.getInstance(getContext()).getAppDatabase();    // 1.
+        SingleThreadRepo repo = new SingleThreadRepo(db.todoItem());   // 2.
+        repo.delete(id);
     }
 }

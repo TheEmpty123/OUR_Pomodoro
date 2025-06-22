@@ -13,6 +13,7 @@ import com.mobile.pomodoro.R;
 import com.mobile.pomodoro.enums.ApplicationMode;
 import com.mobile.pomodoro.room.AppDatabase;
 import com.mobile.pomodoro.room.DatabaseClient;
+import com.mobile.pomodoro.room.entity.TodoItem;
 import com.mobile.pomodoro.room.repo.SingleThreadRepo;
 import com.mobile.pomodoro.request_dto.TodoRequestDTO;
 import com.mobile.pomodoro.response_dto.MessageResponseDTO;
@@ -219,6 +220,28 @@ public class TodoActivity extends NavigateActivity implements TodoAdapter.TodoIt
     //    Dùng để cập nhập trạng thái của checkbox
     private void updateTodo(TodoResponseDTO item) {
         log.info("Updating todo: " + item.getTitle());
+
+        // ==================================OFFLINE==============================================
+        if (MyUtils.applicationMode == ApplicationMode.OFFLINE){
+            // If application running offline
+            var item2 = TodoItem.builder()
+                    .id(item.getId())
+                    .title(item.getTitle())
+                    .isDone(item.getIs_done())
+                    .build();
+
+            /** Fetch todo using room storage
+             * 1. Get AppDatabase
+             * 2. Create new background thread
+             * 3. Update
+             */
+            AppDatabase db = DatabaseClient.getInstance(TodoActivity.this).getAppDatabase();    // 1.
+            SingleThreadRepo repo = new SingleThreadRepo(db.todoItem());   // 2.
+            repo.update(item2);
+            return;
+            // ==============================OFFLINE==============================================
+        }
+
         var username = MyUtils.get(this, "username"); // Lấy username
         if (username == null || username.trim().isEmpty()) {
             log.error("Username is null or empty");

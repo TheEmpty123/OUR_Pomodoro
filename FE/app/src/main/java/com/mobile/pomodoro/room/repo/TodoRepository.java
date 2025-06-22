@@ -1,6 +1,7 @@
 package com.mobile.pomodoro.room.repo;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
@@ -21,4 +22,10 @@ public abstract class TodoRepository{
 
     @Query("SELECT * FROM todo")
     public abstract  List<TodoItem> getAll();
+
+    @Delete
+    public abstract void delete(TodoItem item);
+
+    @Query("SELECT * FROM todo WHERE id = :id")
+    public abstract TodoItem getById(Long id);
 }

@@ -18,20 +18,28 @@ import com.google.gson.Gson;
 import com.mobile.pomodoro.HomePage;
 import com.mobile.pomodoro.NavigateActivity;
 import com.mobile.pomodoro.R;
+import com.mobile.pomodoro.enums.ApplicationMode;
 import com.mobile.pomodoro.request_dto.DailyTaskRequestDTO;
 import com.mobile.pomodoro.request_dto.DailyTaskUpdateRequestDTO;
 import com.mobile.pomodoro.request_dto.PlanRequestDTO;
 import com.mobile.pomodoro.request_dto.PlanTaskDTO;
 import com.mobile.pomodoro.response_dto.DailyTaskDetailResponseDTO;
 import com.mobile.pomodoro.response_dto.MessageResponseDTO;
+import com.mobile.pomodoro.response_dto.PlanEditResponseDTO;
 import com.mobile.pomodoro.response_dto.PlanResponseDTO;
-import com.mobile.pomodoro.response_dto.PlanTaskResponseDTO;
+import com.mobile.pomodoro.room.AppDatabase;
+import com.mobile.pomodoro.room.DatabaseClient;
+import com.mobile.pomodoro.room.entity.Plan;
+import com.mobile.pomodoro.room.entity.PlanTask;
+import com.mobile.pomodoro.room.repo.PlanRepository;
+import com.mobile.pomodoro.room.repo.SingleThreadRepo;
 import com.mobile.pomodoro.service.PomodoroService;
 import com.mobile.pomodoro.utils.LogObj;
 import com.mobile.pomodoro.utils.MyUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -189,6 +197,49 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
         request.setS_break_duration(globalShortBreak * 60);
         request.setL_break_duration(globalLongBreak * 60);
         request.setSteps(planList);
+
+//        // ==================================OFFLINE==============================================
+//        if (MyUtils.applicationMode == ApplicationMode.OFFLINE){
+//            // If application running offline
+//            log.info("Saving plan to local storage");
+//            AppDatabase db = DatabaseClient.getInstance(PlanActivity.this).getAppDatabase();
+//            SingleThreadRepo<PlanRepository> threadRepo = new SingleThreadRepo<>(db.plan());
+//
+//            String finalTitle = title;
+//            AtomicReference<Long> planId = new AtomicReference<>(0L);
+//
+//            threadRepo.execute(() -> {
+//                var p = Plan.builder().title(finalTitle).build();
+//                Long pId = p.getId();
+//                planId.set(pId);
+//                db.plan().insert(p);
+//                for (var pt: planList) {
+//                    var i = PlanTask.builder()
+//                            .plan_id(pId)
+//                            .plan_title(pt.getPlan_title())
+//                            .plan_duration(pt.getPlan_duration())
+//                            .order(pt.getOrder())
+//                            .build();
+//                    db.plan().insert(i);
+//                }
+//            });
+//
+//            log.info("Daily Task saved successfully");
+//
+//            Intent intent = new Intent(PlanActivity.this, HomePage.class);
+//            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//
+//            // Truyền toàn bộ thông tin plan
+//            intent.putExtra("plan_id", planId);
+//            intent.putExtra("plan_title", title);
+//
+//            startActivity(intent);
+//            finish(); // Đóng
+//
+//            return;
+//            // ==============================OFFLINE==============================================
+//        }
+
 //  gọi api gửi cho BE và nhận lại recent_plan
         var username = MyUtils.get(this, "username"); // Lấy username
         if (username == null || username.trim().isEmpty()) {
@@ -360,6 +411,41 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                 .l_break_duration(globalLongBreak * 60)
                 .steps(planList)
                 .build();
+//
+//        // ==================================OFFLINE==============================================
+//        if (MyUtils.applicationMode == ApplicationMode.OFFLINE){
+//            // If application running offline
+//            log.info("Saving plan to local storage");
+//            AppDatabase db = DatabaseClient.getInstance(PlanActivity.this).getAppDatabase();
+//            SingleThreadRepo<PlanRepository> threadRepo = new SingleThreadRepo<>(db.plan());
+//
+//            String finalTitle = title;
+//            threadRepo.execute(() -> {
+//                var p = Plan.builder().title(finalTitle).build();
+//                Long pId = p.getId();
+//
+//                db.plan().insert(p);
+//                for (var pt: planList) {
+//                    var i = PlanTask.builder()
+//                            .plan_id(pId)
+//                            .plan_title(pt.getPlan_title())
+//                            .plan_duration(pt.getPlan_duration())
+//                            .order(pt.getOrder())
+//                            .build();
+//                    db.plan().insert(i);
+//                }
+//            });
+//
+//            log.info("Daily Task saved successfully");
+//            Toast.makeText(PlanActivity.this, "Added Daily Task successfully", Toast.LENGTH_SHORT).show();
+//            //Hoàn thành chuyển lại trang DailyTask
+//            Intent resultIntent = new Intent();
+//            setResult(RESULT_OK, resultIntent);
+//            finish();
+//
+//            return;
+//            // ==============================OFFLINE==============================================
+//        }
 
         var username = MyUtils.get(this, "username");
         if (username == null || username.trim().isEmpty()) {
@@ -373,7 +459,8 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().getMessage().equals("Succeed")) {
                     log.info("Daily Task saved successfully");
-                    Toast.makeText(PlanActivity.this, "Thêm Daily Task thành công", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PlanActivity.this, "Added Daily Task successfully", Toast.LENGTH_SHORT).show();
+                    //Hoàn thành chuyển lại trang DailyTask
                     Intent resultIntent = new Intent();
                     setResult(RESULT_OK, resultIntent);
                     finish();
@@ -422,9 +509,9 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                     globalLongBreak = plan.getL_break_duration() / 60;
                     hasBreakTimeSet = true;
                     planList.clear();
-                    List<PlanTaskResponseDTO> steps = plan.getSteps();
+                    List<PlanEditResponseDTO.PlanTaskEditResponseDTO> steps = plan.getSteps();
                     if (steps != null) {
-                        for (PlanTaskResponseDTO responseTask : steps) {
+                        for (PlanEditResponseDTO.PlanTaskEditResponseDTO responseTask : steps) {
                             PlanTaskDTO task = PlanTaskDTO.builder()
                                     .plan_title(responseTask.getPlan_title())
                                     .plan_duration(responseTask.getPlan_duration() / 60) // Giây sang phút
@@ -494,6 +581,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                 if (response.isSuccessful() && response.body() != null && response.body().getMessage().equals("Succeed")) {
                     log.info("Daily Task updated successfully");
                     Toast.makeText(PlanActivity.this, "UPDATE SUCCESS", Toast.LENGTH_SHORT).show();
+                    //Hoàn thành chuyển lại trang DailyTask
                     Intent resultIntent = new Intent();
                     setResult(Activity.RESULT_OK, resultIntent);
                     finish();
@@ -515,7 +603,6 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             }
         });
     }
-
     // Xóa dailytassk
     private void deleteDailyTask() {
         var username = MyUtils.get(this, "username");
@@ -524,9 +611,12 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
                 if (response.isSuccessful()) {
                     MessageResponseDTO body = response.body();
-                    if (body != null && body.getMessage().equalsIgnoreCase("Succeed")) {
+                    if (body != null && body.getMessage().toLowerCase().contains("thành công")) {
                         log.info("Daily Task deleted successfully");
                         Toast.makeText(PlanActivity.this, "Deleted successfully", Toast.LENGTH_SHORT).show();
+                        //Hoàn thành chuyển lại trang DailyTask
+                        Intent resultIntent = new Intent();
+                        setResult(RESULT_OK, resultIntent);
                         finish();
                     } else {
                         log.warn("Delete failed with message: " + (body != null ? body.getMessage() : "null"));
@@ -536,7 +626,6 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                     Toast.makeText(PlanActivity.this, "Delete failed: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
-
             @Override
             public void onFailure(Call<MessageResponseDTO> call, Throwable t) {
                 log.error("deleteDailyTask failed: " + t.getMessage());
@@ -544,7 +633,6 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             }
         });
     }
-
     //api đánh dấu hoàn thành
     private void completeDailyTask() {
         var username = MyUtils.get(this, "username");
@@ -553,9 +641,12 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
                 if (response.isSuccessful()) {
                     MessageResponseDTO body = response.body();
-                    if (body != null && body.getMessage().equalsIgnoreCase("Succeed")) {
+                    if (body != null && body.getMessage().toLowerCase().contains("hoàn thành")) {
                         log.info("Daily Task marked as completed");
                         Toast.makeText(PlanActivity.this, "Marked as completed", Toast.LENGTH_SHORT).show();
+                        //Hoàn thành chuyển lại trang DailyTask
+                        Intent resultIntent = new Intent();
+                        setResult(RESULT_OK, resultIntent);
                         finish();
                     } else {
                         log.warn("Complete failed with message: " + (body != null ? body.getMessage() : "null"));
@@ -606,9 +697,9 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                     intent.putExtra("plan_title", plan.getTitle());
 
                     // Truyền danh sách steps dưới dạng JSON
-                    Gson gson = new Gson();
-                    String stepsJson = gson.toJson(plan.getSteps());
-                    intent.putExtra("tasks_json", stepsJson);
+                        Gson gson = new Gson();
+                        String stepsJson = gson.toJson(plan.getSteps());
+                        intent.putExtra("tasks_json", stepsJson);
                     startActivity(intent);
                     finish(); // Đóng PlanActivity
                 } else {
@@ -629,8 +720,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             }
         });
     }
-
-    // dùng cho Navbar
+// dùng cho Navbar
     @Override
     protected int getLayoutResourceId() {
         return R.layout.activity_plan;
@@ -641,4 +731,4 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
         return R.id.page_plan;
     }
 
-}
+    }

@@ -55,7 +55,7 @@ public class SingleThreadRepo<T>{
                 res.postValue(Resource.success(items));
             }
             catch (Exception e){
-                res.setValue(Resource.error(null, "Failed to load plans: " + e.getMessage()));
+                //res.setValue(Resource.error(null, "Failed to load plans: " + e.getMessage()));
                 log.error("Error occurred while getting resources");
                 log.error(e.getMessage());
             }
@@ -82,6 +82,19 @@ public class SingleThreadRepo<T>{
                 repo.update(item);
             } catch (Exception e) {
                 log.error("Error occurred while updating " + item);
+                log.error(e.getMessage());
+            }
+        });
+    }
+
+    public void delete(Long id){
+        executor.execute(() -> {
+            try {
+                var item = repo.getById(id);
+                repo.delete(item);
+            }
+            catch (Exception e){
+                log.error("Error occurred while deleting todo id: " + id);
                 log.error(e.getMessage());
             }
         });

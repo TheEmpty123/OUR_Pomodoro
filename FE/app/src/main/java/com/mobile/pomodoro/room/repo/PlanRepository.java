@@ -22,10 +22,13 @@ public abstract class PlanRepository{
     @Query("SELECT * FROM 'plan' ORDER BY id DESC LIMIT 1;")
     public abstract List<Plan> getRecentPlant();
 
-
     @Insert(onConflict = OnConflictStrategy.ABORT)
     public abstract void insert(Plan plan);
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     public abstract void insert(PlanTask planTask);
+
+    @Transaction
+    @Query("SELECT * FROM `plan` WHERE id = :id")
+    public abstract Plan getPlanById(int id);
 }
