@@ -1,6 +1,5 @@
 package com.mobile.pomodoro.response_dto;
 
-import com.mobile.pomodoro.request_dto.PlanTaskDTO;
 
 import java.util.List;
 
@@ -17,5 +16,5 @@ public class DailyTaskDetailResponseDTO {
     private String title;
     private int s_break_duration;
     private int l_break_duration;
-    private List<PlanTaskResponseDTO> steps;
+    private List<PlanEditResponseDTO.PlanTaskEditResponseDTO> steps;
 }
