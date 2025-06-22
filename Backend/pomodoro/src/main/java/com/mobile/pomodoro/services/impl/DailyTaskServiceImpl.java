@@ -52,7 +52,7 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
 
             List<SingleDailyTaskDTO> dailytaskDTOs = dailytasks.stream()
                     .map(dailytask -> SingleDailyTaskDTO.builder()
-                            .plan_id(dailytask.getPlanId())
+                            .plan_id(dailytask.getId())
                             .title(dailytask.getTitle())
                             .is_done(dailytask.getIsDone())
                             .build())
@@ -257,6 +257,20 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
             log.error(String.format("Lỗi khi xử lý plan-to-edit: %s", e.getMessage()), e);
             throw new RuntimeException("Không thể xử lý kế hoạch để chỉnh sửa: " + e.getMessage());
         }
+    }
+
+    @Override
+    public MessageResponseDTO updateDailyTask(Long id, DailyTaskRequestDTO request, User user) {
+        log.info("Update DailyTask ID: " + id + " for userId: " + (user != null ? user.getUserId() : "null"));
+        try {
+
+        }
+        catch (Exception e) {
+            log.error("Error updating DailyTask ID: " + id);
+            log.error(e.getMessage());
+            return new MessageResponseDTO("Failed to update DailyTask");
+        }
+        return null;
     }
 
     @Override
