@@ -27,8 +27,8 @@ public class PlanMapper {
                 .collect(Collectors.toList());
 
         return PlanResponseDTO.builder()
-                .id(planWithTask.plan.getId())
-                .title(planWithTask.plan.getTitle())
+                .planId(planWithTask.plan.getId())
+                .planTitle(planWithTask.plan.getTitle())
                 .steps(stepDTOs)
                 .build();
     }

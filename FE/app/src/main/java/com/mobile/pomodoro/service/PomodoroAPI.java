@@ -10,6 +10,7 @@ import com.mobile.pomodoro.response_dto.DailyTaskDetailResponseDTO;
 import com.mobile.pomodoro.response_dto.DailyTaskListResponseDTO;
 import com.mobile.pomodoro.response_dto.MessageResponseDTO;
 import com.mobile.pomodoro.response_dto.PlanResponseDTO;
+import com.mobile.pomodoro.response_dto.SavePlanResponseDTO;
 import com.mobile.pomodoro.response_dto.TodoListResponseDTO;
 
 import retrofit2.Call;
@@ -27,7 +28,7 @@ public interface PomodoroAPI {
     Call<MessageResponseDTO> testLogin(@Body LoginRequestDTO loginRequestDTO);
 
     @POST("/api/v1/plan/save")
-    Call<PlanResponseDTO> savePlan(@Body PlanRequestDTO planRequest);
+    Call<SavePlanResponseDTO> savePlan(@Body PlanRequestDTO planRequest);
 
     @POST("/api/v1/plan/do-not-save")
     Call<PlanResponseDTO> startPlan(@Body PlanRequestDTO planRequest);
@@ -44,7 +45,7 @@ public interface PomodoroAPI {
     @DELETE("/api/v1/todos/{id}")
     Call<MessageResponseDTO> deleteTodo(@Path("id") long id);
 
-//    @GET("api/v1/daily-task/plan-to-edit/{id}")
+    //    @GET("api/v1/daily-task/plan-to-edit/{id}")
     @GET("api/v1/daily-task/{id}")
     Call<DailyTaskDetailResponseDTO> getPlanToEdit(@Path("id") long id);
 

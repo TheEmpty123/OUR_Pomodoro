@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class PlanResponseDTO {
-    private Long id;
-    private String title;
+    private Long planId;
+    private String planTitle;
     private List<PlanTaskResponseDTO> steps;
 }
