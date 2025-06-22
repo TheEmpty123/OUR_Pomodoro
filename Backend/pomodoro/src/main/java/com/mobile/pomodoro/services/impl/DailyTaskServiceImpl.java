@@ -52,7 +52,7 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
 
             List<SingleDailyTaskDTO> dailytaskDTOs = dailytasks.stream()
                     .map(dailytask -> SingleDailyTaskDTO.builder()
-                            .plan_id(dailytask.getPlanId())
+                            .plan_id(dailytask.getId())
                             .title(dailytask.getTitle())
                             .is_done(dailytask.getIsDone())
                             .build())
@@ -66,7 +66,26 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
             throw new RuntimeException("Failed");
         }
     }
+    //tao pthuc riêng để tái sự dụng cho create dailytask vs update dailytask(do yêu cầu là xóa và thêm mới)
+    private List<PlanTask> buildPlanTasks(Plan plan, DailyTaskRequestDTO request) {
+        List<PlanTask> planTasks = new ArrayList<>();
+        int order = 1;
+        for (int i = 0; i < request.getSteps().size(); i++) {
+            DailyTaskRequestDTO.StepRequest step = request.getSteps().get(i);
 
+            int fullDuration = step.getPlan_duration();
+            int halfDuration = fullDuration / 2;
+
+            planTasks.add(new PlanTask(plan, step.getPlan_title(), halfDuration, order++));
+            planTasks.add(new PlanTask(plan, "short break", request.getS_break_duration(), order++));
+            planTasks.add(new PlanTask(plan, step.getPlan_title(), fullDuration - halfDuration, order++));
+
+            if (i < request.getSteps().size() - 1) {
+                planTasks.add(new PlanTask(plan, "long break", request.getL_break_duration(), order++));
+            }
+        }
+        return planTasks;
+    }
     @Override
     public MessageResponseDTO createDailyTask(DailyTaskRequestDTO request, Long userId) {
         log.info("Bắt đầu tạo DailyTask cho userId: ", userId);
@@ -79,21 +98,7 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
                     .user(user)
                     .build();
             planRepository.save(plan);
-            List<PlanTask> planTasks = new ArrayList<>();
-            int order = 1;
-            for (int i = 0; i < request.getSteps().size(); i++) {
-                DailyTaskRequestDTO.StepRequest step = request.getSteps().get(i);
-
-                int fullDuration = step.getPlan_duration();
-                int halfDuration = fullDuration / 2;
-                planTasks.add(new PlanTask(plan, step.getPlan_title(), halfDuration, order++));
-
-                planTasks.add(new PlanTask(plan, "short break", request.getS_break_duration(), order++));
-                planTasks.add(new PlanTask(plan, step.getPlan_title(), fullDuration - halfDuration, order++));
-                if (i < request.getSteps().size() - 1) {
-                    planTasks.add(new PlanTask(plan, "long break", request.getL_break_duration(), order++));
-                }
-            }
+            List<PlanTask> planTasks = buildPlanTasks(plan, request);
             planTaskRepository.saveAll(planTasks);
             DailyTask dailyTask = DailyTask.builder()
                     .title(request.getTitle())
@@ -256,6 +261,46 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
         } catch (Exception e) {
             log.error(String.format("Lỗi khi xử lý plan-to-edit: %s", e.getMessage()), e);
             throw new RuntimeException("Không thể xử lý kế hoạch để chỉnh sửa: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public MessageResponseDTO updateDailyTask(Long id, DailyTaskRequestDTO request, User user) {
+        log.info("Update DailyTask ID: " + id + " for userId: " + (user != null ? user.getUserId() : "null"));
+        try {
+            Optional<DailyTask> dailyTaskOptional = dailyTaskRepository.findById(id);
+            if (!dailyTaskOptional.isPresent()) {
+                return new MessageResponseDTO("Không tìm thấy tác vụ hàng ngày");
+            }
+
+            DailyTask dailyTask = dailyTaskOptional.get();
+            if (!dailyTask.getUserId().equals(user.getUserId())) {
+                return new MessageResponseDTO("Không có quyền cập nhật tác vụ này");
+            }
+
+            Long planId = dailyTask.getPlanId();
+            if (planId == null) {
+                return new MessageResponseDTO("Tác vụ này không liên kết với kế hoạch");
+            }
+
+            dailyTask.setTitle(request.getTitle());
+            dailyTaskRepository.save(dailyTask);
+
+            Plan plan = planRepository.findById(planId)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy kế hoạch tương ứng"));
+            plan.setTitle(request.getDaily_task_description());
+            //b1 xoá id plan tương ứng
+            planTaskRepository.deleteByPlanId(planId);
+            log.info("Đã xóa các PlanTask cũ cho planId: {}", planId);
+            //b2 thêm plantask mới
+            List<PlanTask> newPlanTasks = buildPlanTasks(plan, request);
+            planTaskRepository.saveAll(newPlanTasks);
+            return new MessageResponseDTO("Cập nhật DailyTask thành công");
+        }
+        catch (Exception e) {
+            log.error("Error updating DailyTask ID: " + id);
+            log.error(e.getMessage());
+            return new MessageResponseDTO("Failed to update DailyTask");
         }
     }
 

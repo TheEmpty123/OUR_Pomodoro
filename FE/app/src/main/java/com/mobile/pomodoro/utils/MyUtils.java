@@ -2,8 +2,15 @@ package com.mobile.pomodoro.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-
+import com.mobile.pomodoro.enums.ApplicationMode;
 public class MyUtils {
+
+    public static ApplicationMode applicationMode;
+
+    static {
+        applicationMode = ApplicationMode.ONLINE;
+    }
+
     // 3 function dưới sử dụng để lưu các context cần thiết vào header sau đó gửi về backend
     public static void deleteKeyResponse(Context context, String key) {
         SharedPreferences sharedPreferences = context.getSharedPreferences("Mobile_APP", Context.MODE_PRIVATE);

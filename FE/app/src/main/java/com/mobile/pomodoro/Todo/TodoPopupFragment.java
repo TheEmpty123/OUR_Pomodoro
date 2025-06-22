@@ -15,9 +15,14 @@ import androidx.fragment.app.DialogFragment;
 
 import com.google.android.material.button.MaterialButton;
 import com.mobile.pomodoro.R;
+import com.mobile.pomodoro.enums.ApplicationMode;
 import com.mobile.pomodoro.request_dto.TodoRequestDTO;
 import com.mobile.pomodoro.response_dto.MessageResponseDTO;
 import com.mobile.pomodoro.response_dto.TodoResponseDTO;
+import com.mobile.pomodoro.room.AppDatabase;
+import com.mobile.pomodoro.room.DatabaseClient;
+import com.mobile.pomodoro.room.entity.TodoItem;
+import com.mobile.pomodoro.room.repo.SingleThreadRepo;
 import com.mobile.pomodoro.service.PomodoroService;
 import com.mobile.pomodoro.utils.LogObj;
 import com.mobile.pomodoro.utils.MyUtils;
@@ -99,6 +104,25 @@ public class TodoPopupFragment extends DialogFragment {
                 return;
             }
             Context context = getContext();
+
+            // ==================================OFFLINE==============================================
+            if (MyUtils.applicationMode == ApplicationMode.OFFLINE){
+                // If application running offline
+                if (todoItem == null){
+                    log.info("Creating new todo: " + title);
+                    var item = TodoItem.builder()
+                            .title(title)
+                            .isDone(0)
+                            .build();
+                    newTodo(item);
+
+                    if (callback != null) callback.onTodoCreated(); // gọi callback để reload
+                    dismiss(); // đóng popup
+                }
+                return;
+                // ==============================OFFLINE==============================================
+            }
+
             var username = MyUtils.get(context, "username"); // Lấy username
             if (username == null || username.trim().isEmpty()) {
                 log.error("Username is null or empty");
@@ -199,5 +223,23 @@ public class TodoPopupFragment extends DialogFragment {
         });
         builder.setView(view);
         return builder.create();
+    }
+
+    private void newTodo(TodoItem todo){
+        // Create new todo
+        // ==================================OFFLINE==============================================
+        // Application is running offline
+        log.info("Saving todo to local storage");
+        /** Fetch todo using room storage
+         * 1. Get AppDatabase
+         * 2. Create new background thread
+         * 3. Insert
+         */
+        AppDatabase db = DatabaseClient.getInstance(getContext()).getAppDatabase();    // 1.
+        SingleThreadRepo repo = new SingleThreadRepo(db.todoItem());   // 2.
+        repo.insert(todo);
+
+
+        // ==================================OFFLINE==============================================
     }
 }
