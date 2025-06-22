@@ -87,6 +87,19 @@ public class SingleThreadRepo<T>{
         });
     }
 
+    public void delete(Long id){
+        executor.execute(() -> {
+            try {
+                var item = repo.getById(id);
+                repo.delete(item);
+            }
+            catch (Exception e){
+                log.error("Error occurred while deleting todo id: " + id);
+                log.error(e.getMessage());
+            }
+        });
+    }
+
     public void cleanUp(){
         if (executor != null && !executor.isShutdown()){
             log.info("Shutting down " + executor);
