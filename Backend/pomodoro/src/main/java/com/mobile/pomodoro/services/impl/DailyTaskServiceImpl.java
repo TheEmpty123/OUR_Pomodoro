@@ -260,6 +260,20 @@ public class DailyTaskServiceImpl extends AService implements IDailyTaskService 
     }
 
     @Override
+    public MessageResponseDTO updateDailyTask(Long id, DailyTaskRequestDTO request, User user) {
+        log.info("Update DailyTask ID: " + id + " for userId: " + (user != null ? user.getUserId() : "null"));
+        try {
+
+        }
+        catch (Exception e) {
+            log.error("Error updating DailyTask ID: " + id);
+            log.error(e.getMessage());
+            return new MessageResponseDTO("Failed to update DailyTask");
+        }
+        return null;
+    }
+
+    @Override
     public MessageResponseDTO completeDailyTask(Long id, User user) {
         log.info("Bắt đầu đánh dấu hoàn thành DailyTask ID: " + id + " cho userId: " + (user != null ? user.getUserId() : "null"));
         try {
