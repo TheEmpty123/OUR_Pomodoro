@@ -65,11 +65,13 @@ public class DailyTaskActivity extends NavigateActivity {
         // Tải danh sách Daily Task
         loadDailyTasks();
     }
+
+    // Nhận thông báo thành công và load lại danh sách sau khi ( thêm, xóa, hoàn thành)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if ((requestCode == 1001 || requestCode == 1002) && resultCode == RESULT_OK) {
-            log.info("Daily Task was added, reloading list...");
+            log.info("Daily Task reloading ...");
             loadDailyTasks();  // Gọi lại API
         }
     }

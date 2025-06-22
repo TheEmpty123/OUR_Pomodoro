@@ -372,7 +372,8 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().getMessage().equals("Succeed")) {
                     log.info("Daily Task saved successfully");
-                    Toast.makeText(PlanActivity.this, "Thêm Daily Task thành công", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PlanActivity.this, "Added Daily Task successfully", Toast.LENGTH_SHORT).show();
+                    //Hoàn thành chuyển lại trang DailyTask
                     Intent resultIntent = new Intent();
                     setResult(RESULT_OK, resultIntent);
                     finish();
@@ -495,6 +496,7 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
                 if (response.isSuccessful() && response.body() != null && response.body().getMessage().equals("Succeed")) {
                     log.info("Daily Task updated successfully");
                     Toast.makeText(PlanActivity.this, "UPDATE SUCCESS", Toast.LENGTH_SHORT).show();
+                    //Hoàn thành chuyển lại trang DailyTask
                     Intent resultIntent = new Intent();
                     setResult(Activity.RESULT_OK, resultIntent);
                     finish();
@@ -524,9 +526,12 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
                 if (response.isSuccessful()) {
                     MessageResponseDTO body = response.body();
-                    if (body != null && body.getMessage().equalsIgnoreCase("Succeed")) {
+                    if (body != null && body.getMessage().toLowerCase().contains("thành công")) {
                         log.info("Daily Task deleted successfully");
                         Toast.makeText(PlanActivity.this, "Deleted successfully", Toast.LENGTH_SHORT).show();
+                        //Hoàn thành chuyển lại trang DailyTask
+                        Intent resultIntent = new Intent();
+                        setResult(RESULT_OK, resultIntent);
                         finish();
                     } else {
                         log.warn("Delete failed with message: " + (body != null ? body.getMessage() : "null"));
@@ -551,9 +556,12 @@ public class PlanActivity extends NavigateActivity implements AddPlanFragment.On
             public void onResponse(Call<MessageResponseDTO> call, Response<MessageResponseDTO> response) {
                 if (response.isSuccessful()) {
                     MessageResponseDTO body = response.body();
-                    if (body != null && body.getMessage().equalsIgnoreCase("Succeed")) {
+                    if (body != null && body.getMessage().toLowerCase().contains("hoàn thành")) {
                         log.info("Daily Task marked as completed");
                         Toast.makeText(PlanActivity.this, "Marked as completed", Toast.LENGTH_SHORT).show();
+                        //Hoàn thành chuyển lại trang DailyTask
+                        Intent resultIntent = new Intent();
+                        setResult(RESULT_OK, resultIntent);
                         finish();
                     } else {
                         log.warn("Complete failed with message: " + (body != null ? body.getMessage() : "null"));
