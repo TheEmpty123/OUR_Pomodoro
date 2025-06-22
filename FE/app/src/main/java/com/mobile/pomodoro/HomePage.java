@@ -146,17 +146,8 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
                 sessionManager.initializeSession(new ArrayList<>(steps)); // chuyển sang List để SessionManager quản lý
                 log.info("Steps loaded from intent: " + steps.size());
 
-                // Cập nhật timer cho plan
-                PlanTaskResponseDTO firstTask = steps.get(0);
-                long firstDurationInMillis = firstTask.getPlan_duration() * 1000L;
-                if (firstDurationInMillis > 0) {
-                    TimerMode.FOCUS.updateDuration(firstDurationInMillis);
-                    if (timerService.getCurrentMode() != TimerMode.FOCUS) {
-                        timerService.switchToMode(TimerMode.FOCUS);
-                    }
-                    // Đặt thời gian cho timer
-                    timerService.restoreTimerState(firstDurationInMillis, false);
-                }
+                // Cập nhật timer cho tất cả các loại task
+                updateTimerFromSteps(steps);
 
                 sessionManager.updateSessionIndicators(indicators);
                 if (log != null) {
@@ -516,22 +507,29 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
         if (task != null) {
             // có task mới thì cập nhật UI
             currentTaskText.setText(task.getPlan_title());
-            // tự chuyển về tab focus khi có task
-            if (timerService.getCurrentMode() != TimerMode.FOCUS) {
-                timerService.switchToMode(TimerMode.FOCUS);
+
+            // Phát hiện loại task dựa vào tên và chuyển sang mode tương ứng
+            TimerMode targetMode = detectTaskMode(task);
+
+            if (timerService.getCurrentMode() != targetMode) {
+                timerService.switchToMode(targetMode);
                 updateModeUI(); // hiển thị tab active
-                Toast.makeText(this, "Chuyển về Focus mode", Toast.LENGTH_SHORT).show();
+
+                String modeName = getModeName(targetMode);
+                Toast.makeText(this, "Chuyển sang " + modeName, Toast.LENGTH_SHORT).show();
             }
 
-            // nếu task có timer riêng thì cập nhật lại timer duration
+            // Cập nhật timer duration cho mode hiện tại
             if (task.getPlan_duration() > 0) {
-                // Cập nhật duration cho FOCUS mode (vì đã switch về FOCUS rồi)
-                TimerManager.updateTimerModeFromSeconds(this, TimerMode.FOCUS, task.getPlan_duration());
+                // Cập nhật duration cho mode tương ứng
+                TimerManager.updateTimerModeFromSeconds(this, targetMode, task.getPlan_duration());
 
                 // Khởi tạo lại timer với thời gian mới
                 if (!timerService.isTimerRunning()) {
-                    timerService.initializeTimer(TimerMode.FOCUS);
+                    timerService.initializeTimer(targetMode);
                 }
+
+                log.info("Updated timer for " + targetMode + ": " + (task.getPlan_duration() / 60) + " minutes");
             }
 
             TimerAnimationHelper.animateTaskTransition(currentTaskText);
@@ -603,5 +601,90 @@ public class HomePage extends NavigateActivity implements TimerService.TimerCall
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
         super.onPointerCaptureChanged(hasCapture);
+    }
+
+    // Phát hiện loại task dựa vào tên
+    private TimerMode detectTaskMode(PlanTaskResponseDTO task) {
+        if (task == null || task.getPlan_title() == null) {
+            return TimerMode.FOCUS; // Default
+        }
+
+        String taskName = task.getPlan_title().toLowerCase().trim();
+
+        if (taskName.contains("short break") || taskName.contains("nghỉ ngắn")) {
+            return TimerMode.SHORT_BREAK;
+        } else if (taskName.contains("long break") || taskName.contains("nghỉ dài")) {
+            return TimerMode.LONG_BREAK;
+        } else {
+            return TimerMode.FOCUS; // Focus tasks hoặc các task khác
+        }
+    }
+
+    // Lấy tên mode để hiển thị
+    private String getModeName(TimerMode mode) {
+        switch (mode) {
+            case FOCUS:
+                return "Focus Time";
+            case SHORT_BREAK:
+                return "Short Break";
+            case LONG_BREAK:
+                return "Long Break";
+            default:
+                return "Focus Time";
+        }
+    }
+
+    // Cập nhật timer cho tất cả các loại task từ danh sách steps
+    private void updateTimerFromSteps(List<PlanTaskResponseDTO> steps) {
+        PlanTaskResponseDTO firstFocusTask = null;
+        int shortBreakDuration = -1;
+        int longBreakDuration = -1;
+
+        for (PlanTaskResponseDTO step : steps) {
+            if (step.getPlan_title() != null && step.getPlan_duration() > 0) {
+                String taskName = step.getPlan_title().toLowerCase().trim();
+
+                if (taskName.contains("short break") || taskName.contains("nghỉ ngắn")) {
+                    // Cập nhật Short Break time
+                    shortBreakDuration = step.getPlan_duration();
+                    TimerManager.updateTimerModeFromSeconds(this, TimerMode.SHORT_BREAK, step.getPlan_duration());
+                    log.info("Updated SHORT_BREAK time: " + (step.getPlan_duration() / 60) + " minutes");
+
+                } else if (taskName.contains("long break") || taskName.contains("nghỉ dài")) {
+                    // FIX: Cập nhật Long Break time
+                    longBreakDuration = step.getPlan_duration();
+                    TimerManager.updateTimerModeFromSeconds(this, TimerMode.LONG_BREAK, step.getPlan_duration());
+                    log.info("Updated LONG_BREAK time: " + (step.getPlan_duration() / 60) + " minutes");
+
+                } else if (firstFocusTask == null) {
+                    // Lưu focus task đầu tiên để cập nhật sau
+                    firstFocusTask = step;
+                }
+            }
+        }
+        if (firstFocusTask != null) {
+            TimerManager.updateTimerModeFromSeconds(this, TimerMode.FOCUS, firstFocusTask.getPlan_duration());
+            log.info("Updated FOCUS time: " + (firstFocusTask.getPlan_duration() / 60) + " minutes");
+
+            // Chỉ khởi tạo timer FOCUS đang ở FOCUS mode
+            if (timerService.getCurrentMode() == TimerMode.FOCUS) {
+                timerService.restoreTimerState(firstFocusTask.getPlan_duration() * 1000L, false);
+                log.info("Restored FOCUS timer with " + (firstFocusTask.getPlan_duration() / 60) + " minutes");
+            }
+        }
+
+        // FIX: Log final timer settings để debug
+        log.info("Final timer settings after update:");
+        if (firstFocusTask != null) {
+            log.info("- FOCUS: " + (firstFocusTask.getPlan_duration() / 60) + " minutes");
+        }
+        if (shortBreakDuration > 0) {
+            log.info("- SHORT_BREAK: " + (shortBreakDuration / 60) + " minutes");
+        }
+        if (longBreakDuration > 0) {
+            log.info("- LONG_BREAK: " + (longBreakDuration / 60) + " minutes");
+        } else {
+            log.warn("- LONG_BREAK: Not found in steps (normal for single task)");
+        }
     }
 }
